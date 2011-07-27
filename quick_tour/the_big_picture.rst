@@ -44,7 +44,7 @@ Después de extraer el paquete bajo el directorio raíz del servidor web, deber�
 
 .. note::
 
-    Por último, si descargaste la edición estándar *sin proveedores*, simplemente ejecuta la siguiente orden para descargar todas las bibliotecas de proveedores:
+    Si descargaste la *Edición estándar* ``sin vendors``, basta con ejecutar la siguiente orden para descargar todas las bibliotecas de proveedores:
 
     .. code-block:: bash
 

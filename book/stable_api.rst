@@ -10,23 +10,28 @@ La API estable de Symfony2 es un subconjunto de todos los métodos públicos de 
 
 Sin embargo, la imprementación en sí misma puede cambiar. El único caso válido para un cambio en la API estable es con el fin de corregir un problema de seguridad.
 
-.. note::
-
-    La API estable se basa en una lista blanca. Por lo tanto, todo lo no mencionado explícitamente en este documento no forma parte de la API estable.
-
-.. note::
-
-    Se trata de un trabajo en curso y la lista definitiva se publicará cuando Symfony2 final sea liberado. Mientras tanto, si piensas que algunos métodos merecen estar en esta lista, tienes que iniciar un debate en la lista de correo de los desarrolladores de Symfony.
-
-.. tip::
-
-    Cualquier método que forma parte de la API estable está marcado como tal en la página web de la API de Symfony2 (tiene la anotación ``@stable``).
+La API estable se basa en una lista blanca, marcada con ``@api``. Por lo tanto, todo lo no etiquetado explícitamente no es parte de la API estable.
 
 .. tip::
 
     Cualquier paquete de terceros también deberá publicar su propia API estable.
 
-Componente ``HttpKernel``
--------------------------
+A partir de Symfony 2.0, los siguientes componentes tienen una API etiquetada pública:
 
-* HttpKernelInterface:: :method:`Symfony\\Component\\HttpKernel\\HttpKernelInterface::handle`
+* BrowserKit
+* ClassLoader
+* Console
+* CssSelector
+* DependencyInjection
+* DomCrawler
+* EventDispatcher
+* Finder
+* HttpFoundation
+* HttpKernel
+* Locale
+* Process
+* Routing
+* Templating
+* Translation
+* Validator
+* Yaml
