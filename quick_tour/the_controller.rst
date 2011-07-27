@@ -214,7 +214,7 @@ El recurso memorizado en caché es gestionado por el sustituto inverso integrado
 
 .. note::
 
-    Pero ¿qué pasa si no puedes guardar en caché todas las páginas? Symfony2 todavía tiene la solución vía |ESI| (Edge Side Includes o Inclusión del borde lateral), con la cual es compatible nativamente. Consigue más información leyendo el capítulo ":doc:`/book/http_cache`" del libro.
+    Pero ¿qué pasa si no puedes guardar en caché todas las páginas? Symfony2 todavía tiene la solución vía ESI (Edge Side Includes o Inclusión de borde lateral), con la cual es compatible nativamente. Consigue más información leyendo el capítulo ":doc:`/book/http_cache`" del libro.
 
 Consideraciones finales
 -----------------------

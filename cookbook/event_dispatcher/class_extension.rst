@@ -15,16 +15,16 @@ Para permitir que varias clases agreguen métodos a otra, puedes definir el mét
         public function __call($method, $arguments)
         {
             // crea un evento llamado 'foo.method_is_not_found'
-            $event = new HandleUndefinedMethodEvent($this, $method, $arguments);
-            $this->dispatcher->dispatch($this, 'foo.method_is_not_found', $event);
+            $evento = new HandleUndefinedMethodEvent($this, $method, $arguments);
+            $this->despachador->dispatch($this, 'foo.method_is_not_found', $evento);
 
             // ¿ningún escucha es capaz de procesar el evento? El método no existe
-            if (!$event->isProcessed()) {
+            if (!$evento->isProcessed()) {
                 throw new \Exception(sprintf('Call to undefined method %s::%s.', get_class($this), $method));
             }
 
             // devuelve el escucha del valor de retorno
-            return $event->getReturnValue();
+            return $evento->getReturnValue();
         }
     }
 
@@ -91,25 +91,25 @@ A continuación, crea una clase que debe escuchar el evento ``foo.method_is_not_
 
     class Bar
     {
-        public function onFooMethodIsNotFound(HandleUndefinedMethodEvent $event)
+        public function onFooMethodIsNotFound(HandleUndefinedMethodEvent $evento)
         {
             // únicamente deseamos responder a las llamadas al método 'bar'
-            if ('bar' != $event->getMethod()) {
+            if ('bar' != $evento->getMethod()) {
                 // permite que otro escucha se preocupe del método desconocido devuelto
                 return;
             }
 
             // el objeto subject (la instancia foo)
-            $foo = $event->getSubject();
+            $foo = $evento->getSubject();
 
             // los argumentos del método bar
-            $arguments = $event->getArguments();
+            $arguments = $evento->getArguments();
 
             // Hacer alguna cosa
             // ...
 
             // fija el valor de retorno
-            $event->setReturnValue($someValue);
+            $evento->setReturnValue($someValue);
         }
     }
 
@@ -118,4 +118,4 @@ Por último, agrega el nuevo método ``bar`` a la clase ``Foo`` registrando una 
 .. code-block:: php
 
     $bar = new Bar();
-    $dispatcher->addListener('foo.method_is_not_found', $bar);
+    $despachador->addListener('foo.method_is_not_found', $bar);

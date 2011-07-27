@@ -21,13 +21,13 @@ El siguiente código de configuración muestra cómo puedes configurar dos gesto
                         connection:       default
                         mappings:
                             AcmeDemoBundle: ~
-                            AcmeTiendaBundle: ~
+                            AcmeGuardaBundle: ~
                     customer:
                         connection:       customer
                         mappings:
                             AcmeCustomerBundle: ~
 
-En este caso, hemos definido dos gestores de entidad y los llamamos ``default`` y ``customer``. El gestor de entidad ``default`` administra cualquier entidad en los paquetes ``AcmeDemoBundle`` y ``AcmeTiendaBundle``, mientras que el gestor de entidad ``customer`` gestiona cualquiera en el paquete ``AcmeCustomerBundle``.
+En este caso, hemos definido dos gestores de entidad y los llamamos ``default`` y ``customer``. El gestor de entidad ``default`` administra cualquier entidad en los paquetes ``AcmeDemoBundle`` y ``AcmeGuardaBundle``, mientras que el gestor de entidad ``customer`` gestiona cualquiera en el paquete ``AcmeCustomerBundle``.
 
 Cuando trabajas con tus administradores de entidad, entonces debes ser explícito acerca de cual gestor de entidad deseas. Si *no* omites el nombre del gestor de entidad al consultar por él, se devuelve el gestor de entidad predeterminado (es decir, ``default``)::
 

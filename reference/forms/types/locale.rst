@@ -6,7 +6,7 @@ Tipo de campo locale
 
 El tipo ``locale`` es un subconjunto de ``ChoiceType`` que permite al usuario seleccionar entre una larga lista de regiones (idioma + país). Como bono adicional, los nombres regionales se muestran en el idioma del usuario.
 
-El "valor" de cada localidad es o bien el del código de *idioma* de dos letras ISO639-1 (por ejemplo, ``es``), o el código de idioma seguido de un guión bajo (``_``), entonces el código de *país* ISO3166 (por ejemplo, ``es_ES`` para el Francés/Francia).
+El "valor" de cada localidad es o bien el del código de *idioma* de dos letras ISO639-1 (por ejemplo, ``es``), o el código de idioma seguido de un guión bajo (``_``), entonces el código de *país* ISO3166 (por ejemplo, ``es_ES`` para el Español/España).
 
 .. note::
 

@@ -104,20 +104,20 @@ En esta sección, recorreremos cada paso necesario para empezar a persistir docu
 
 .. sidebar:: Código del ejemplo
 
-    Si quieres seguir el ejemplo de este capítulo, crea el paquete ``AcmeTiendaBundle`` ejecutando la orden:
+    Si quieres seguir el ejemplo de este capítulo, crea el paquete ``AcmeGuardaBundle`` ejecutando la orden:
 
     .. code-block:: bash
 
-        php app/console generate:bundle --namespace=Acme/TiendaBundle
+        php app/console generate:bundle --namespace=Acme/GuardaBundle
 
 Creando una clase Documento
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Supongamos que estás construyendo una aplicación donde necesitas mostrar tus productos.
-Sin siquiera pensar en Doctrine o MongoDB, ya sabes que necesitas un objeto ``Producto`` para representar los productos. Crea esta clase en el directorio ``Documento`` de tu ``AcmeTiendaBundle``::
+Sin siquiera pensar en Doctrine o MongoDB, ya sabes que necesitas un objeto ``Producto`` para representar los productos. Crea esta clase en el directorio ``Documento`` de tu ``AcmeGuardaBundle``::
 
-    // src/Acme/TiendaBundle/Document/Producto.php
-    namespace Acme\TiendaBundle\Document;
+    // src/Acme/GuardaBundle/Document/Producto.php
+    namespace Acme\GuardaBundle\Document;
 
     class Producto
     {
@@ -128,8 +128,8 @@ Sin siquiera pensar en Doctrine o MongoDB, ya sabes que necesitas un objeto ``Pr
 
 La clase - a menudo llamada "documento", es decir, *una clase básica que contiene los datos* - es simple y ayuda a cumplir con el requisito del negocio de que tu aplicación necesita productos. Esta clase, todavía no se puede persistir a Doctrine MongoDB - es sólo una clase PHP simple.
 
-Agrega información de asignación
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Agregando información de asignación
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Doctrine te permite trabajar con MongoDB de una manera mucho más interesante que solo recuperar datos de un lado a otro como una matriz. En cambio, Doctrine te permite persistir *objetos* completos a MongoDB y recuperar objetos enteros desde MongoDB. Esto funciona asignando una clase PHP y sus propiedades a las entradas de una colección MongoDB.
 
@@ -139,8 +139,8 @@ Para que Doctrine sea capaz de hacer esto, sólo tienes que crear "metadatos", o
 
     .. code-block:: php-annotations
 
-        // src/Acme/TiendaBundle/Document/Producto.php
-        namespace Acme\TiendaBundle\Document;
+        // src/Acme/GuardaBundle/Document/Producto.php
+        namespace Acme\GuardaBundle\Document;
 
         use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
@@ -167,8 +167,8 @@ Para que Doctrine sea capaz de hacer esto, sólo tienes que crear "metadatos", o
 
     .. code-block:: yaml
 
-        # src/Acme/TiendaBundle/Resources/config/doctrine/Producto.mongodb.yml
-        Acme\TiendaBundle\Document\Producto:
+        # src/Acme/GuardaBundle/Resources/config/doctrine/Producto.mongodb.yml
+        Acme\GuardaBundle\Document\Producto:
             fields:
                 id:
                     id:  true
@@ -179,13 +179,13 @@ Para que Doctrine sea capaz de hacer esto, sólo tienes que crear "metadatos", o
 
     .. code-block:: xml
 
-        <!-- src/Acme/TiendaBundle/Resources/config/doctrine/Producto.mongodb.xml -->
+        <!-- src/Acme/GuardaBundle/Resources/config/doctrine/Producto.mongodb.xml -->
         <doctrine-mongo-mapping xmlns="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping
                             http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping.xsd">
 
-            <document name="Acme\TiendaBundle\Document\Producto">
+            <document name="Acme\GuardaBundle\Document\Producto">
                 <field fieldName="id" id="true" />
                 <field fieldName="name" type="string" />
                 <field fieldName="precio" type="float" />
@@ -205,7 +205,7 @@ A pesar de que Doctrine ya sabe cómo persistir un objeto ``Producto`` a MongoDB
 
 .. code-block:: bash
 
-    php app/console doctrine:mongodb:generate:documents AcmeTiendaBundle
+    php app/console doctrine:mongodb:generate:documents AcmeGuardaBundle
 
 Esta orden se asegura de que se generen todos los captadores y definidores para la clase ``Producto``. Esta es una orden segura - la puedes ejecutar una y otra vez: sólo genera captadores y definidores que no existen (es decir, no sustituye métodos existentes).
 
@@ -222,8 +222,8 @@ Ahora que tienes asignado un documento ``Producto`` completo, con métodos capta
 .. code-block:: php
     :linenos:
 
-    // src/Acme/TiendaBundle/Controller/DefaultController.php
-    use Acme\TiendaBundle\Document\Producto;
+    // src/Acme/GuardaBundle/Controller/DefaultController.php
+    use Acme\GuardaBundle\Document\Producto;
     use Symfony\Component\HttpFoundation\Response;
     // ...
 
@@ -272,7 +272,7 @@ Recuperar un objeto de MongoDB incluso es más fácil. Por ejemplo, supongamos q
     public function showAction($id)
     {
         $producto = $this->get('doctrine.odm.mongodb.document_manager')
-            ->getRepository('AcmeTiendaBundle:Producto')
+            ->getRepository('AcmeGuardaBundle:Producto')
             ->find($id);
 
         if (!$producto) {
@@ -285,11 +285,11 @@ Recuperar un objeto de MongoDB incluso es más fácil. Por ejemplo, supongamos q
 Al consultar por un determinado tipo de objeto, siempre utilizas lo que se conoce como "repositorio". Puedes pensar en un repositorio como una clase PHP, cuyo único trabajo consiste en ayudarte a buscar los objetos de una determinada clase. Puedes acceder al repositorio de objetos de una clase de documento vía::
 
     $repositorio = $this->get('doctrine.odm.mongodb.document_manager')
-        ->getRepository('AcmeTiendaBundle:Producto');
+        ->getRepository('AcmeGuardaBundle:Producto');
 
 .. note::
 
-    La cadena ``AcmeTiendaBundle:Producto`` es un método abreviado que puedes utilizar en cualquier lugar de Doctrine en lugar del nombre completo de la clase del documento (es decir, ``Acme\TiendaBundle\Document\Producto``).
+    La cadena ``AcmeGuardaBundle:Producto`` es un método abreviado que puedes utilizar en cualquier lugar de Doctrine en lugar del nombre completo de la clase del documento (es decir, ``Acme\GuardaBundle\Document\Producto``).
     Mientras tu documento viva en el espacio de nombres ``Document`` de tu paquete, esto va a funcionar.
 
 Una vez que tengas tu repositorio, tienes acceso a todo tipo de útiles métodos::
@@ -330,7 +330,7 @@ Una vez que hayas extraído un objeto de Doctrine, actualizarlo es relativamente
     public function updateAction($id)
     {
         $dm = $this->get('doctrine.odm.mongodb.document_manager');
-        $producto = $dm->getRepository('AcmeTiendaBundle:Producto')->find($id);
+        $producto = $dm->getRepository('AcmeGuardaBundle:Producto')->find($id);
 
         if (!$producto) {
             throw $this->createNotFoundException('Ningún producto encontrado con id '.$id);
@@ -373,7 +373,7 @@ El ODM de Doctrine viene con un objeto "Constructor" de consultas, el cual te pe
 Desde el interior de un controlador::
 
     $productos = $this->get('doctrine.odm.mongodb.document_manager')
-        ->createQueryBuilder('AcmeTiendaBundle:Producto')
+        ->createQueryBuilder('AcmeGuardaBundle:Producto')
         ->field('nombre')->equals('foo')
         ->limit(10)
         ->sort('precio', 'ASC')
@@ -395,13 +395,13 @@ Para ello, agrega el nombre de la clase del repositorio a la definición de asig
 
     .. code-block:: php-annotations
 
-        // src/Acme/TiendaBundle/Document/Producto.php
-        namespace Acme\TiendaBundle\Document;
+        // src/Acme/GuardaBundle/Document/Producto.php
+        namespace Acme\GuardaBundle\Document;
 
         use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
         /**
-         * @MongoDB\Document(repositoryClass="Acme\TiendaBundle\Repository\ProductoRepository")
+         * @MongoDB\Document(repositoryClass="Acme\GuardaBundle\Repository\ProductoRepository")
          */
         class Producto
         {
@@ -410,22 +410,22 @@ Para ello, agrega el nombre de la clase del repositorio a la definición de asig
 
     .. code-block:: yaml
 
-        # src/Acme/TiendaBundle/Resources/config/doctrine/Producto.mongodb.yml
-        Acme\TiendaBundle\Document\Producto:
-            repositoryClass: Acme\TiendaBundle\Repository\ProductoRepository
+        # src/Acme/GuardaBundle/Resources/config/doctrine/Producto.mongodb.yml
+        Acme\GuardaBundle\Document\Producto:
+            repositoryClass: Acme\GuardaBundle\Repository\ProductoRepository
             # ...
 
     .. code-block:: xml
 
-        <!-- src/Acme/TiendaBundle/Resources/config/doctrine/Producto.mongodb.xml -->
+        <!-- src/Acme/GuardaBundle/Resources/config/doctrine/Producto.mongodb.xml -->
         <!-- ... -->
         <doctrine-mongo-mapping xmlns="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping
                             http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping.xsd">
 
-            <document name="Acme\TiendaBundle\Document\Producto"
-                    repository-class="Acme\TiendaBundle\Repository\ProductoRepository">
+            <document name="Acme\GuardaBundle\Document\Producto"
+                    repository-class="Acme\GuardaBundle\Repository\ProductoRepository">
                 <!-- ... -->
             </document>
 
@@ -435,14 +435,14 @@ Doctrine puede generar la clase repositorio para ti ejecutando:
 
 .. code-block:: bash
 
-    php app/console doctrine:mongodb:generate:repositories AcmeTiendaBundle
+    php app/console doctrine:mongodb:generate:repositories AcmeGuardaBundle
 
 A continuación, agrega un nuevo método - ``findAllOrderedByName()`` - a la clase repositorio recién generada. Este método de consulta será para todos los documentos ``Producto``, ordenados alfabéticamente.
 
 .. code-block:: php
 
-    // src/Acme/TiendaBundle/Repository/ProductoRepository.php
-    namespace Acme\TiendaBundle\Repository;
+    // src/Acme/GuardaBundle/Repository/ProductoRepository.php
+    namespace Acme\GuardaBundle\Repository;
 
     use Doctrine\ODM\MongoDB\DocumentRepository;
 
@@ -460,7 +460,7 @@ A continuación, agrega un nuevo método - ``findAllOrderedByName()`` - a la cla
 Puedes utilizar este nuevo método al igual que los métodos de búsqueda predeterminados del repositorio::
 
     $producto = $this->get('doctrine.odm.mongodb.document_manager')
-        ->getRepository('AcmeTiendaBundle:Producto')
+        ->getRepository('AcmeGuardaBundle:Producto')
         ->findAllOrderedByName();
 
 
@@ -555,10 +555,10 @@ En Symfony, puedes registrar un escucha o suscriptor creando un :term:`servicio`
 
         .. code-block:: php
 
-            $definition = new Definition('Acme\HolaBundle\Listener\MyDoctrineListener');
+            $definicion = new Definition('Acme\HolaBundle\Listener\MyDoctrineListener');
             // ...
-            $definition->addTag('doctrine.odm.mongodb.default_event_listener');
-            $contenedor->setDefinition('my_doctrine_listener', $definition);
+            $definicion->addTag('doctrine.odm.mongodb.default_event_listener');
+            $contenedor->setDefinition('my_doctrine_listener', $definicion);
 
 * **Suscriptor de evento**: Utiliza la etiqueta ``doctrine.odm.mongodb.<conexión>_event_subscriber``. Ninguna otra clave es necesaria en la etiqueta.
 

@@ -46,7 +46,7 @@ También lo puedes establecer a ``false`` para ocultar el símbolo de moneda.
 **tipo**: ``integer`` **predeterminado**: ``1``
 
 Si, por alguna razón, tienes que dividir tu valor inicial por un número antes de reproducirlo para el usuario, puedes utilizar la opción ``divisor``.
-Por ejemplo:
+Por ejemplo::
 
     $builder->add('precio', 'money', array(
         'divisor' => 100,

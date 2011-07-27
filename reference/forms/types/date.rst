@@ -1,8 +1,8 @@
 .. index::
    single: Formularios; Campos; date
 
-Tipo de campo date
-==================
+Tipo de campo ``date``
+======================
 
 Un campo que permite al usuario modificar información de fecha a través de una variedad de diferentes elementos HTML.
 
@@ -10,26 +10,26 @@ Los datos subyacentes utilizados para este tipo de campo pueden ser un objeto ``
 
 El campo se puede reproducir como un cuadro de texto, tres cuadros de texto (mes, día y año) o tres cuadros de selección (ve la opción `widget`_).
 
-+----------------------+-----------------------------------------------------------------------------+
-| Tipo de dato         | puede ser ``DateTime``, string, timestamp, o array (consulta la opción      |
-| subyacente           | ``input``)                                                                  |
-+----------------------+-----------------------------------------------------------------------------+
-| Reproducido como     | cuadro de texto o tres campos de selección                                  |
-+----------------------+-----------------------------------------------------------------------------+
-| Opciones             | - `widget`_                                                                 |
-|                      | - `input`_                                                                  |
-|                      | - `years`_                                                                  |
-|                      | - `months`_                                                                 |
-|                      | - `days`_                                                                   |
-|                      | - `format`_                                                                 |
-|                      | - `pattern`_                                                                |
-|                      | - `data_timezone`_                                                          |
-|                      | - `user_timezone`_                                                          |
-+----------------------+-----------------------------------------------------------------------------+
-| Tipo del padre       | ``field`` (si es texto), de lo contrario ``form``                           |
-+----------------------+-----------------------------------------------------------------------------+
-| Clase                | :class:`Symfony\\Component\\Form\\Extension\\Core\\Type\\DateType`          |
-+----------------------+-----------------------------------------------------------------------------+
++-------------------------+-----------------------------------------------------------------------------+
+| Tipo de dato subyacente | puede ser ``DateTime``, string, timestamp, o array (ve la opción ``input``) |
++-------------------------+-----------------------------------------------------------------------------+
+| Reproducido cómo        | un sólo campo de texto o tres campos de selección                           |
++-------------------------+-----------------------------------------------------------------------------+
+| Opciones                | - `widget`_                                                                 |
+|                         | - `input`_                                                                  |
+|                         | - `empty_value`_                                                            |
+|                         | - `years`_                                                                  |
+|                         | - `months`_                                                                 |
+|                         | - `days`_                                                                   |
+|                         | - `format`_                                                                 |
+|                         | - `pattern`_                                                                |
+|                         | - `data_timezone`_                                                          |
+|                         | - `user_timezone`_                                                          |
++-------------------------+-----------------------------------------------------------------------------+
+| Tipo del padre          | ``field`` (su es texto), ``form`` en cualquier otro caso                    |
++-------------------------+-----------------------------------------------------------------------------+
+| Clase                   | :class:`Symfony\\Component\\Form\\Extension\\Core\\Type\\DateType`          |
++-------------------------+-----------------------------------------------------------------------------+
 
 Uso básico
 ----------
@@ -64,6 +64,23 @@ Opciones del campo
 .. _form-reference-date-input:
 
 .. include:: /reference/forms/types/options/date_input.rst.inc
+
+``empty_value``
+~~~~~~~~~~~~~~~
+
+**tipo**: ``string``|``array``
+
+Si la opción de elemento gráfico se ajusta a ``choice``, entonces este campo se reproduce como una serie de cajas de ``selección``. La opción ``empty_value`` se puede utilizar para agregar una entrada "en blanco"  en la parte superior de cada caja de selección:
+
+    $builder->add('fechaVencimiento', 'date', array(
+        'empty_value' => '',
+    ));
+
+Alternativamente, puedes especificar una cadena que se mostrará en lugar del valor "en blanco"::
+
+    $builder->add('fechaVencimiento', 'date', array(
+        'empty_value' => array('year' => 'Año', 'month' => 'Mes', 'day' => 'Día')
+    ));
 
 .. include:: /reference/forms/types/options/years.rst.inc
 

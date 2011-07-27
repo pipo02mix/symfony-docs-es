@@ -78,7 +78,7 @@ Cabe señalar que Symfony2 no viene con un asignador objeto↔relacional (ORM) o
    El acrónimo "ORM" significa "Object Relational Mapping" y representa una técnica de programación consistente en la conversión de datos entre sistemas de tipos incompatibles. Digamos que tenemos un ``Post``, que se almacena como un conjunto de columnas en una base de datos, pero representada por una instancia de la clase ``Post`` en tu aplicación. Al proceso de transformar de una tabla de base de datos a un objeto se le conoce cómo *asignación de relación a objeto*.
    También veremos que este término es un poco anticuado, ya que se utiliza en el tratamiento de sistemas de gestión de base de datos relacionales. Hoy día existen muchos mecanismos de almacenamiento de datos no relacionales. Uno de esos mecanismos es la *base de datos orientada a documento* (por ejemplo, MongoDB), la cual utiliza un nuevo término, "Asignación de objeto a documento" u "ODM".
 
-En breve, aprenderás acerca del `ORM de Doctrine2`_ y `Doctrine2 MongoDB ODM`_ (que sirve como ODM para MongoDB_ - un almacén de documentos popular) ya que ambos tienen la más profunda integración con Symfony2 al momento de escribir este artículo.
+En breve, aprenderás acerca del `ORM de Doctrine2`_ y Doctrine2 `MongoDB ODM`_ (que sirve como ODM para `MongoDB`_ - un almacén de documentos popular) ya que ambos tienen la más profunda integración con Symfony2 al momento de escribir este artículo.
 
 Un modelo no es una tabla
 -------------------------

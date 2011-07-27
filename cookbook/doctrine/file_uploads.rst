@@ -1,5 +1,5 @@
-Cómo manejar con Doctrine los archivos subidos
-==============================================
+Cómo manejar archivos subidos con Doctrine
+==========================================
 
 Manejar el envío de archivos con entidades Doctrine no es diferente a la manipulación de cualquier otra carga de archivo. En otras palabras, eres libre de mover el archivo en tu controlador después de manipular el envío de un formulario. Para ver ejemplos de cómo hacerlo, consulta el :doc:`/reference/forms/types/file` en la referencia.
 
@@ -21,10 +21,11 @@ En primer lugar, crea una sencilla clase Entidad de Doctrine con la cual trabaja
     /**
      * @ORM\Entity
      */
-    class Document
+    class Documento
     {
         /**
-         * @ORM\Id @ORM\Column(type="integer")
+         * @ORM\Id
+         * @ORM\Column(type="integer")
          * @ORM\GeneratedValue(strategy="AUTO")
          */
         public $id;
@@ -40,20 +41,31 @@ En primer lugar, crea una sencilla clase Entidad de Doctrine con la cual trabaja
          */
         public $ruta;
 
-        public function getFullPath()
+        public function getAbsolutePath()
         {
-            return null === $this->path ? null : $this->getUploadRootDir().'/'.$this->path;
+            return null === $this->ruta ? null : $this->getUploadRootDir().'/'.$this->ruta;
+        }
+
+        public function getWebPath()
+        {
+            return null === $this->ruta ? null : $this->getUploadDir().'/'.$this->ruta;
         }
 
         protected function getUploadRootDir()
         {
-            // la ruta absoluta al directorio dónde se deben guardar los archivos cargados
-            return __DIR__.'/../../../../web/uploads/documents';
+            // la ruta absoluta al directorio dónde se deben guardar los documentos cargados
+            return __DIR__.'/../../../../web/'.$this->getUploadDir();
+        }
+
+        protected function getUploadDir()
+        {
+            // se libra del __DIR__ para no desviarse al mostrar `doc/image` en la vista.
+            return 'cargas/documentos';
         }
     }
 
-La entidad ``Documento`` tiene un nombre y está asociado con un archivo. La propiedad ``path`` almacena la ruta relativa al archivo y se persiste en la base de datos.
-``getFullPath()`` es un método útil que utiliza el método ``getUploadRootDir()`` para devolver la ruta absoluta al archivo.
+La entidad ``Documento`` tiene un nombre y está asociado con un archivo. La propiedad ``ruta`` almacena la ruta relativa al archivo y se persiste en la base de datos.
+El ``getAbsolutePath()`` es un método útil que devuelve la ruta absoluta al archivo, mientras que ``getWebPath()`` es un conveniente método que devuelve la ruta web, la cual se utiliza en una plantilla para enlazar el archivo cargado.
 
 .. tip::
 
@@ -242,7 +254,7 @@ A continuación, reconstruye la clase ``Documento`` para que tome ventaja de est
          */
         public function removeUpload()
         {
-            if ($file = $this->getFullPath()) {
+            if ($file = $this->getAbsolutePath()) {
                 unlink($file);
             }
         }
@@ -295,13 +307,13 @@ Si deseas utilizar el ``id`` como el nombre del archivo, la implementación es u
          */
         public function removeUpload()
         {
-            if ($file = $this->getFullPath()) {
+            if ($file = $this->getAbsolutePath()) {
                 unlink($file);
             }
         }
 
-        public function getFullPath()
+        public function getAbsolutePath()
         {
-            return null === $this->path ? null : $this->getUploadRootDir().'/'.$this->id.'.'.$this->path;
+            return null === $this->ruta ? null : $this->getUploadRootDir().'/'.$this->id.'.'.$this->path;
         }
     }

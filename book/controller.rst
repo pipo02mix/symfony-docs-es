@@ -366,7 +366,7 @@ Y al igual que al crear un controlador para una ruta, el orden de los argumentos
 
     Al igual que otros métodos del ``Controller`` base, el método ``forward`` sólo es un atajo para la funcionalidad del núcleo de Symfony2. Puedes redirigir directamente por medio del servicio ``http_kernel``. Un método ``forward`` devuelve un objeto ``Respuesta``::
 
-        $httpKernel = $this->container->get('http_kernel');
+        $httpKernel = $this->contenedor->get('http_kernel');
         $respuesta = $httpKernel->forward('AcmeHolaBundle:Hola:maravillosa', array(
             'nombre'  => $nombre,
             'color' => 'verde',

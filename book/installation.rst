@@ -80,9 +80,9 @@ Si hay algún problema, corrígelo antes de continuar.
 
     **1. Usando ACL en un sistema que admite chmod +a**
 
-    .. code-block:: bash
+    Muchos sistemas te permiten utilizar la orden chmod +a. Intenta esto primero, y si se produce un error - prueba el método siguiente:
 
-        Muchos sistemas te permiten utilizar la orden chmod +a. Intenta esto primero, y si se produce un error - prueba el método siguiente:
+    .. code-block:: bash
 
         rm -rf app/cache/*
         rm -rf app/logs/*

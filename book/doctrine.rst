@@ -22,11 +22,11 @@ En esta sección, configuraremos tu base de datos, crearemos un objeto ``Product
 
 .. sidebar:: Código del ejemplo
 
-    Si quieres seguir el ejemplo de este capítulo, crea el paquete ``AcmeTiendaBundle`` ejecutando la orden:
+    Si quieres seguir el ejemplo de este capítulo, crea el paquete ``AcmeGuardaBundle`` ejecutando la orden:
 
     .. code-block:: bash
 
-        php app/console generate:bundle --namespace=Acme/TiendaBundle
+        php app/console generate:bundle --namespace=Acme/GuardaBundle
 
 Configurando la base de datos
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,10 +71,10 @@ Creando una clase Entidad
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Supongamos que estás construyendo una aplicación donde necesitas mostrar tus productos.
-Sin siquiera pensar en Doctrine o en una base de datos, ya sabes que necesitas un objeto ``Producto`` para representar los productos. Crea esta clase en el directorio ``Entity`` de tu paquete ``AcmeTiendaBundle``::
+Sin siquiera pensar en Doctrine o en una base de datos, ya sabes que necesitas un objeto ``Producto`` para representar los productos. Crea esta clase en el directorio ``Entity`` de tu paquete ``AcmeGuardaBundle``::
 
-    // src/Acme/TiendaBundle/Entity/Producto.php    
-    namespace Acme\TiendaBundle\Entity;
+    // src/Acme/GuardaBundle/Entity/Producto.php    
+    namespace Acme\GuardaBundle\Entity;
 
     class Producto
     {
@@ -93,10 +93,15 @@ La clase - a menudo llamada "entidad", es decir, *una clase básica que contiene
 
     .. code-block:: bash
 
-        php app/console doctrine:generate:entity AcmeTiendaBundle:Producto "name:string(255) precio:float descripcion:text"
+        php app/console doctrine:generate:entity AcmeGuardaBundle:Producto "name:string(255) precio:float descripcion:text"
 
-Agrega información de asignación
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. index::
+    single: Doctrine; Añadiendo metadatos de asignación
+
+.. _book-doctrine-adding-mapping:
+
+Agregando información de asignación
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Doctrine te permite trabajar con bases de datos de una manera mucho más interesante que solo recuperar filas de una tabla basada en columnas en una matriz. En cambio, Doctrine te permite persistir *objetos* completos a la base de datos y recuperar objetos completos desde la base de datos. Esto funciona asignando una clase PHP a una tabla de la base de datos, y las propiedades de esa clase PHP a las columnas de la tabla:
 
@@ -113,8 +118,8 @@ Para que Doctrine sea capaz de hacer esto, sólo hay que crear "metadatos", o la
 
     .. code-block:: php-annotations
 
-        // src/Acme/TiendaBundle/Entity/Producto.php
-        namespace Acme\TiendaBundle\Entity;
+        // src/Acme/GuardaBundle/Entity/Producto.php
+        namespace Acme\GuardaBundle\Entity;
 
         use Doctrine\ORM\Mapping as ORM;
 
@@ -149,8 +154,8 @@ Para que Doctrine sea capaz de hacer esto, sólo hay que crear "metadatos", o la
 
     .. code-block:: yaml
 
-        # src/Acme/TiendaBundle/Resources/config/doctrine/Producto.orm.yml
-        Acme\TiendaBundle\Entity\Producto:
+        # src/Acme/GuardaBundle/Resources/config/doctrine/Producto.orm.yml
+        Acme\GuardaBundle\Entity\Producto:
             type: entity
             table: producto
             id:
@@ -169,13 +174,13 @@ Para que Doctrine sea capaz de hacer esto, sólo hay que crear "metadatos", o la
 
     .. code-block:: xml
 
-        <!-- src/Acme/TiendaBundle/Resources/config/doctrine/Producto.orm.xml -->
+        <!-- src/Acme/GuardaBundle/Resources/config/doctrine/Producto.orm.xml -->
         <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                             http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-            <entity name="Acme\TiendaBundle\Entity\Producto" table="producto">
+            <entity name="Acme\GuardaBundle\Entity\Producto" table="producto">
                 <id name="id" type="integer" column="id">
                     <generator strategy="AUTO" />
                 </id>
@@ -189,23 +194,26 @@ Para que Doctrine sea capaz de hacer esto, sólo hay que crear "metadatos", o la
 
     El nombre de la tabla es opcional y si la omites, será determinada automáticamente basándose en el nombre de la clase entidad.
 
-.. tip::
-
-    Cuando utilizas otra biblioteca o programa (es decir, Doxygen) que utiliza anotaciones, debes utilizar la anotación ``@IgnoreAnnotation`` para indicar que se deben ignorar las anotaciones Symfony y Doctrine.  Esta anotación se debe colocar en el bloque de comentarios de la clase a que se aplica.  No hacerlo puede resultar en una excepción.
-    
-    Por ejemplo, para evitar que la anotación ``@fn`` lance una excepción, agrega lo siguiente::
-
-        /**
-         * @IgnoreAnnotation("fn")
-         * 
-         */
-        class Producto
-
 Doctrine te permite elegir entre una amplia variedad de tipos de campo diferentes, cada uno con sus propias opciones. Para obtener información sobre los tipos de campo disponibles, consulta la sección :ref:`book-doctrine-field-types`.
 
 .. seealso::
 
     También puedes consultar la `Documentación de asignación básica`_ de Doctrine para todos los detalles sobre la información de asignación. Si utilizas anotaciones, tendrás que prefijar todas las anotaciones con ``ORM\`` (por ejemplo, ``ORM\Column(..)``), lo cual no se muestra en la documentación de Doctrine. También tendrás que incluir la declaración ``use Doctrine\ORM\Mapping as ORM;``, la cual *importa* las anotaciones prefijas ``ORM``.
+
+.. caution::
+
+    Ten cuidado de que tu nombre de clase y propiedades no estén asignados a un área protegida por palabras clave de SQL (tal como ``group`` o ``user``). Por ejemplo, si el nombre de clase de tu entidad es ``group``, entonces, de manera predeterminada, el nombre de la tabla será ``group``, lo cual provocará un error SQL en algunos motores. Consulta la `Documentación de palabras clave SQL reservadas`_ para que sepas cómo escapar correctamente estos nombres.
+
+.. note::
+
+    Cuando utilizas otra biblioteca o programa (es decir, Doxygen) que utiliza anotaciones, debes colocar la anotación ``@IgnoreAnnotation`` en la clase para indicar que se deben ignorar las anotaciones Symfony.
+
+    Por ejemplo, para evitar que la anotación ``@fn`` lance una excepción, añade lo siguiente::
+
+        /**
+         * @IgnoreAnnotation("fn")
+         */
+        class Producto
 
 Generando captadores y definidores
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,7 +222,7 @@ A pesar de que Doctrine ahora sabe cómo persistir un objeto ``Producto`` a la b
 
 .. code-block:: bash
 
-    php app/console doctrine:generate:entities Acme/TiendaBundle/Entity/Producto
+    php app/console doctrine:generate:entities Acme/GuardaBundle/Entity/Producto
 
 Esta orden se asegura de que se generen todos los captadores y definidores para la clase ``Producto``. Esta es una orden segura - la puedes ejecutar una y otra vez: sólo genera captadores y definidores que no existen (es decir, no sustituye métodos existentes).
 
@@ -229,7 +237,7 @@ Esta orden se asegura de que se generen todos los captadores y definidores para 
 
     .. code-block:: bash
 
-        php app/console doctrine:generate:entities AcmeTiendaBundle
+        php app/console doctrine:generate:entities AcmeGuardaBundle
         php app/console doctrine:generate:entities Acme
 
 Creando tablas/esquema de la base de datos
@@ -257,8 +265,8 @@ Ahora que tienes asignada una entidad ``producto`` y la tabla ``Producto`` corre
 .. code-block:: php
     :linenos:
 
-    // src/Acme/TiendaBundle/Controller/DefaultController.php
-    use Acme\TiendaBundle\Entity\Producto;
+    // src/Acme/GuardaBundle/Controller/DefaultController.php
+    use Acme\GuardaBundle\Entity\Producto;
     use Symfony\Component\HttpFoundation\Response;
     // ...
 
@@ -308,7 +316,7 @@ Recuperar un objeto desde la base de datos es aún más fácil. Por ejemplo, sup
     public function showAction($id)
     {
         $producto = $this->getDoctrine()
-            ->getRepository('AcmeTiendaBundle:Producto')
+            ->getRepository('AcmeGuardaBundle:Producto')
             ->find($id);
 
         if (!$producto) {
@@ -321,11 +329,11 @@ Recuperar un objeto desde la base de datos es aún más fácil. Por ejemplo, sup
 Al consultar por un determinado tipo de objeto, siempre utilizas lo que se conoce como "repositorio". Puedes pensar en un repositorio como una clase PHP, cuyo único trabajo consiste en ayudarte a buscar las entidades de una determinada clase. Puedes acceder al objeto repositorio de una clase de entidad a través de::
 
     $repositorio = $this->getDoctrine()
-        ->getRepository('AcmeTiendaBundle:Producto');
+        ->getRepository('AcmeGuardaBundle:Producto');
 
 .. note::
 
-    La cadena ``AcmeTiendaBundle:Producto`` es un método abreviado que puedes utilizar en cualquier lugar de Doctrine en lugar del nombre de clase completo de la entidad (es decir, ``Acme\TiendaBundle\Entity\Producto``).
+    La cadena ``AcmeGuardaBundle:Producto`` es un método abreviado que puedes utilizar en cualquier lugar de Doctrine en lugar del nombre de clase completo de la entidad (es decir, ``Acme\GuardaBundle\Entity\Producto``).
     Mientras que tu entidad viva bajo el espacio de nombres ``Entity`` de tu paquete, esto debe funcionar.
 
 Una vez que tengas tu repositorio, tienes acceso a todo tipo de útiles métodos::
@@ -377,7 +385,7 @@ Una vez que hayas extraído un objeto de Doctrine, actualizarlo es relativamente
     public function updateAction($id)
     {
         $em = $this->getDoctrine()->getEntityManager();
-        $producto = $em->getRepository('AcmeTiendaBundle:Producto')->find($id);
+        $producto = $em->getRepository('AcmeGuardaBundle:Producto')->find($id);
 
         if (!$producto) {
             throw $this->createNotFoundException('Ningún producto encontrado con id '.$id);
@@ -430,12 +438,12 @@ Imagina que deseas consultar los productos, pero sólo quieres devolver los prod
 
     $em = $this->getDoctrine()->getEntityManager();
     $consulta = $em->createQuery(
-        'SELECT p FROM AcmeTiendaBundle:Producto p WHERE p.precio > :precio ORDER BY p.precio ASC'
+        'SELECT p FROM AcmeGuardaBundle:Producto p WHERE p.precio > :precio ORDER BY p.precio ASC'
     )->setParameter('precio', '19.99');
 
     $productos = $consulta->getResult();
 
-Si te sientes cómodo con SQL, entonces debes sentir a DQL muy natural. La mayor diferencia es que necesitas pensar en términos de "objetos" en lugar de filas de una base de datos. Por esta razón, seleccionas *from* ``AcmeTiendaBundle:Producto`` y luego lo apodas ``p``.
+Si te sientes cómodo con SQL, entonces debes sentir a DQL muy natural. La mayor diferencia es que necesitas pensar en términos de "objetos" en lugar de filas de una base de datos. Por esta razón, seleccionas *from* ``AcmeGuardaBundle:Producto`` y luego lo apodas ``p``.
 
 El método ``getResult()`` devuelve una matriz de resultados. Si estás preguntando por un solo objeto, en su lugar puedes utilizar el método ``getSingleResult()``::
 
@@ -484,7 +492,7 @@ En lugar de escribir las consultas directamente, también puedes usar el ``Query
 Si usas un IDE, también puedes tomar ventaja del autocompletado a medida que escribes los nombres de método. Desde el interior de un controlador::
 
     $repositorio = $this->getDoctrine()
-        ->getRepository('AcmeTiendaBundle:Producto');
+        ->getRepository('AcmeGuardaBundle:Producto');
 
     $consulta = $repositorio->createQueryBuilder('p')
         ->where('p.precio > :precio')
@@ -509,13 +517,13 @@ Para ello, agrega el nombre de la clase del repositorio a la definición de asig
 
     .. code-block:: php-annotations
 
-        // src/Acme/TiendaBundle/Entity/Producto.php
-        namespace Acme\TiendaBundle\Entity;
+        // src/Acme/GuardaBundle/Entity/Producto.php
+        namespace Acme\GuardaBundle\Entity;
 
         use Doctrine\ORM\Mapping as ORM;
 
         /**
-         * @ORM\Entity(repositoryClass="Acme\TiendaBundle\Repository\ProductoRepository")
+         * @ORM\Entity(repositoryClass="Acme\GuardaBundle\Repository\ProductoRepository")
          */
         class Producto
         {
@@ -524,20 +532,20 @@ Para ello, agrega el nombre de la clase del repositorio a la definición de asig
 
     .. code-block:: yaml
 
-        # src/Acme/TiendaBundle/Resources/config/doctrine/Producto.orm.yml
-        Acme\TiendaBundle\Entity\Producto:
+        # src/Acme/GuardaBundle/Resources/config/doctrine/Producto.orm.yml
+        Acme\GuardaBundle\Entity\Producto:
             type: entity
-            repositoryClass: Acme\TiendaBundle\Repository\ProductoRepository
+            repositoryClass: Acme\GuardaBundle\Repository\ProductoRepository
             # ...
 
     .. code-block:: xml
 
-        <!-- src/Acme/TiendaBundle/Resources/config/doctrine/Producto.orm.xml -->
+        <!-- src/Acme/GuardaBundle/Resources/config/doctrine/Producto.orm.xml -->
         <!-- ... -->
         <doctrine-mapping>
 
-            <entity name="Acme\TiendaBundle\Entity\Producto"
-                    repository-class="Acme\TiendaBundle\Repository\ProductoRepository">
+            <entity name="Acme\GuardaBundle\Entity\Producto"
+                    repository-class="Acme\GuardaBundle\Repository\ProductoRepository">
                     <!-- ... -->
             </entity>
         </doctrine-mapping>
@@ -552,8 +560,8 @@ A continuación, agrega un nuevo método - ``findAllOrderedByName()`` - a la cla
 
 .. code-block:: php
 
-    // src/Acme/TiendaBundle/Repository/ProductoRepository.php
-    namespace Acme\TiendaBundle\Repository;
+    // src/Acme/GuardaBundle/Repository/ProductoRepository.php
+    namespace Acme\GuardaBundle\Repository;
 
     use Doctrine\ORM\EntityRepository;
 
@@ -562,7 +570,7 @@ A continuación, agrega un nuevo método - ``findAllOrderedByName()`` - a la cla
         public function findAllOrderedByName()
         {
             return $this->getEntityManager()
-                ->createQuery('SELECT p FROM AcmeTiendaBundle:Producto p ORDER BY p.nombre ASC')
+                ->createQuery('SELECT p FROM AcmeGuardaBundle:Producto p ORDER BY p.nombre ASC')
                 ->getResult();
         }
     }
@@ -574,7 +582,7 @@ A continuación, agrega un nuevo método - ``findAllOrderedByName()`` - a la cla
 Puedes utilizar este nuevo método al igual que los métodos de búsqueda predeterminados del repositorio::
 
     $em = $this->getDoctrine()->getEntityManager();
-    $productos = $em->getRepository('AcmeTiendaBundle:Producto')
+    $productos = $em->getRepository('AcmeGuardaBundle:Producto')
                 ->findAllOrderedByName();
 
 .. note::
@@ -592,7 +600,7 @@ Ya sabemos que tarde o temprano tendrás que persistir la clase a través de Doc
 
 .. code-block:: bash
 
-    php app/console doctrine:generate:entity AcmeTiendaBundle:Categoria "nombre:string(255)" --mapping-type=yml
+    php app/console doctrine:generate:entity AcmeGuardaBundle:Categoria "nombre:string(255)" --mapping-type=yml
 
 Esta tarea genera la entidad ``Categoría`` para ti, con un campo ``id``, un campo ``Nombre`` y las funciones captadoras y definidoras asociadas.
 
@@ -601,7 +609,7 @@ Relación con la asignación de metadatos
 
 Para relacionar las entidades ``Categoría`` y ``Producto``, empieza por crear una propiedad ``productos`` en la clase ``Categoría``::
 
-    // src/Acme/TiendaBundle/Entity/Categoria.php
+    // src/Acme/GuardaBundle/Entity/Categoria.php
     // ...
     use Doctrine\Common\Collections\ArrayCollection;
     
@@ -630,7 +638,7 @@ Una vez más, esto no se hace porque lo necesite Doctrine, sino porque tiene sen
 
 A continuación, ya que cada clase ``Producto`` se puede referir exactamente a un objeto ``Categoría``, podrías desear agregar una propiedad ``$categoria`` a la clase ``Producto``::
 
-    // src/Acme/TiendaBundle/Entity/Producto.php
+    // src/Acme/GuardaBundle/Entity/Producto.php
     // ...
 
     class Producto
@@ -675,8 +683,8 @@ Guardando entidades relacionadas
 Ahora, vamos a ver el código en acción. Imagina que estás dentro de un controlador::
 
     // ...
-    use Acme\TiendaBundle\Entity\Categoria;
-    use Acme\TiendaBundle\Entity\Producto;
+    use Acme\GuardaBundle\Entity\Categoria;
+    use Acme\GuardaBundle\Entity\Producto;
     use Symfony\Component\HttpFoundation\Response;
     // ...
 
@@ -715,7 +723,7 @@ Cuando necesites recuperar objetos asociados, tu flujo de trabajo se ve justo co
     public function showAction($id)
     {
         $producto = $this->getDoctrine()
-            ->getRepository('AcmeTiendaBundle:Producto')
+            ->getRepository('AcmeGuardaBundle:Producto')
             ->find($id);
 
         $nombreCategoria = $producto->getCategoria()->getNombre();
@@ -735,7 +743,7 @@ También puedes consultar en la dirección contraria::
     public function showProductoAction($id)
     {
         $categoria = $this->getDoctrine()
-            ->getRepository('AcmeTiendaBundle:Categoria')
+            ->getRepository('AcmeGuardaBundle:Categoria')
             ->find($id);
 
         $productos = $categoria->getProductos();
@@ -751,12 +759,12 @@ La variable ``$productos`` es una matriz de todos los objetos ``Producto`` relac
     Esta "carga diferida" es posible porque, cuando sea necesario, Doctrine devuelve un objeto "sustituto" en lugar del verdadero objeto. Veamos de nuevo el ejemplo anterior::
 
         $producto = $this->getDoctrine()
-            ->getRepository('AcmeTiendaBundle:Producto')
+            ->getRepository('AcmeGuardaBundle:Producto')
             ->find($id);
 
         $categoria = $producto->getCategoria();
 
-        // prints "Proxies\AcmeTiendaBundleEntityCategoriaProxy"
+        // prints "Proxies\AcmeGuardaBundleEntityCategoriaProxy"
         echo get_class($categoria);
 
     Este objeto sustituto extiende al verdadero objeto ``Categoría``, y se ve y actúa exactamente igual que él. La diferencia es que, al usar un objeto sustituto, Doctrine puede retrasar la consulta de los datos reales de la ``Categoría`` hasta que realmente se necesitan esos datos (por ejemplo, hasta que se invoque a ``$categoria->getNombre()``).
@@ -777,13 +785,13 @@ En los ejemplos anteriores, se realizaron dos consultas - una para el objeto ori
 
 Por supuesto, si sabes por adelantado que necesitas tener acceso a los objetos, puedes evitar la segunda consulta emitiendo una unión en la consulta original. Agrega el siguiente método a la clase ``ProductoRepository``::
 
-    // src/Acme/TiendaBundle/Repository/ProductoRepository.php
+    // src/Acme/GuardaBundle/Repository/ProductoRepository.php
     
     public function findOneByIdJoinedToCategory($id)
     {
         $consulta = $this->getEntityManager()
             ->createQuery('
-                SELECT p, c FROM AcmeTiendaBundle:Producto p
+                SELECT p, c FROM AcmeGuardaBundle:Producto p
                 JOIN p.categoria c
                 WHERE p.id = :id'
             )->setParameter('id', $id);
@@ -800,7 +808,7 @@ Ahora, puedes utilizar este método en el controlador para consultar un objeto `
     public function showAction($id)
     {
         $producto = $this->getDoctrine()
-            ->getRepository('AcmeTiendaBundle:Producto')
+            ->getRepository('AcmeGuardaBundle:Producto')
             ->findOneByIdJoinedToCategory($id);
 
         $categoria = $producto->getCategoria();
@@ -856,8 +864,8 @@ Ahora, puedes decir a Doctrine que ejecute un método en cualquiera de los event
 
     .. code-block:: yaml
 
-        # src/Acme/TiendaBundle/Resources/config/doctrine/Producto.orm.yml
-        Acme\TiendaBundle\Entity\Producto:
+        # src/Acme/GuardaBundle/Resources/config/doctrine/Producto.orm.yml
+        Acme\GuardaBundle\Entity\Producto:
             type: entity
             # ...
             lifecycleCallbacks:
@@ -865,11 +873,11 @@ Ahora, puedes decir a Doctrine que ejecute un método en cualquiera de los event
 
     .. code-block:: xml
 
-        <!-- src/Acme/TiendaBundle/Resources/config/doctrine/Producto.orm.xml -->
+        <!-- src/Acme/GuardaBundle/Resources/config/doctrine/Producto.orm.xml -->
         <!-- ... -->
         <doctrine-mapping>
 
-            <entity name="Acme\TiendaBundle\Entity\Producto">
+            <entity name="Acme\GuardaBundle\Entity\Producto">
                     <!-- ... -->
                     <lifecycle-callbacks>
                         <lifecycle-callback type="prePersist" method="setValorCreado" />
@@ -894,7 +902,7 @@ Esto se puede repetir en cualquiera de los otros eventos del ciclo de vida, los 
 * ``postLoad``
 * ``loadClassMetadata``
 
-Para más información sobre que significan estos eventos del ciclo de vida de las retrollamadas en general, consulta la sección `Eventos del ciclo de vida`_ en la documentación de Doctrine.
+Para más información sobre que significan estos eventos y ciclo de vida de las retrollamadas en general, consulta la sección `Eventos del ciclo de vida`_ en la documentación de Doctrine.
 
 .. sidebar:: Ciclo de vida de retrollamada y escuchas de eventos
 
@@ -1032,3 +1040,4 @@ Para más información acerca de Doctrine, ve la sección *Doctrine* del :doc:`r
 .. _`Asignando tipos`: http://www.doctrine-project.org/docs/orm/2.0/en/reference/basic-mapping.html#doctrine-mapping-types
 .. _`Asignando propiedades`: http://www.doctrine-project.org/docs/orm/2.0/en/reference/basic-mapping.html#property-mapping
 .. _`Eventos del ciclo de vida`: http://www.doctrine-project.org/docs/orm/2.0/en/reference/events.html#lifecycle-events
+.. _`Documentación de palabras clave SQL reservadas`: http://www.doctrine-project.org/docs/orm/2.0/en/reference/basic-mapping.html#quoting-reserved-words

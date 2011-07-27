@@ -4,7 +4,7 @@
 Cómo crear accesorios en Symfony2
 =================================
 
-Los accesorios se utilizan para cargar un conjunto de datos controlado en una base de datos. Puedes utilizar esto datos para pruebas o podrían ser los datos iniciales necesarios para ejecutar la aplicación sin problemas. Symfony2 no tiene integrada forma alguna de administrar accesorios, pero Doctrine2 cuenta con una biblioteca para ayudarte a escribir accesorios para el :doc:`ORM </book/doctrine>` u :doc:`ODM </cookbook/doctrine/mongodb>` de Doctrine.
+Los accesorios se utilizan para cargar un conjunto de datos controlado en una base de datos. Puedes utilizar estos datos para pruebas o podrían ser los datos iniciales necesarios para ejecutar la aplicación sin problemas. Symfony2 no tiene integrada forma alguna de administrar accesorios, pero Doctrine2 cuenta con una biblioteca para ayudarte a escribir accesorios para el :doc:`ORM </book/doctrine>` u :doc:`ODM </cookbook/doctrine/mongodb>` de Doctrine.
 
 Instalando y configurando
 -------------------------
@@ -156,13 +156,13 @@ La biblioteca de accesorios de Doctrine maneja esto fácilmente permitiéndote e
             $usuarioAdmin->setUsername('admin');
             $usuarioAdmin->setPassword('prueba');
 
-            $manager->persist($userAdmin);
+            $manager->persist($usuarioAdmin);
             $manager->flush();
 
-            $this->addReference('admin-user', $userAdmin);
+            $this->addReference('admin-user', $usuarioAdmin);
         }
 
-        public function getOrder()
+        public function getOrden()
         {
             return 1; // el orden en el que se deben cargar los accesorios
         }
@@ -183,22 +183,22 @@ La clase accesorio ahora implementa ``OrderedFixtureInterface``, la cual dice a 
     {
         public function load($manager)
         {
-            $groupAdmin = new Group();
-            $groupAdmin->setGroupName('admin');
+            $grupoAdmin = new Group();
+            $grupoAdmin->setGroupName('admin');
 
-            $manager->persist($groupAdmin);
+            $manager->persist($grupoAdmin);
             $manager->flush();
 
-            $this->addReference('admin-group', $groupAdmin);
+            $this->addReference('admin-group', $grupoAdmin);
         }
 
-        public function getOrder()
+        public function getOrden()
         {
             return 2; // el orden en el que se deben cargar los accesorios
         }
     }
 
-Ambas clases accesorio extienden ``AbstractFixture``, lo cual te permite crear objetos y luego ponerlos como referencias para que se puedan utilizar posteriormente en otros accesorios. Por ejemplo, los objetos ``$UserAdmin`` y ``$groupAdmin`` se pueden referir posteriormente a través de las referencias ``admin-user`` y ``admin-group``:
+Ambas clases accesorio extienden ``AbstractFixture``, lo cual te permite crear objetos y luego ponerlos como referencias para que se puedan utilizar posteriormente en otros accesorios. Por ejemplo, los objetos ``$UserAdmin`` y ``$grupoAdmin`` se pueden referir posteriormente a través de las referencias ``admin-user`` y ``admin-group``:
 
 .. code-block:: php
 
@@ -221,13 +221,13 @@ Ambas clases accesorio extienden ``AbstractFixture``, lo cual te permite crear o
             $manager->flush();
         }
 
-        public function getOrder()
+        public function getOrden()
         {
             return 3;
         }
     }
 
-Los accesorios ahora se ejecutan en el orden ascendente del valor devuelto por ``getOrder()``. Cualquier objeto que se establece con el método ``setReference()`` se puede acceder a través de ``getReference()`` en las clases accesorio que tienen un orden superior.
+Los accesorios ahora se ejecutan en el orden ascendente del valor devuelto por ``getOrden()``. Cualquier objeto que se establece con el método ``setReference()`` se puede acceder a través de ``getReference()`` en las clases accesorio que tienen un orden superior.
 
 Los accesorios te permiten crear cualquier tipo de dato que necesites a través de la interfaz normal de PHP para crear y persistir objetos. Al controlar el orden de los accesorios y establecer referencias, casi todo se puede manejar por medio de accesorios.
 
@@ -255,17 +255,17 @@ Vamos a rescribir el primer accesorio para codificar la contraseña antes de alm
 
         public function setContainer(ContainerInterface $contenedor = null)
         {
-            $this->container = $contenedor;
+            $this->contenedor = $contenedor;
         }
 
         public function load($manager)
         {
-            $userAdmin = new User();
-            $userAdmin->setUsername('admin');
-            $userAdmin->setSalt(md5(time()));
+            $usuarioAdmin = new User();
+            $usuarioAdmin->setUsername('admin');
+            $usuarioAdmin->setSalt(md5(time()));
 
-            $encoder = $this->container->get('security.encoder_factory')->getEncoder($userAdmin);
-            $userAdmin->setPassword($encoder->encodePassword('test', $userAdmin->getSalt()));
+            $encoder = $this->contenedor->get('security.encoder_factory')->getEncoder($usuarioAdmin);
+            $usuarioAdmin->setPassword($encoder->encodePassword('test', $usuarioAdmin->getSalt()));
 
             $manager->persist($usuarioAdmin);
             $manager->flush();

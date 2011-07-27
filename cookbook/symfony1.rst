@@ -197,7 +197,7 @@ Ahora puedes acceder a ella desde un controlador, por ejemplo::
 
     public function holaAction($nombre)
     {
-        $fromAddress = $this->container->getParameter('email.from_domicilio');
+        $fromAddress = $this->contenedor->getParameter('email.from_domicilio');
     }
 
 En realidad, la configuración de Symfony2 es mucho más poderosa y se utiliza principalmente para configurar los objetos que puedes utilizar. Para más información, consulta el capítulo titulado ":doc:`/book/service_container`".

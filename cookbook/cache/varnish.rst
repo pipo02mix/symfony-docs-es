@@ -71,3 +71,4 @@ Sin embargo, Varnish se puede configurar para aceptar un método HTTP especial `
     De alguna manera, debes proteger el método ``PURGE`` HTTP para evitar que alguien aleatoriamente purgue los datos memorizados.
 
 .. _`Arquitectura Límite`: http://www.w3.org/TR/edge-arch
+..  |ESI| replace:: :abbr:`ESI (Edge Side Includes o Inclusión del borde lateral)`

@@ -12,9 +12,9 @@ Symfony2 es rápido, desde que lo sacas de la caja. Por supuesto, si realmente n
 Utilizando una caché de código de bytes (p. ej. APC)
 ----------------------------------------------------
 
-Una de los mejores (y más fáciles) cosas que debes hacer para mejorar tu rendimiento es utilizar una "caché de código de bytes". La idea de una caché de código de bytes es eliminar la necesidad de constantemente tener que volver a compilar el código fuente PHP. Hay disponible una serie de `cachés de código de bytes`_, algunas de las cuales son de código abierto. Probablemente, la caché de código de bytes más utilizada sea `APC`_
+Una de las mejores (y más fáciles) cosas que debes hacer para mejorar tu rendimiento es utilizar una "caché de código de bytes". La idea de una caché de código de bytes es eliminar la necesidad de constantemente tener que volver a compilar el código fuente PHP. Hay disponible una serie de `cachés de código de bytes`_, algunas de las cuales son de código abierto. Probablemente, la caché de código de bytes más utilizada sea `APC`_
 
-Usar un caché de código de bytes realmente no tiene ningún inconveniente, y Symfony2 se ha diseñado para llevar a cabo muy bien en este tipo de entorno.
+Usar una caché de código de bytes realmente no tiene ningún inconveniente, y Symfony2 se ha diseñado para llevar a cabo muy bien en este tipo de entorno.
 
 Optimización adicional
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -83,4 +83,6 @@ Archivos de arranque y caché de código de bytes
 Incluso cuando utilizas código de bytes en caché, el rendimiento mejorará cuando utilices un archivo de arranque ya que habrá menos archivos en los cuales supervisar los cambios. Por supuesto, si esta función está desactivada en la caché del código de bytes (por ejemplo, ``apc.stat = 0`` en APC), ya no hay una razón para utilizar un archivo de arranque.
 
 .. _`cachés de código de bytes`: http://en.wikipedia.org/wiki/List_of_PHP_accelerators
-.. _`APC`: http://php.net/manual/es/book.apc.php _`autoloader.php`: https://github.com/symfony/symfony-standard/blob/master/app/autoload.php _`Archivos de arranque`: https://github.com/sensio/SensioDistributionBundle/blob/master/Resources/bin/build_bootstrap.php
+.. _`APC`: http://php.net/manual/es/book.apc.php
+.. _`autoloader.php`: https://github.com/symfony/symfony-standard/blob/master/app/autoload.php
+.. _`archivo de arranque`: https://github.com/sensio/SensioDistributionBundle/blob/master/Resources/bin/build_bootstrap.php

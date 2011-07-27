@@ -20,7 +20,7 @@ Un votante personalizado debe implementar la clase :class:`Symfony\\Component\\S
     {
         function supportsAttribute($attribute);
         function supportsClass($class);
-        function vote(TokenInterface $token, $object, array $attributes);
+        function vote(TokenInterface $muestra, $object, array $attributes);
     }
 
 
@@ -71,7 +71,7 @@ Para poner a un usuario en la lista negra basándonos en su IP, podemos utilizar
             return true;
         }
 
-        function vote(TokenInterface $token, $object, array $attributes)
+        function vote(TokenInterface $muestra, $object, array $attributes)
         {
             if (in_array($this->request->getClientIp(), $this->blacklistedIp)) {
                 return VoterInterface::ACCESS_DENIED;
@@ -123,17 +123,17 @@ Para inyectar al votante en la capa de seguridad, se debe declarar como servicio
         use Symfony\Component\DependencyInjection\Definition;
         use Symfony\Component\DependencyInjection\Reference;
 
-        $definition = new Definition(
+        $definicion = new Definition(
             'Acme\DemoBundle\Security\Authorization\Voter\ClientIpVoter',
             array(
                 new Reference('request'),
                 array('123.123.123.123', '171.171.171.171'),
             ),
         );
-        $definition->addTag('security.voter');
-        $definition->setPublic(false);
+        $definicion->addTag('security.voter');
+        $definicion->setPublic(false);
 
-        $contenedor->setDefinition('security.access.blacklist_voter', $definition);
+        $contenedor->setDefinition('security.access.blacklist_voter', $definicion);
 
 .. tip::
 

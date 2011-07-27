@@ -1,5 +1,3 @@
-.. include:: welcome.rst.inc
-
 Documentación de Symfony2
 =========================
 
@@ -75,13 +73,3 @@ Colabora con Symfony2:
     contributing/index
 
 .. include:: /contributing/map.rst.inc
-
-Motor de plantillas Twig
-========================
-
-.. toctree::
-    :hidden:
-
-    doc/index
-
-Lee la documentación del flexible, rápido y seguro motor de plantillas :doc:`Twig </doc/index>`

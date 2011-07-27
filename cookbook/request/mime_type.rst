@@ -21,9 +21,9 @@ Crea la siguiente clase, sustituyendo la ruta con una ruta a un paquete en tu pr
 
     class RequestListener
     {
-        public function onKernelRequest(GetResponseEvent $event)
+        public function onKernelRequest(GetResponseEvent $evento)
         {
-            $event->getRequest()->setFormat('jsonp', 'application/javascript');
+            $evento->getRequest()->setFormat('jsonp', 'application/javascript');
         }
     }
 
@@ -61,9 +61,9 @@ Como para cualquier otro escucha, tienes que añadirlo en uno de tus archivos de
     .. code-block:: php
 
         # app/config/config.php
-        $definition = new Definition('Acme\DemoBundle\RequestListener');
-        $definition->addTag('kernel.event_listener', array('event' => 'kernel.request', 'method' => 'onKernelRequest'));
-        $contenedor->setDefinition('acme.demobundle.listener.request', $definition);
+        $definicion = new Definition('Acme\DemoBundle\RequestListener');
+        $definicion->addTag('kernel.event_listener', array('event' => 'kernel.request', 'method' => 'onKernelRequest'));
+        $contenedor->setDefinition('acme.demobundle.listener.request', $definicion);
 
 En este punto, el servicio ``acme.demobundle.listener.request`` se ha configurado y será notificado cuando el núcleo de Symfony difunda el evento ``kernel.request``.
 

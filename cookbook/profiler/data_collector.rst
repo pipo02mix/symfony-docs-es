@@ -38,20 +38,20 @@ El método ``collect()`` se encarga de almacenar los datos de las propiedades lo
 
     Puesto que el generador de perfiles serializa instancias del colector de datos, no debes almacenar objetos que no se puedan serializar (como objetos PDO), o tendrás que proporcionar tu propio método ``serialize()``.
 
-La mayoría de las veces, es conveniente extender :class:`Symfony\\Component\\HttpKernel\\DataCollector\\DataCollector` y rellenar los datos de la propiedad ``$this->data`` (que se encarga de serializar la propiedad ``$this->data``)::
+La mayoría de las veces, es conveniente extender :class:`Symfony\\Component\\HttpKernel\\DataCollector\\DataCollector` y rellenar los datos de la propiedad ``$this->datos`` (que se encarga de serializar la propiedad ``$this->datos``)::
 
     class MemoryDataCollector extends DataCollector
     {
         public function collect(Request $peticion, Response $respuesta, \Exception $exception = null)
         {
-            $this->data = array(
+            $this->datos = array(
                 'memory' => memory_get_peak_usage(true),
             );
         }
 
         public function getMemory()
         {
-            return $this->data['memory'];
+            return $this->datos['memory'];
         }
 
         public function getNombre()

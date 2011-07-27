@@ -1391,3 +1391,4 @@ Aprende más en el recetario
 .. _`FOSUserBundle`: https://github.com/FriendsOfSymfony/FOSUserBundle
 .. _`implementes la interfaz \Serializable`: http://www.php.net/manual/es/class.serializable.php
 .. _`functions-online.com`: http://www.functions-online.com/sha1.html
+..  |hash| replace:: *hash*

@@ -700,7 +700,7 @@ es equivalente a
 
 .. code-block:: php
 
-    $motor = $this->container->get('templating');
+    $motor = $this->contenedor->get('templating');
     $contenido = $motor->render('AcmeArticuloBundle:Articulo:index.html.twig');
 
     return $respuesta = new Response($contenido);
@@ -968,3 +968,4 @@ Aprende más en el recetario
 .. _`tags`: http://www.twig-project.org/doc/templates.html#list-of-control-structures
 .. _`filtros`:                          http://www.twig-project.org/doc/templates.html#list-of-built-in-filters
 .. _`agregar tus propias extensiones`:  http://www.twig-project.org/doc/advanced.html
+..  |hash| replace:: *hash*

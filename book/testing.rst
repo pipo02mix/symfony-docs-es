@@ -436,7 +436,7 @@ El ``Impulsor`` puede extraer información de los nodos::
     $impulsor->extract(array('_text', 'href'));
 
     // Ejecuta una lambda por cada nodo y devuelve una matriz de resultados
-    $data = $impulsor->each(function ($node, $i)
+    $datos = $impulsor->each(function ($node, $i)
     {
         return $node->getAttribute('href');
     });

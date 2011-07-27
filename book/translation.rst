@@ -14,13 +14,13 @@ El término "internacionalización" se refiere al proceso de abstraer cadenas y 
 
 .. note::
 
-    El término *locale* se refiere más o menos al lenguaje y país del usuario. Esta puede ser cualquier cadena que entonces la aplicación utilice para manejar las traducciones y otras diferencias de formato (por ejemplo, formato de moneda). Recomendamos el código ISO639-1 para el *idioma*, un subrayado (``_``), luego el código ISO3166 para el *país* (por ejemplo ``es_ES`` para Francés/Francia).
+    El término *locale* se refiere más o menos al lenguaje y país del usuario. Esta puede ser cualquier cadena que entonces la aplicación utilice para manejar las traducciones y otras diferencias de formato (por ejemplo, formato de moneda). Recomendamos el código ISO639-1 para el *idioma*, un subrayado (``_``), luego el código ISO3166 para el *país* (por ejemplo ``es_ES`` para Español/España).
 
-En este capítulo, aprenderemos cómo preparar una aplicación para apoyar varias configuraciones regionales y, a continuación cómo crear traducciones para varias configuraciones regionales. En general, el proceso tiene varios pasos comunes:
+En este capítulo, aprenderemos cómo preparar una aplicación para apoyar varias configuraciones regionales y, a continuación cómo crear traducciones para múltiples regiones. En general, el proceso tiene varios pasos comunes:
 
 1. Habilitar y configurar el componente Symfony ``Translation``;
 
-1. Abstraer cadenas (es decir, "mensajes") envolviéndolas en llamadas a el ``Traductor``;
+1. Abstraer cadenas (es decir, "mensajes") envolviéndolas en llamadas al ``Traductor``;
 
 1. Crear recursos de traducción para cada configuración regional compatible, la cual traduce cada mensaje en la aplicación;
 
@@ -81,7 +81,7 @@ La traducción de texto se hace a través del servicio ``traductor`` (:class:`Sy
         return new Response($t);
     }
 
-Cuando se ejecuta este código, Symfony2 tratará de traducir el mensaje "Symfony2 is great", basándose en la ``locale`` del usuario. Para que esto funcione, tenemos que decirle a Symfony2 la manera de traducir el mensaje a través de un "recurso de traducción", que es una colección de traducciones de mensajes para una determinada configuración regional.
+Cuando se ejecuta este código, Symfony2 tratará de traducir el mensaje "Symfony2 is great", basándose en la variable ``locale`` del usuario. Para que esto funcione, tenemos que decirle a Symfony2 la manera de traducir el mensaje a través de un "recurso de traducción", el cual es una colección de mensajes traducidos para una determinada configuración regional.
 Este "diccionario" de traducciones se puede crear en varios formatos diferentes, XLIFF es el formato recomendado:
 
 .. configuration-block::
@@ -95,7 +95,7 @@ Este "diccionario" de traducciones se puede crear en varios formatos diferentes,
                 <body>
                     <trans-unit id="1">
                         <source>Symfony2 is great</source>
-                        <target>J'aime Symfony2</target>
+                        <target>Symfony2 es magnífico</target>
                     </trans-unit>
                 </body>
             </file>
@@ -105,15 +105,15 @@ Este "diccionario" de traducciones se puede crear en varios formatos diferentes,
 
         // messages.es.php
         return array(
-            'Symfony2 is great' => 'J\'aime Symfony2',
+            'Symfony2 is great' => 'Symfony2 es magnífico',
         );
 
     .. code-block:: yaml
 
         # messages.es.yml
-        Symfony2 is great: J'aime Symfony2
+        Symfony2 is great: Symfony2 es magnífico
 
-Ahora, si el idioma de la configuración regional del usuario es el Francés (por ejemplo, ``es_ES`` o ``es_BE``), el mensaje será traducido a ``J'aime Symfony2``.
+Ahora, si el idioma de la configuración regional del usuario es el Español (por ejemplo, ``es_ES`` o ``es_MX``), el mensaje será traducido a ``Symfony2 es magnífico``.
 
 El proceso de traducción
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,7 +122,7 @@ Para empezar a traducir el mensaje, Symfony2 utiliza un proceso sencillo:
 
 * Se determina el ``locale`` del usuario actual, el cual está almacenado en la sesión;
 
-* Se carga un catálogo de mensajes traducidos de recursos de traducción definido para la configuración ``locale`` (por ejemplo, ``es_ES``). Los mensajes de la configuración regional de reserva también se cargan y se agregan al catálogo si no existen ya. El resultado final es un gran "diccionario" de traducciones. Consulta `Catálogos de mensajes`_ para más detalles;
+* Se carga un catálogo de mensajes traducidos desde los recursos de traducción definidos para la configuración de ``locale`` (por ejemplo, ``es_ES``). Los mensajes de la configuración regional de reserva también se cargan y se agregan al catálogo si no existen ya. El resultado final es un gran "diccionario" de traducciones. Consulta `Catálogos de mensajes`_ para más detalles;
 
 * Si se encuentra el mensaje en el catálogo, devuelve la traducción. En caso contrario, el traductor devuelve el mensaje original.
 
@@ -131,7 +131,7 @@ Cuando se usa el método ``trans()``, Symfony2 busca la cadena exacta dentro del
 .. index::
    single: Traduciendo; Marcadores de posición de mensajes
 
-Marcadores de posición de mensajes
+Marcadores de posición en mensajes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A veces, se debe traducir un mensaje que contiene una variable:
@@ -140,23 +140,23 @@ A veces, se debe traducir un mensaje que contiene una variable:
 
     public function indexAction($nombre)
     {
-        $t = $this->get('translator')->trans('Hola '.$nombre);
+        $t = $this->get('translator')->trans('Hello '.$nombre);
 
         return new Response($t);
     }
 
-Sin embargo, la creación de una traducción de esta cadena es imposible, ya que el traductor tratará de buscar el mensaje exacto, incluyendo las porciones variables (por ejemplo, "Hola Ryan" u "Hola Fabian"). En lugar de escribir una traducción de cada iteración posible de la variable ``$nombre``, podemos reemplazar la variable con un "marcador de posición":
+Sin embargo, la creación de una traducción de esta cadena es imposible, ya que el traductor tratará de buscar el mensaje exacto, incluyendo las porciones variables (por ejemplo, "Hello Ryan" o "Hello Fabian"). En lugar de escribir una traducción de cada iteración posible de la variable ``$nombre``, podemos reemplazar la variable con un "marcador de posición":
 
 .. code-block:: php
 
     public function indexAction($nombre)
     {
-        $t = $this->get('translator')->trans('Hola %nombre%', array('%nombre%' => $nombre));
+        $t = $this->get('translator')->trans('Hello %name%', array('%name%' => $nombre));
 
         new Response($t);
     }
 
-Symfony2 ahora busca una traducción del mensaje en bruto (``Hola %nombre%``) y *después* reemplaza los marcadores de posición con sus valores. La creación de una traducción se hace igual que antes:
+Symfony2 ahora busca una traducción del mensaje en bruto (``Hello %name%``) y *después* reemplaza los marcadores de posición con sus valores. La creación de una traducción se hace igual que antes:
 
 .. configuration-block::
 
@@ -168,8 +168,8 @@ Symfony2 ahora busca una traducción del mensaje en bruto (``Hola %nombre%``) y 
             <file source-language="en" datatype="plaintext" original="file.ext">
                 <body>
                     <trans-unit id="1">
-                        <source>Hola %nombre%</source>
-                        <target>Bonjour %nombre%</target>
+                        <source>Hello %name%</source>
+                        <target>Hola %name%</target>
                     </trans-unit>
                 </body>
             </file>
@@ -179,13 +179,13 @@ Symfony2 ahora busca una traducción del mensaje en bruto (``Hola %nombre%``) y 
 
         // messages.es.php
         return array(
-            'Hola %nombre%' => 'Bonjour %nombre%',
+            'Hello %name%' => 'Hola %name%',
         );
 
     .. code-block:: yaml
 
         # messages.es.yml
-        'Hola %nombre%': Hola %nombre%
+        'Hello %name%': Hola %name%
 
 .. note::
 
@@ -205,9 +205,9 @@ El segundo paso se realiza creando catálogos de mensajes que definen las traduc
 Catálogos de mensajes
 ---------------------
 
-Cuando se traduce un mensaje, Symfony2 compila un catálogo de mensajes para la configuración regional del usuario y busca en ese una traducción del mensaje. Un catálogo de mensajes es como un diccionario de traducciones para una configuración regional específica. Por ejemplo, el catálogo de la configuración regional ``es_ES`` podría contener la siguiente traducción:
+Cuando se traduce un mensaje, Symfony2 compila un catálogo de mensajes para la configuración regional del usuario y busca en ese una traducción del mensaje. Un catálogo de mensajes es como un diccionario de traducciones para una configuración regional específica. Por ejemplo, el catálogo de la configuración regional ``es_ES`` podría contener la siguiente traducción::
 
-    Symfony2 is Great => J'aime Symfony2
+    Symfony2 is Great => Symfony2 es magnífico
 
 Es responsabilidad del desarrollador (o traductor) de una aplicación internacionalizada crear estas traducciones. Las traducciones son almacenadas en el sistema de archivos y descubiertas por Symfony, gracias a algunos convenios.
 
@@ -229,21 +229,21 @@ Symfony2 busca archivos de mensajes (traducciones) en dos lugares:
 
 * Para los mensajes que se encuentran en un paquete, los archivos de mensajes correspondientes deben vivir en el directorio ``Resources/translations/`` del paquete;
 
-* Para sustituir cualquier paquete de traducciones, coloca los archivos de mensajes en el directorio ``app/Resources/translations``.
+* Para sustituir la traducción de algún paquete, debes colocar los archivos de mensajes en el directorio ``app/Resources/translations``.
 
-El nombre del archivo de las traducciones también es importante ya que Symfony2 utiliza una convención para determinar los detalles sobre las traducciones. Cada archivo de mensajes se debe nombrar de acuerdo con el siguiente patrón: ``domain.locale.loader``:
+El nombre del archivo de las traducciones también es importante ya que Symfony2 utiliza una convención para determinar los detalles sobre las traducciones. Cada archivo de mensajes se debe nombrar de acuerdo con el siguiente patrón: ``dominio.región.cargador``:
 
-* **domain**: Una forma opcional para organizar los mensajes en grupos (por ejemplo, ``admin``, ``navegación`` o el valor predeterminado ``messages``) - consulta `Usando mensajes del dominio`_;
+* **dominio**: Una forma opcional para organizar los mensajes en grupos (por ejemplo, ``admin``, ``navegación`` o el valor predeterminado ``messages``) - consulta `Usando mensajes del dominio`_;
 
-* **locale**: La región para la cual son las traducciones (por ejemplo, ``es_ES``, ``es``, etc.);
+* **región**: La región para la cual son las traducciones (por ejemplo, ``es_ES``, ``es``, etc.);
 
-* **loader**: ¿Cómo debe cargar y analizar el archivo Symfony2 (por ejemplo, ``XLIFF``, ``php`` o ``yml``).
+* **cargador**: ¿Cómo debe cargar y analizar el archivo Symfony2 (por ejemplo, ``XLIFF``, ``php`` o ``yml``).
 
 El cargador puede ser el nombre de cualquier gestor registrado. De manera predeterminada, Symfony incluye los siguientes cargadores:
 
-* ``xliff``: XLIFF file;
-* ``php``:   PHP file;
-* ``yml``:  YAML file.
+* ``xliff``: archivo XLIFF;
+* ``php``:   archivo PHP;
+* ``yml``:   archivo YAML.
 
 La elección del cargador a utilizar es totalmente tuya y es una cuestión de gusto.
 
@@ -271,11 +271,11 @@ Cada archivo se compone de una serie de pares de identificador de traducción pa
                 <body>
                     <trans-unit id="1">
                         <source>Symfony2 is great</source>
-                        <target>J'aime Symfony2</target>
+                        <target>Symfony2 es magnífico</target>
                     </trans-unit>
                     <trans-unit id="2">
                         <source>symfony2.great</source>
-                        <target>J'aime Symfony2</target>
+                        <target>Symfony2 es magnífico</target>
                     </trans-unit>
                 </body>
             </file>
@@ -285,17 +285,17 @@ Cada archivo se compone de una serie de pares de identificador de traducción pa
 
         // src/Acme/DemoBundle/Resources/translations/messages.es.php
         return array(
-            'Symfony2 is great' => 'J\'aime Symfony2',
-            'symfony2.great'    => 'J\'aime Symfony2',
+            'Symfony2 is great' => 'Symfony2 es magnífico',
+            'symfony2.great'    => 'Symfony2 es magnífico',
         );
 
     .. code-block:: yaml
 
         # src/Acme/DemoBundle/Resources/translations/messages.es.yml
-        Symfony2 is great: J'aime Symfony2
-        symfony2.great:    J'aime Symfony2
+        Symfony2 is great: Symfony2 es magnífico
+        symfony2.great:    Symfony2 es magnífico
 
-Symfony2 descubrirá estos archivos y los utilizará cuando traduce o bien "Symfony2 is graeat" o "symfony2.great" en un Idioma regional de Francés (por ejemplo, ``es_ES`` o ``es_BE``).
+Symfony2 descubrirá estos archivos y los utilizará cuando traduce o bien "Symfony2 is graeat" o "symfony2.great" en un Idioma regional de Español (por ejemplo, ``es_ES`` o ``es_MX``).
 
 .. sidebar:: Usando mensajes reales o palabras clave
 
@@ -309,13 +309,13 @@ Symfony2 descubrirá estos archivos y los utilizará cuando traduce o bien "Symf
 
     En el primer método, los mensajes están escritos en el idioma de la región predeterminada (Inglés en este caso). Ese mensaje se utiliza entonces como el "id" al crear traducciones.
 
-    En el segundo método, los mensajes en realidad son "palabras clave" que transmiten la idea del mensaje. El mensaje de la palabra clave se utiliza entonces como el "id" para las traducciones. En este caso, la traducción se debe hacer para la región predeterminada (es decir, para traducir ``symfony2.great`` a ``Symfony2 es grande``).
+    En el segundo método, los mensajes en realidad son "palabras clave" que transmiten la idea del mensaje. Entonces, la palabra clave del mensaje se utiliza como el "id" para las traducciones. En este caso, la traducción se debe hacer para la región predeterminada (es decir, para traducir ``symfony2.great`` a ``Symfony2 es magnífico``).
 
-    El segundo método es útil porque la clave del mensaje no se tendrá que cambiar en cada archivo de la traducción si decidimos que el mensaje en realidad debería decir "Symfony2 es realmente grande" en la configuración regional predeterminada.
+    El segundo método es útil porque la clave del mensaje no se tendrá que cambiar en cada archivo de la traducción si decidimos que el mensaje en realidad debería decir "Symfony2 es realmente magnífico" en la configuración regional predeterminada.
 
-    La elección del método a utilizar es totalmente tuya, pero a menudo se recomienda el formato "palabra clave". 
+    La elección del método a utilizar es totalmente tuya, pero a menudo se recomienda el formato de "palabra clave". 
 
-    Además, es compatible con archivos anidados en formato ``php`` y ``yaml`` para evitar repetir siempre lo mismo si utilizas palabras clave en lugar de texto real para tus identificaciones:
+    Además, es compatible con archivos anidados en formato ``php`` y ``yaml`` para evitar repetir siempre lo mismo si utilizas palabras clave en lugar de texto real para tus identificadores:
 
     .. configuration-block::
 
@@ -323,48 +323,48 @@ Symfony2 descubrirá estos archivos y los utilizará cuando traduce o bien "Symf
 
             symfony2:
                 is:
-                    great: Symfony2 is great
-                    amazing: Symfony2 is amazing
+                    great: Symfony2 es magnífico
+                    amazing: Symfony2 es asombroso
                 has:
-                    bundles: Symfony2 has bundles
+                    bundles: Symfony2 tiene paquetes
             user:
-                login: Login
+                login: Iniciar sesión
 
         .. code-block:: php
 
             return array(
                 'symfony2' => array(
                     'is' => array(
-                        'great' => 'Symfony2 is great',
-                        'amazing' => 'Symfony2 is amazing',
+                        'great' => 'Symfony2 es magnífico',
+                        'amazing' => 'Symfony2 es asombroso',
                     ),
                     'has' => array(
-                        'bundles' => 'Symfony2 has bundles',
+                        'bundles' => 'Symfony2 tiene paquetes',
                     ),
                 ),
                 'user' => array(
-                    'login' => 'Login',
+                    'login' => 'Iniciar sesión',
                 ),
             );
 
-    Los múltiples niveles se acoplan en pares de id/traducción añadiendo un punto (.) entre cada nivel, por lo tanto los ejemplos anteriores son equivalentes a los siguientes:
+    Los niveles múltiples se acoplan en pares de id/traducción añadiendo un punto (.) entre cada nivel, por lo tanto los ejemplos anteriores son equivalentes a los siguientes:
 
     .. configuration-block::
 
         .. code-block:: yaml
 
-            symfony2.is.great: Symfony2 is great
-            symfony2.is.amazing: Symfony2 is amazing
-            symfony2.has.bundles: Symfony2 has bundles
-            user.login: Login
+            symfony2.is.great: Symfony2 es magnífico
+            symfony2.is.amazing: Symfony2 es asombroso
+            symfony2.has.bundles: Symfony2 tiene paquetes
+            user.login: Iniciar sesión
 
         .. code-block:: php
 
             return array(
-                'symfony2.is.great' => 'Symfony2 is great',
-                'symfony2.is.amazing' => 'Symfony2 is amazing',
-                'symfony2.has.bundles' => 'Symfony2 has bundles',
-                'user.login' => 'Login',
+                'symfony2.is.great' => 'Symfony2 es magnífico',
+                'symfony2.is.amazing' => 'Symfony2 es asombroso',
+                'symfony2.has.bundles' => 'Symfony2 tiene paquetes',
+                'user.login' => 'Iniciar sesión',
             );
 
 .. index::
@@ -375,7 +375,7 @@ Usando mensajes del dominio
 
 Como hemos visto, los archivos de mensajes se organizan en las diferentes regiones a traducir. Los archivos de mensajes también se pueden organizar en "dominios".
 Al crear archivos de mensajes, el dominio es la primera porción del nombre de archivo.
-El dominio predeterminado es ``menssages``. Por ejemplo, supongamos que, por organización, las traducciones se dividieron en tres ámbitos diferentes: ``mensajes``, ``admin`` y ``navegacion``. La traducción francesa que tiene los siguientes archivos de mensaje:
+El dominio predeterminado es ``menssages``. Por ejemplo, supongamos que, por organización, las traducciones se dividieron en tres ámbitos diferentes: ``messages``, ``admin`` y ``navegacion``. La traducción española debe tener los siguientes archivos de mensaje:
 
 * ``messages.es.xliff``
 * ``admin.es.xliff``
@@ -495,7 +495,7 @@ Cuando una traducción tiene diferentes formas debido a la pluralización, puede
 
     'Hay una manzana|Hay %count% manzanas'
 
-Para traducir los mensajes pluralizado, utiliza el método :method:`Symfony\\Component\\Translation\\Translator::transChoice`:
+Para traducir los mensajes pluralizados, utiliza el método :method:`Symfony\\Component\\Translation\\Translator::transChoice`:
 
 .. code-block:: php
 
@@ -514,7 +514,7 @@ Aquí está la traducción al Francés::
 
     'Il y a %count% pomme|Il y a %count% pommes'
 
-Incluso si la cadena tiene una apariencia similar (se compone de dos subcadenas separadas por un tubo), las reglas francesas son diferentes: la primera forma (no plural) se utiliza cuando se ``count`` es ``0`` o ``1``. Por lo tanto, el traductor utilizará automáticamente la primera cadena (``Il y a %count% pomme``) cuando ``count`` es ``0`` o ``1``.
+Incluso si la cadena tiene una apariencia similar (se compone de dos subcadenas separadas por un tubo), las reglas francesas son diferentes: la primera forma (no plural) se utiliza cuando ``count`` es ``0`` o ``1``. Por lo tanto, el traductor utilizará automáticamente la primera cadena (``Il y a %count% pomme``) cuando ``count`` es ``0`` o ``1``.
 
 Cada región tiene su propio conjunto de reglas, con algunas que tienen hasta seis formas diferentes de plural con reglas complejas detrás de las cuales los números asignan a tal forma plural.
 Las reglas son bastante simples para Inglés y Francés, pero para el Ruso, puedes querer una pista para saber qué regla coincide con qué cadena. Para ayudar a los traductores, puedes "etiquetar" cada cadena::
@@ -571,7 +571,7 @@ Symfony2 proporciona etiquetas Twig especializadas (``trans`` y ``transchoice``)
 
 .. code-block:: jinja
 
-    {% trans %}Hola %nombre%{% endtrans %}
+    {% trans %}Hello %name%{% endtrans %}
 
     {% transchoice count %}
         {0} There is no apples|{1} There is one apple|]1,Inf] There are %count% apples
@@ -581,13 +581,13 @@ La etiqueta ``transchoice`` obtiene automáticamente la variable ``%count%`` a p
 
 .. tip::
 
-    Si necesitas utilizar el carácter de porcentaje (``%``) en una cadena, lo tienes que escapar duplicando el siguiente: `` {% trans %}Porcentaje: %percent%%%{% endtrans %}``
+    Si necesitas utilizar el carácter de porcentaje (``%``) en una cadena, lo tienes que escapar duplicando el siguiente: ``{% trans %}Porcentaje: %percent%%%{% endtrans %}``
 
 También puedes especificar el dominio del mensaje y pasar algunas variables adicionales:
 
 .. code-block:: jinja
 
-    {% trans with {'%nombre%': 'Fabien'} from "app" %}Hola %nombre%{% endtrans %}
+    {% trans with {'%name%': 'Fabien'} from "app" %}Hello %name%{% endtrans %}
 
     {% transchoice count with {'%nombre%': 'Fabien'} from "app" %}
         {0} There is no apples|{1} There is one apple|]1,Inf] There are %count% apples
@@ -601,9 +601,9 @@ Los filtros ``trans`` y ``transchoice`` se pueden utilizar para traducir *texto 
 
     {{ message | transchoice(5) }}
 
-    {{ message | trans({'%nombre%': 'Fabien'}, "app") }}
+    {{ message | trans({'%name%': 'Fabien'}, "app") }}
 
-    {{ message | transchoice(5, {'%nombre%': 'Fabien'}, 'app') }}
+    {{ message | transchoice(5, {'%name%': 'Fabien'}, 'app') }}
 
 .. tip::
 

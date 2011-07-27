@@ -71,7 +71,7 @@ Esto imprime::
 Coloreando la salida
 ~~~~~~~~~~~~~~~~~~~~
 
-Cada vez que produces texto, puedes escribir el texto con etiquetas para colorear tu salida. Por ejemplo:
+Cada vez que produces texto, puedes escribir el texto con etiquetas para colorear tu salida. Por ejemplo::
 
     // texto verde
     $output->writeln('<info>foo</info>');
@@ -208,9 +208,9 @@ Por ejemplo, fácilmente podrías extender la tarea para que sea traducible::
         $nombre = $input->getArgument('nombre');
         $translator = $this->getContainer()->get('translator');
         if ($nombre) {
-            $output->writeln($translator->trans('Hola %nombre%!', array('%nombre%' => $nombre)));
+            $output->writeln($translator->trans('Hello %name%!', array('%name%' => $nombre)));
         } else {
-            $output->writeln($translator->trans('Hola!'));
+            $output->writeln($translator->trans('Hello!'));
         }
     }
 

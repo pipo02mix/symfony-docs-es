@@ -743,3 +743,4 @@ Aprende más en el recetario
 .. _`P4 - Petición condicional`: http://tools.ietf.org/html/draft-ietf-httpbis-p4-conditional-12
 .. _`P6 - En caché: Exploración y caché intermediaria`: http://tools.ietf.org/html/draft-ietf-httpbis-p6-cache-12
 .. _`ESI`: http://www.w3.org/TR/esi-lang
+..  |ESI| replace:: :abbr:`ESI (Edge Side Includes o Inclusión del borde lateral)`

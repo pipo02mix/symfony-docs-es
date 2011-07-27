@@ -53,7 +53,7 @@ Glosario
         Un *activo* es cualquier componente estático, no ejecutable de una aplicación web, incluyendo CSS, JavaScript, imágenes y video. Los activos se pueden colocar directamente en el directorio ``web`` del proyecto, o publicarse desde un :term:`Paquete` al directorio web, utilizando la tarea de consola ``assets:install``.
 
    Kernel
-        El *Kernel* es el núcleo central de Symfony2. El objeto Kernel controla las peticiones HTTP utilizando todos los paquetes y bibliotecas registrados en él. Consulta el artículo :ref:`La arquitectura: El directorio aplicación <the-app-dir>` y el capítulo :doc:`book/internals/kernel`.
+        El *Kernel* es el núcleo central de Symfony2. El objeto ``Kernel`` controla las peticiones HTTP utilizando todos los paquetes y bibliotecas registrados en él. Consulta el artículo :ref:`La arquitectura: El directorio aplicación <the-app-dir>` y el capítulo :doc:`book/internals/kernel`.
 
    Cortafuegos
         En Symfony2, un *cortafuegos* no tiene que ver con la creación de redes. En su lugar, este define los mecanismos de autenticación (es decir, maneja el proceso de determinar la identidad de los usuarios), ya sea para toda la aplicación o sólo para una parte de ella. Consulta los capítulos :doc:`/book/security`.

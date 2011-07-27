@@ -1,5 +1,5 @@
-Colaborando en la documentación
-===============================
+Aportando documentación
+=======================
 
 .. toctree::
     :maxdepth: 2

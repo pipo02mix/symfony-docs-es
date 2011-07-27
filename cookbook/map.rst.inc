@@ -52,10 +52,10 @@
 
 * **Correo electrónico**
 
-  * :doc:`/cookbook/correo`
+  * :doc:`/cookbook/email`
   * :doc:`/cookbook/gmail`
-  * :doc:`/cookbook/correo/dev_environment`
-  * :doc:`/cookbook/correo/spool`
+  * :doc:`/cookbook/email/dev_environment`
+  * :doc:`/cookbook/email/spool`
 
 * **Probando**
 

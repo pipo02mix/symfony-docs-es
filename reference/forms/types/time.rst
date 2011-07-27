@@ -9,8 +9,8 @@ Un campo para capturar entradas de tiempo.
 Este se puede reproducir como un campo de texto, una serie de campos de texto (por ejemplo, horas, minutos, segundos) o una serie de campos de selección. Los datos subyacentes se pueden almacenar como un objeto ``DateTime``, una cadena, una marca de tiempo (``timestamp``) o una matriz.
 
 +----------------------+-----------------------------------------------------------------------------+
-| Tipo de dato         | puede ser ``DateTime``, string, timestamp, o array (consulta la opción      |
-| subyacente           | ``input``)                                                                  |
+| Tipo de dato         | puede ser ``DateTime``, ``string``, ``timestamp``, o ``array`` (consulta    |
+| subyacente           | la opción ``input``)                                                        |
 +----------------------+-----------------------------------------------------------------------------+
 | Reproducido como     | pueden ser varias etiquetas (ve abajo)                                      |
 +----------------------+-----------------------------------------------------------------------------+

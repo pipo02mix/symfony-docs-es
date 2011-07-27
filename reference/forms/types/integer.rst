@@ -1,8 +1,8 @@
 .. index::
    single: Formularios; Campos; integer
 
-Tipo de campo integer
-=====================
+Tipo de campo ``integer``
+=========================
 
 Reproduce un campo de entrada para "número". Básicamente, se trata de un campo de texto que es bueno manejando datos enteros en un formulario. El campo de entrada ``number`` se parece a un cuadro de texto, salvo que - si el navegador del usuario es compatible con HTML5 - tendrá algunas funciones de interfaz adicionales.
 

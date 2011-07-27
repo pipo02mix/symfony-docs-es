@@ -265,9 +265,9 @@ Veamos la situación a través de la plantilla Twig línea por línea:
 
 * *línea 2*: La etiqueta ``extends`` define una plantilla padre. La plantilla define explícitamente un archivo con el diseño dentro del cual será colocada.
 
-* *línea 4*: La etiqueta ``block`` dice que todo el interior se debe colocar dentro de un bloque llamado ``body``. Como veremos, es responsabilidad de la plantilla padre (``base.html.twig``) reproducir en última instancia, el bloque llamado ``body``.
+* *línea 4*: La etiqueta ``block`` dice que todo el interior se debe colocar dentro de un bloque llamado ``body``. Como verás, es responsabilidad de la plantilla padre (``base.html.twig``) reproducir, en última instancia, el bloque llamado ``body``.
 
-La plantilla padre, ``::base.html.twig``, omite ambas porciones de los nombres **NombrePaquete** y **NombreControlador** (de ahí los dobles dos puntos (``::``) al principio). Esto significa que la plantilla vive fuera de cualquier paquete, en el directorio ``app``:
+La plantilla padre, ``::base.html.twig``, omite ambas porciones de su nombre tanto **NombrePaquete** como **NombreControlador** (de ahí los dobles dos puntos (``::``) al principio). Esto significa que la plantilla vive fuera de cualquier paquete, en el directorio ``app``:
 
 .. configuration-block::
 
@@ -278,10 +278,13 @@ La plantilla padre, ``::base.html.twig``, omite ambas porciones de los nombres *
         <html>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <title>{% block titulo %}Aplicación ``Hola``{% endblock %}</title>
+                <title>{% block title %}¡Bienvenido!{% endblock %}</title>
+                {% block stylesheets %}{% endblock %}
+                <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
             </head>
             <body>
                 {% block body %}{% endblock %}
+                {% block javascripts %}{% endblock %}
             </body>
         </html>
 
@@ -292,10 +295,13 @@ La plantilla padre, ``::base.html.twig``, omite ambas porciones de los nombres *
         <html>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <title><?php $view['slots']->output('titulo', 'Aplicación ``Hola``') ?></title>
+                <title><?php $view['slots']->output('title', '¡Bienvenido!') ?></title>
+                <?php $view['slots']->output('stylesheets') ?>
+                <link rel="shortcut icon" href="<?php echo $view['assets']->getUrl('favicon.ico') ?>" />
             </head>
             <body>
                 <?php $view['slots']->output('_content') ?>
+                <?php $view['slots']->output('stylesheets') ?>
             </body>
         </html>
 

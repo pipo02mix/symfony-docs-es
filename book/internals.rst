@@ -23,26 +23,25 @@ El código Symfony2 está hecho de varias capas independientes. Cada capa está 
 Componente ``HttpFoundation``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Al nivel más profundo está el componente :namespace:`Symfony\\Component\\HttpFoundation`. HttpFoundation proporciona los principales objetos necesarios para hacer frente a HTTP.
+Al nivel más profundo está el componente :namespace:`Symfony\\Component\\HttpFoundation`. ``HttpFoundation`` proporciona los principales objetos necesarios para hacer frente a HTTP.
 Es una abstracción orientada a objetos de algunas funciones y variables nativas de PHP:
 
 * La clase :class:`Symfony\\Component\\HttpFoundation\\Request` resume las principales variables globales de PHP como ``$_GET``, ``$_POST``, ``$_COOKIE``, ``$_FILES`` y ``$_SERVER``;
 
 * La clase :class:`Symfony\\Component\\HttpFoundation\\Response` resume algunas funciones PHP como ``header()``, ``setcookie()`` y ``echo``;
 
-* La clase :class:`Symfony\\Component\\HttpFoundation\\Session` y la interfaz :class:`Symfony\\Component\\HttpFoundation\\SessionStorage\\SessionStorageInterface`
-resumen la gestión de sesión y las funciones ``session_*()``.
+* La clase :class:`Symfony\\Component\\HttpFoundation\\Session` y la interfaz :class:`Symfony\\Component\\HttpFoundation\\SessionStorage\\SessionStorageInterface`, resumen la gestión de sesión y las funciones ``session_*()``.
 
 Componente ``HttpKernel``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-En lo alto de HttpFoundation está el componente :namespace:`Symfony\\Component\\HttpKernel`. HttpKernel se encarga de la parte dinámica de HTTP, es una fina capa en la parte superior de las clases Petición y Respuesta para estandarizar la forma en que se manejan las peticiones. Esta también proporciona puntos de extensión y herramientas que lo convierten en el punto de partida ideal para crear una plataforma Web sin demasiado trabajo.
+En lo alto de ``HttpFoundation`` está el componente :namespace:`Symfony\\Component\\HttpKernel`. ``HttpKernel`` se encarga de la parte dinámica de HTTP, es una fina capa en la parte superior de las clases ``Petición`` y ``Respuesta`` para estandarizar la forma en que se manejan las peticiones. Esta también proporciona puntos de extensión y herramientas que lo convierten en el punto de partida ideal para crear una plataforma Web sin demasiado trabajo.
 
 Además, opcionalmente añade configurabilidad y extensibilidad, gracias al componente de inyección de dependencias y un potente sistema de complementos (paquetes).
 
 .. seealso::
 
-    Lee más sobre el componente :​​doc:`HttpKernel <kernel>`. Lee más sobre la
+    Lee más sobre el componente :doc:`HttpKernel <kernel>`. Lee más sobre la
     :doc:`Inyección de dependencias </book/service_container>` y los :doc:`Paquetes
     </cookbook/bundles/best_practices>`.
 
@@ -69,9 +68,9 @@ Cada núcleo de Symfony2 implementa :class:`Symfony\\Component\\HttpKernel\\Http
 Controladores
 ~~~~~~~~~~~~~
 
-Para convertir una Petición a una Respuesta, el Kernel cuenta con un "Controlador". Un controlador puede ser cualquier PHP ejecutable válido.
+Para convertir una ``Petición`` a una ``Respuesta``, el ``Kernel`` cuenta con un "Controlador". Un controlador puede ser cualquier PHP ejecutable válido.
 
-El Kernel delega la selección de cual controlador se debe ejecutar a una implementación de :class:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface`::
+El ``Kernel`` delega la selección de cual controlador se debe ejecutar a una implementación de :class:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface`::
 
     public function getController(Request $peticion);
 
@@ -85,7 +84,7 @@ El método :method:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolv
 
 El método :method:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface::getArguments` devuelve una matriz de argumentos para pasarla al Controlador ejecutable. La implementación predeterminada automáticamente resuelve los argumentos del método, basándose en los atributos de la Petición.
 
-.. sidebar:: Coincidiendo los argumentos del método Controlador desde los atributos de la Petición
+.. sidebar:: Coincidiendo los argumentos del método Controlador desde los atributos de la ``Petición``
 
     Por cada argumento del método, Symfony2 trata de obtener el valor de un atributo de la petición con el mismo nombre. Si no está definido, el valor predeterminado es el argumento utilizado de estar definido:
 
@@ -116,7 +115,7 @@ Para convertir la ``Petición``, ``handle()`` confía en el mecanismo de resoluc
 
 5. Se llama al mecanismo de resolución para determinar los argumentos a pasar al controlador;
 
-6. El Kernel llama al controlador;
+6. El ``Kernel`` llama al controlador;
 
 7. Si el controlador no devuelve una ``Respuesta``, los escuchas del evento ``kernel.view`` pueden convertir en ``Respuesta`` el valor devuelto por el Controlador;
 
@@ -124,7 +123,7 @@ Para convertir la ``Petición``, ``handle()`` confía en el mecanismo de resoluc
 
 9. Devuelve la respuesta.
 
-Si se produce una Excepción durante el proceso, se notifica la ``kernel.exception`` y se dará una oportunidad a los escuchas de convertir la excepción en Respuesta. Si esto funciona, se notifica el evento ``kernel.response``, si no, se vuelve a lanzar la excepción.
+Si se produce una Excepción durante el proceso, se notifica la ``kernel.exception`` y se dará una oportunidad a los escuchas de convertir la excepción en ``Respuesta``. Si esto funciona, se notifica el evento ``kernel.response``, si no, se vuelve a lanzar la excepción.
 
 Si no deseas que se capturen las Excepciones (para peticiones incrustadas, por ejemplo), desactiva el evento ``kernel.exception`` pasando ``false`` como tercer argumento del método ``handle()``.
 
@@ -147,11 +146,11 @@ El tipo se pasa a todos los eventos y los escuchas pueden actuar en consecuencia
 Eventos
 ~~~~~~~
 
-Cada evento lanzado por el Kernel es una subclase de :class:`Symfony\\Component\\HttpKernel\\Event\\KernelEvent`. Esto significa que cada evento tiene acceso a la misma información básica:
+Cada evento lanzado por el ``Kernel`` es una subclase de :class:`Symfony\\Component\\HttpKernel\\Event\\KernelEvent`. Esto significa que cada evento tiene acceso a la misma información básica:
 
 * ``getRequestType()`` - devuelve el *tipo* de la petición   (``HttpKernelInterface::MASTER_REQUEST`` o ``HttpKernelInterface::SUB_REQUEST``);
 
-* ``getKernel()`` - devuelve el Kernel que está manejando la petición;
+* ``getKernel()`` - devuelve el ``Kernel`` que está manejando la petición;
 
 * ``getRequest()`` - devuelve la ``Petición`` que se está manejando actualmente.
 
@@ -162,7 +161,7 @@ El método ``getRequestType()`` permite a los escuchas conocer el tipo de la pet
 
     use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-    if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
+    if (HttpKernelInterface::MASTER_REQUEST !== $evento->getRequestType()) {
         // regresa inmediatamente
         return;
     }
@@ -184,7 +183,7 @@ Evento ``kernel.request``
 
 El objetivo de este evento es devolver inmediatamente un objeto ``Respuesta`` o variables de configuración para poder invocar un controlador después del evento. Cualquier escucha puede devolver un objeto ``Respuesta`` a través del método ``setResponse()`` en el evento. En este caso, todos los otros escuchas no serán llamados.
 
-Este evento lo utiliza el ``FrameworkBundle`` para llenar el atributo ``_controller`` de la ``Petición``, a través de :class:`Symfony\\Bundle\\FrameworkBundle\\EventListener\\RouterListener`. RequestListener usa un objeto :class:`Symfony\\Component\\Routing\\RouterInterface` para coincidir la ``Petición`` y determinar el nombre del controlador (guardado en el atributo ``_controller`` de la  ``Petición``).
+Este evento lo utiliza el ``FrameworkBundle`` para llenar el atributo ``_controller`` de la ``Petición``, a través de :class:`Symfony\\Bundle\\FrameworkBundle\\EventListener\\RouterListener`. ``RequestListener`` usa un objeto :class:`Symfony\\Component\\Routing\\RouterInterface` para coincidir la ``Petición`` y determinar el nombre del controlador (guardado en el atributo ``_controller`` de la  ``Petición``).
 
 .. index::
    single: Evento; kernel.controller
@@ -200,13 +199,13 @@ Este evento no lo utiliza ``FrameworkBundle``, pero puede ser un punto de entrad
 
     use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 
-    public function onKernelController(FilterControllerEvent $event)
+    public function onKernelController(FilterControllerEvent $evento)
     {
-        $controller = $event->getController();
+        $controller = $evento->getController();
         // ...
 
         // el controlador se puede cambiar a cualquier PHP ejecutable
-        $event->setController($controller);
+        $evento->setController($controller);
     }
 
 .. index::
@@ -224,13 +223,13 @@ El valor devuelto por el controlador es accesible a través del método ``getCon
     use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
     use Symfony\Component\HttpFoundation\Response;
 
-    public function onKernelView(GetResponseForControllerResultEvent $event)
+    public function onKernelView(GetResponseForControllerResultEvent $evento)
     {
-        $val = $event->getReturnValue();
+        $val = $evento->getReturnValue();
         $respuesta = new Response();
         // modifica de alguna manera el valor de retorno de la respuesta
 
-        $event->setResponse($respuesta);
+        $evento->setResponse($respuesta);
     }
 
 .. index::
@@ -245,9 +244,9 @@ El propósito de este evento es permitir que otros sistemas modifiquen o sustitu
 
 .. code-block:: php
 
-    public function onKernelResponse(FilterResponseEvent $event)
+    public function onKernelResponse(FilterResponseEvent $evento)
     {
-        $respuesta = $event->getResponse();
+        $respuesta = $evento->getResponse();
         // .. modifica el objeto Respuesta
     }
 
@@ -280,16 +279,16 @@ Un escucha en este evento puede crear y establecer un objeto ``Respuesta``, crea
     use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
     use Symfony\Component\HttpFoundation\Response;
 
-    public function onKernelException(GetResponseForExceptionEvent $event)
+    public function onKernelException(GetResponseForExceptionEvent $evento)
     {
-        $exception = $event->getException();
+        $exception = $evento->getException();
         $respuesta = new Response();
         // configura el objeto Respuesta basándose en la excepción capturada
-        $event->setResponse($respuesta);
+        $evento->setResponse($respuesta);
 
         // alternativamente puedes establecer una nueva excepción
         // $exception = new \Exception('Alguna excepción especial');
-        // $event->setException($exception);
+        // $evento->setException($exception);
     }
 
 .. index::
@@ -351,7 +350,7 @@ Cuando el despachador notifica a los escuchas, este pasa un objeto ``Evento`` re
 
 Muchas veces, los datos acerca de un evento específico se tienen que pasar junto con el objeto ``Evento`` para que los escuchas tengan la información necesaria. En el caso del evento ``kernel.response``, el objeto ``Evento`` creado y pasado a cada escucha realmente es de tipo :class:`Symfony\\Component\\HttpKernel\\Event\\FilterResponseEvent`, una subclase del objeto ``Evento`` base. Esta clase contiene métodos como ``getResponse`` y ``setResponse``, que permiten a los escuchas recibir e incluso sustituir el objeto ``Respuesta``.
 
-La moraleja de la historia es esta: cuando creas un escucha para un evento, el objeto ``Evento`` que se pasa al escucha puede ser una subclase especial que tiene métodos adicionales para recuperar información desde y para responder a evento.
+La moraleja de la historia es esta: cuando creas un escucha para un evento, el objeto ``Evento`` que se pasa al escucha puede ser una subclase especial que tiene métodos adicionales para recuperar información desde y para responder al evento.
 
 El despachador
 ~~~~~~~~~~~~~~
@@ -362,7 +361,7 @@ El despachador es el objeto central del sistema despachador de eventos. En gener
 
     use Symfony\Component\EventDispatcher\EventDispatcher;
 
-    $dispatcher = new EventDispatcher();
+    $despachador = new EventDispatcher();
 
 .. index::
    single: Despachador de eventos; Escuchas
@@ -374,8 +373,8 @@ Para aprovechar las ventajas de un evento existente, es necesario conectar un es
 
 .. code-block:: php
 
-    $listener = new AcmeListener();
-    $dispatcher->addListener('foo.action', array($listener, 'onFooAction'));
+    $escucha = new AcmeListener();
+    $despachador->addListener('foo.action', array($escucha, 'onFooAction'));
 
 El método ``addListener()`` toma hasta tres argumentos:
 
@@ -395,7 +394,7 @@ El método ``addListener()`` toma hasta tres argumentos:
 
         use Symfony\Component\EventDispatcher\Event;
 
-        $dispatcher->addListener('foo.action', function (Event $event) {
+        $despachador->addListener('foo.action', function (Event $evento) {
             // se debe ejecutar cuando se despache el evento foo.action
         });
 
@@ -409,7 +408,7 @@ Una vez que se registra el escucha en el despachador, este espera hasta que el e
     {
         // ...
 
-        public function onFooAction(Event $event)
+        public function onFooAction(Event $evento)
         {
             // hace alguna cosa
         }
@@ -425,10 +424,10 @@ En muchos casos, una subclase especial ``Evento`` específica para el evento dad
 
     use Symfony\Component\HttpKernel\Event\FilterResponseEvent
 
-    public function onKernelResponse(FilterResponseEvent $event)
+    public function onKernelResponse(FilterResponseEvent $evento)
     {
-        $respuesta = $event->getResponse();
-        $peticion = $event->getRequest();
+        $respuesta = $evento->getResponse();
+        $peticion = $evento->getRequest();
 
         // ...
     }
@@ -446,27 +445,27 @@ Además de registrar escuchas con eventos existentes, puedes crear y lanzar tus 
 La clase estática ``Events``
 ............................
 
-Supongamos que deseas crear un nuevo evento - ``store.order`` - el cual se despacha cada vez que es creada una orden dentro de tu aplicación. Para mantener las cosas organizadas, empieza por crear una clase ``StoreEvents`` dentro de tu aplicación que sirva para definir y documentar tu evento:
+Supongamos que deseas crear un nuevo evento - ``guarda.orden`` - el cual se despacha cada vez que es creada una orden dentro de tu aplicación. Para mantener las cosas organizadas, empieza por crear una clase ``GuardaEventos`` dentro de tu aplicación que sirva para definir y documentar tu evento:
 
 .. code-block:: php
 
-    namespace Acme\TiendaBundle;
+    namespace Acme\GuardaBundle;
 
-    final class StoreEvents
+    final class GuardaEventos
     {
         /**
-         * El evento store.order es lanzado cada vez que se crea una orden
+         * El evento guarda.orden es lanzado cada vez que se crea una orden
          * en el sistema.
          * 
          * El escucha del evento recibe una instancia de
-         * Acme\TiendaBundle\Event\FilterOrderEvent.
+         * Acme\GuardaBundle\Event\FiltraOrdenEvent.
          *
          * @var string
          */
-        const onStoreOrder = 'store.order';
+        const onGuardaOrden = 'guarda.orden';
     }
 
-Ten en cuenta que esta clase en realidad no *hace* nada. El propósito de la clase ``StoreEvents`` sólo es ser un lugar donde se pueda centralizar la información sobre los eventos comunes. Observa también que se pasará una clase especial ``FilterOrderEvent`` a cada escucha de este evento.
+Ten en cuenta que esta clase en realidad no *hace* nada. El propósito de la clase ``GuardaEventos`` sólo es ser un lugar donde se pueda centralizar la información sobre los eventos comunes. Observa también que se pasará una clase especial ``FiltraOrdenEvent`` a cada escucha de este evento.
 
 Creando un objeto Evento
 ........................
@@ -477,27 +476,27 @@ En este ejemplo, cada escucha tendrá acceso a algún objeto ``Orden``. Crea una
 
 .. code-block:: php
 
-    namespace Acme\TiendaBundle\Event;
+    namespace Acme\GuardaBundle\Event;
 
     use Symfony\Component\EventDispatcher\Event;
-    use Acme\TiendaBundle\Order;
+    use Acme\GuardaBundle\Orden;
 
-    class FilterOrderEvent extends Event
+    class FiltraOrdenEvent extends Event
     {
-        protected $order;
+        protected $orden;
 
-        public function __construct(Order $order)
+        public function __construct(Orden $orden)
         {
-            $this->order = $order;
+            $this->orden = $orden;
         }
 
-        public function getOrder()
+        public function getOrden()
         {
-            return $this->order;
+            return $this->orden;
         }
     }
 
-Ahora cada escucha tiene acceso al objeto ``Orden`` a través del método ``getOrder``.
+Ahora cada escucha tiene acceso al objeto ``Orden`` a través del método ``getOrden``.
 
 Despachando el evento
 .....................
@@ -506,28 +505,28 @@ El método :method:`Symfony\\Component\\EventDispatcher\\EventDispatcher::dispat
 
 .. code-block:: php
 
-    use Acme\TiendaBundle\StoreEvents;
-    use Acme\TiendaBundle\Order;
-    use Acme\TiendaBundle\Event\FilterOrderEvent;
+    use Acme\GuardaBundle\GuardaEventos;
+    use Acme\GuardaBundle\Orden;
+    use Acme\GuardaBundle\Event\FiltraOrdenEvent;
 
     // la orden de alguna manera es creada o recuperada
-    $order = new Order();
+    $orden = new Orden();
     // ...
 
-    // crea el FilterOrderEvent y lo despacha
-    $event = new FilterOrderEvent($order);
-    $dispatcher->dispatch(StoreEvents::onStoreOrder, $event);
+    // crea el FiltraOrdenEvent y lo despacha
+    $evento = new FiltraOrdenEvent($orden);
+    $despachador->dispatch(GuardaEventos::onGuardaOrden, $evento);
 
-Ten en cuenta que el objeto especial ``FilterOrderEvent`` se crea y pasa al método ``dispatch``. Ahora, cualquier escucha del evento ``store.order`` recibirá el ``FilterOrderEvent`` y tendrá acceso al objeto ``Orden`` a través del método ``getOrder``:
+Ten en cuenta que el objeto especial ``FiltraOrdenEvent`` se crea y pasa al método ``dispatch``. Ahora, cualquier escucha del evento ``guarda.orden`` recibirá el ``FiltraOrdenEvent`` y tendrá acceso al objeto ``Orden`` a través del método ``getOrden``:
 
 .. code-block:: php
 
-    // alguna clase escucha que se ha registrado para onStoreOrder
-    use Acme\TiendaBundle\Event\FilterOrderEvent;
+    // alguna clase escucha que se ha registrado para onGuardaOrden
+    use Acme\GuardaBundle\Event\FiltraOrdenEvent;
 
-    public function onStoreOrder(FilterOrderEvent $event)
+    public function onGuardaOrden(FiltraOrdenEvent $evento)
     {
-        $order = $event->getOrder();
+        $orden = $evento->getOrden();
         // hace algo a/con la orden
     }
 
@@ -543,11 +542,11 @@ Puedes usar el constructor de inyección::
 
     class Foo
     {
-        protected $dispatcher = null;
+        protected $despachador = null;
 
-        public function __construct(EventDispatcher $dispatcher)
+        public function __construct(EventDispatcher $despachador)
         {
-            $this->dispatcher = $dispatcher;
+            $this->despachador = $despachador;
         }
     }
 
@@ -555,11 +554,11 @@ O definir la inyección::
 
     class Foo
     {
-        protected $dispatcher = null;
+        protected $despachador = null;
 
-        public function setEventDispatcher(EventDispatcher $dispatcher)
+        public function setEventDispatcher(EventDispatcher $despachador)
         {
-            $this->dispatcher = $dispatcher;
+            $this->despachador = $despachador;
         }
     }
 
@@ -577,31 +576,31 @@ Usando suscriptores de evento
 
 La forma más común para escuchar a un evento es registrar un *escucha de evento* con el despachador. Este escucha puede estar atento a uno o más eventos y ser notificado cada vez que se envían los eventos.
 
-Otra forma de escuchar eventos es a través de un *suscriptor de eventos*. Un suscriptor de eventos es una clase PHP que es capaz de decir al despachador exactamente a cuales eventos debe estar suscrito. Este implementa la interfaz :class:`Symfony\\Component\\EventDispatcher\\EventSubscriberInterface`, que requiere un solo método estático llamado ``getSubscribedEvents``. Considera el siguiente ejemplo de un suscriptor que está inscrito a los eventos ``kernel.response`` y ``store.order``:
+Otra forma de escuchar eventos es a través de un *suscriptor de eventos*. Un suscriptor de eventos es una clase PHP que es capaz de decir al despachador exactamente a cuales eventos debe estar suscrito. Este implementa la interfaz :class:`Symfony\\Component\\EventDispatcher\\EventSubscriberInterface`, que requiere un solo método estático llamado ``getSubscribedEvents``. Considera el siguiente ejemplo de un suscriptor que está inscrito a los eventos ``kernel.response`` y ``guarda.orden``:
 
 .. code-block:: php
 
-    namespace Acme\TiendaBundle\Event;
+    namespace Acme\GuardaBundle\Event;
 
     use Symfony\Component\EventDispatcher\EventSubscriberInterface;
     use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
-    class StoreSubscriber implements EventSubscriberInterface
+    class GuardaSubscriber implements EventSubscriberInterface
     {
         static public function getSubscribedEvents()
         {
             return array(
                 'kernel.response' => 'onKernelResponse',
-                'store.order'     => 'onStoreOrder',
+                'guarda.orden'     => 'onGuardaOrden',
             );
         }
 
-        public function onKernelResponse(FilterResponseEvent $event)
+        public function onKernelResponse(FilterResponseEvent $evento)
         {
             // ...
         }
 
-        public function onStoreOrder(FilterOrderEvent $event)
+        public function onGuardaOrden(FiltraOrdenEvent $evento)
         {
             // ...
         }
@@ -612,10 +611,10 @@ Esto es muy similar a una clase escucha, salvo que la propia clase puede decir a
 
 .. code-block:: php
 
-    use Acme\TiendaBundle\Event\StoreSubscriber;
+    use Acme\GuardaBundle\Event\GuardaSubscriber;
 
-    $subscriber = new StoreSubscriber();
-    $dispatcher->addSubscriber($subscriber);
+    $subscriber = new GuardaSubscriber();
+    $despachador->addSubscriber($subscriber);
 
 El despachador registrará automáticamente al suscriptor para cada evento devuelto por el método ``getSubscribedEvents``. Al igual que con los escuchas, el método ``addSubscriber`` tiene un segundo argumento opcional, que es la prioridad que se debe dar a cada evento.
 
@@ -627,20 +626,20 @@ El despachador registrará automáticamente al suscriptor para cada evento devue
 Deteniendo el flujo/propagación del evento
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-En algunos casos, puede tener sentido que un escucha evite que se llame a otros escuchas. En otras palabras, el escucha tiene que poder decirle al despachador detenga la propagación de todos los eventos a los escuchas en el futuro (es decir, no notificar a más escuchas). Esto se puede lograr desde el interior de un escucha a través del método :method:`Symfony\\Component\\EventDispatcher\\Event::stopPropagation`:
+En algunos casos, puede tener sentido que un escucha evite que se llame a otros escuchas. En otras palabras, el escucha tiene que poder decirle al despachador detenga la propagación del evento a todos los escuchas en el futuro (es decir, no notificar a más escuchas). Esto se puede lograr desde el interior de un escucha a través del método :method:`Symfony\\Component\\EventDispatcher\\Event::stopPropagation`:
 
 .. code-block:: php
 
-   use Acme\TiendaBundle\Event\FilterOrderEvent;
+   use Acme\GuardaBundle\Event\FiltraOrdenEvent;
 
-   public function onStoreOrder(FilterOrderEvent $event)
+   public function onGuardaOrden(FiltraOrdenEvent $evento)
    {
        // ...
 
-       $event->stopPropagation();
+       $evento->stopPropagation();
    }
 
-Ahora, cualquier escucha de ``store.order`` que aún no ha sido llamado *no* será invocado.
+Ahora, cualquier escucha de ``guarda.orden`` que aún no ha sido llamado *no* será invocado.
 
 .. index::
    single: Generador de perfiles
@@ -676,7 +675,7 @@ Si el resumen presentado por las herramientas de la barra de depuración web no 
 Analizando datos del perfil con el generador de perfiles web
 ............................................................
 
-El generador de perfiles web es una herramienta de visualización para el perfilado de datos que puedes utilizar en desarrollo para depurar tu código y mejorar el rendimiento, pero también lo puedes utilizar para explorar problemas que se producen en producción. Este expone toda la información recogida por el generador de perfiles en un interfaz web.
+El generador de perfiles web es una herramienta de visualización para el perfilado de datos que puedes utilizar en desarrollo para depurar tu código y mejorar el rendimiento, pero también lo puedes utilizar para explorar problemas que se producen en producción. Este expone toda la información recogida por el generador de perfiles en una interfaz web.
 
 .. index::
    single: Generador de perfiles; Usando el servicio generador de perfiles
@@ -688,7 +687,7 @@ No es necesario utilizar el visualizador predeterminado para acceder a la inform
 
     $perfil = $contenedor->get('profiler')->loadProfileFromResponse($respuesta);
 
-    $perfil = $contenedor->get('profiler')->loadProfile($token);
+    $perfil = $contenedor->get('profiler')->loadProfile($muestra);
 
 .. tip::
 
@@ -697,22 +696,22 @@ No es necesario utilizar el visualizador predeterminado para acceder a la inform
 Usa el método ``find()`` para acceder a elementos basándose en algún criterio::
 
     // consigue los 10 últimas fragmentos
-    $tokens = $contenedor->get('profiler')->find('', '', 10);
+    $muestras = $contenedor->get('profiler')->find('', '', 10);
 
     // consigue los 10 últimos fragmentos de todas las URL que contienen /admin/
-    $tokens = $contenedor->get('profiler')->find('', '/admin/', 10);
+    $muestras = $contenedor->get('profiler')->find('', '/admin/', 10);
 
     // consigue los 10 últimos fragmentos de peticiones locales
-    $tokens = $contenedor->get('profiler')->find('127.0.0.1', '', 10);
+    $muestras = $contenedor->get('profiler')->find('127.0.0.1', '', 10);
 
 Si deseas manipular los datos del perfil en una máquina diferente a la que generó la información, utiliza los métodos ``export()`` e ``import()``::
 
     // en la máquina en producción
-    $perfil = $contenedor->get('profiler')->loadProfile($token);
-    $data = $profiler->export($perfil);
+    $perfil = $contenedor->get('profiler')->loadProfile($muestra);
+    $datos = $profiler->export($perfil);
 
     // en la máquina de desarrollo
-    $profiler->import($data);
+    $profiler->import($datos);
 
 .. index::
    single: Generador de perfiles; Visualizando
@@ -720,7 +719,7 @@ Si deseas manipular los datos del perfil en una máquina diferente a la que gene
 Configurando
 ............
 
-La configuración predeterminada de Symfony2 viene con sensibles ajustes para el generador de perfiles, la barra de herramientas de depuración web, y el generador de perfiles web. Aquí está por ejemplo la configuración para el entorno de desarrollo:
+La configuración predeterminada de Symfony2 viene con ajustes razonables para el generador de perfiles, la barra de herramientas de depuración web, y el generador de perfiles web. Aquí está por ejemplo la configuración para el entorno de desarrollo:
 
 .. configuration-block::
 
@@ -767,7 +766,7 @@ La configuración predeterminada de Symfony2 viene con sensibles ajustes para el
             'verbose' => true,
         ));
 
-Cuando ``only-exceptions`` se establece a ``true``, el generador de perfiles sólo recoge dados cuando tu aplicación lanza una excepción.
+Cuando ``only-exceptions`` se establece a ``true``, el generador de perfiles sólo recoge datos cuando tu aplicación lanza una excepción.
 
 Cuando ``intercept-redirects`` está establecido en ``true``, el generador de perfiles web intercepta las redirecciones y te da la oportunidad de analizar los datos recogidos antes de seguir la redirección.
 
@@ -791,7 +790,7 @@ Si activas el generador de perfiles web, también es necesario montar las rutas 
 
         $coleccion->addCollection($loader->import("@WebProfilerBundle/Resources/config/routing/profiler.xml"), '/_profiler');
 
-Dado que el generador de perfiles añade algo de sobrecarga, posiblemente desees activarlo sólo bajo ciertas circunstancias en el entorno de producción. La configuración ``only-exceptions`` limita al generador de perfiles a 500 páginas, ¿pero si quieres obtener información cuando el cliente IP proviene de una dirección específica, o para una parte limitada de la página web? Puedes utilizar una petición emparejadora:
+Dado que el generador de perfiles añade algo de sobrecarga, posiblemente desees activarlo sólo bajo ciertas circunstancias en el entorno de producción. La configuración ``only-exceptions`` limita al generador de perfiles a 500 páginas, ¿pero si quieres obtener información cuando el cliente IP proviene de una dirección específica, o para una parte limitada de la página web? Puedes utilizar una emparejadora de petición:
 
 .. configuration-block::
 
@@ -888,4 +887,6 @@ Aprende más en el recetario
 .. _observador: http://es.wikipedia.org/wiki/Observer_(patr%C3%B3n_de_dise%C3%B1o)
 .. _`componente HttpKernel de Symfony2`: https://github.com/symfony/HttpKernel
 .. _Cierres: http://php.net/manual/en/functions.anonymous.php
-.. _`componente Inyección de dependencias de Symfony2`: https://github.com/symfony/DependencyInjection _PHP ejecutable: http://www.php.net/manual/en/language.pseudo-types.php#language.types.callback
+.. _`componente Inyección de dependencias de Symfony2`: https://github.com/symfony/DependencyInjection
+.. _`PHP ejecutable`: http://www.php.net/manual/en/language.pseudo-types.php#language.types.callback
+..  |ESI| replace:: :abbr:`ESI (Edge Side Includes o Inclusión del borde lateral)`

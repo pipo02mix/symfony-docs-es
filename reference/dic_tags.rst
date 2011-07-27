@@ -191,9 +191,9 @@ El servicio registrador utiliza el canal ``app`` pero puedes cambiar de canal cu
 
     .. code-block:: php
 
-        $definition = new Definition('Fully\Qualified\Loader\Class\Name', array(new Reference('logger'));
-        $definition->addTag('monolog.logger', array('channel' => 'acme'));
-        $contenedor->register('my_service', $definition);;
+        $definicion = new Definition('Fully\Qualified\Loader\Class\Name', array(new Reference('logger'));
+        $definicion->addTag('monolog.logger', array('channel' => 'acme'));
+        $contenedor->register('my_service', $definicion);;
 
 .. note::
 
@@ -228,9 +228,9 @@ Puedes agregar un procesador globalmente:
 
     .. code-block:: php
 
-        $definition = new Definition('Monolog\Processor\IntrospectionProcessor');
-        $definition->addTag('monolog.processor');
-        $contenedor->register('my_service', $definition);
+        $definicion = new Definition('Monolog\Processor\IntrospectionProcessor');
+        $definicion->addTag('monolog.processor');
+        $contenedor->register('my_service', $definicion);
 
 .. tip::
 
@@ -256,9 +256,9 @@ También puedes agregar un procesador para un controlador específico utilizando
 
     .. code-block:: php
 
-        $definition = new Definition('Monolog\Processor\IntrospectionProcessor');
-        $definition->addTag('monolog.processor', array('handler' => 'firephp');
-        $contenedor->register('my_service', $definition);
+        $definicion = new Definition('Monolog\Processor\IntrospectionProcessor');
+        $definicion->addTag('monolog.processor', array('handler' => 'firephp');
+        $contenedor->register('my_service', $definicion);
 
 También puedes agregar un procesador para un canal registrador específico usando el atributo ``channel``. Esto registrará el procesador únicamente para el canal registrador ``security`` utilizado en el componente de seguridad:
 
@@ -280,9 +280,9 @@ También puedes agregar un procesador para un canal registrador específico usan
 
     .. code-block:: php
 
-        $definition = new Definition('Monolog\Processor\IntrospectionProcessor');
-        $definition->addTag('monolog.processor', array('channel' => 'security');
-        $contenedor->register('my_service', $definition);
+        $definicion = new Definition('Monolog\Processor\IntrospectionProcessor');
+        $definicion->addTag('monolog.processor', array('channel' => 'security');
+        $contenedor->register('my_service', $definicion);
 
 .. note::
 

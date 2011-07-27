@@ -1,8 +1,8 @@
 .. index::
    single: Formularios; Campos; file
 
-Tipo de campo file
-==================
+Tipo de campo ``file``
+======================
 
 El tipo ``file`` representa una entrada de archivo en tu formulario.
 

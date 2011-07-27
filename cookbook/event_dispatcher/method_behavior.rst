@@ -16,20 +16,20 @@ Si quieres hacer algo justo antes o justo después de invocar a un método, pued
         public function send($foo, $bar)
         {
             // hace algo antes del método
-            $event = new FilterBeforeSendEvent($foo, $bar);
-            $this->dispatcher->dispatch('foo.pre_send', $event);
+            $evento = new FilterBeforeSendEvent($foo, $bar);
+            $this->despachador->dispatch('foo.pre_send', $evento);
 
             // obtiene $foo y $bar desde el evento, esto se puede modificar
-            $foo = $event->getFoo();
-            $bar = $event->getBar();
+            $foo = $evento->getFoo();
+            $bar = $evento->getBar();
             // aquí va la implementación real
             // $ret = ...;
 
             // hace algo después del método
-            $event = new FilterSendReturnValue($ret);
-            $this->dispatcher->dispatch('foo.post_send', $event);
+            $evento = new FilterSendReturnValue($ret);
+            $this->despachador->dispatch('foo.post_send', $evento);
 
-            return $event->getReturnValue();
+            return $evento->getReturnValue();
         }
     }
 
@@ -39,10 +39,10 @@ Por ejemplo, suponiendo que el ``FilterSendReturnValue`` tiene un método ``setR
 
 .. code-block:: php
 
-    public function onFooPostSend(FilterSendReturnValue $event)
+    public function onFooPostSend(FilterSendReturnValue $evento)
     {
-        $ret = $event->getReturnValue();
+        $ret = $evento->getReturnValue();
         // modifica el valor original ``$ret``
 
-        $event->setReturnValue($ret);
+        $evento->setReturnValue($ret);
     }

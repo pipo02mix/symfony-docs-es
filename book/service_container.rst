@@ -8,7 +8,7 @@ Contenedor de servicios
 Una moderna aplicación PHP está llena de objetos. Un objeto te puede facilitar la entrega de mensajes de correo electrónico, mientras que otro te puede permitir mantener información en una base de datos. En tu aplicación, puedes crear un objeto que gestiona tu inventario de productos, u otro objeto que procesa los datos de una API de terceros. El punto es que una aplicación moderna hace muchas cosas y está organizada en muchos objetos que se encargan de cada tarea.
 
 En este capítulo, vamos a hablar de un objeto PHP especial en Symfony2 que te ayuda a crear una instancia, organizar y recuperar muchos objetos de tu aplicación.
-Este objeto, llamado contenedor de servicios, te permitirá estandarizar y centralizar la forma en que se construyen los objetos en tu aplicación. El contenedor te facilita la vida, es superveloz, y enfatiza una arquitectura que promueve el código reutilizable y disociado. Y como todas las clases Symfony2 básicas usan el contenedor, aprenderás cómo ampliar, configurar y utilizar cualquier objeto en Symfony2. En gran parte, el contenedor de servicios es el mayor contribuyente a la velocidad y la extensibilidad de Symfony2.
+Este objeto, llamado contenedor de servicios, te permitirá estandarizar y centralizar la forma en que se construyen los objetos en tu aplicación. El contenedor te facilita la vida, es superveloz, y enfatiza una arquitectura que promueve el código reutilizable y disociado. Y como todas las clases Symfony2 básicas usan el contenedor, aprenderás cómo ampliar, configurar y utilizar cualquier objeto en Symfony2. En gran parte, el contenedor de servicios es el mayor contribuyente a la velocidad y extensibilidad de Symfony2.
 
 Por último, configurar y usar el contenedor de servicios es fácil. Al final de este capítulo, te sentirás cómodo creando tus propios objetos y personalizando objetos de cualquier paquete de terceros a través del contenedor. Empezarás a escribir código más reutilizable, comprobable y disociado, simplemente porque el contenedor de servicios facilita la escritura de buen código.
 
@@ -24,7 +24,7 @@ En pocas palabras, un :term:`Servicio` es cualquier objeto PHP que realiza algú
 
     Por regla general, un objeto PHP es un servicio si se utiliza a nivel global en tu aplicación. Un solo servicio ``Mailer`` se utiliza a nivel global para enviar mensajes de correo electrónico mientras que muchos objetos ``Mensaje`` que entrega no son *servicios*. Del mismo modo, un objeto ``producto`` no es un servicio, sino un objeto ``producto`` que persiste objetos a una base de datos *es* un servicio.
 
-Entonces, ¿cuál es la ventaja? La ventaja de pensar en "servicios" es que comienzas a pensar en la separación de cada parte de la funcionalidad de tu aplicación como una serie de servicios. Puesto que cada servicio se limita a un trabajo, puedes acceder fácilmente a cada servicio y usar su funcionalidad siempre que la necesites. Cada servicio también se puede probar y configurar más fácilmente, ya que está separado de la otra funcionalidad de tu aplicación. Esta idea se llama `arquitectura orientada a servicios`_ y no es única de Symfony2 e incluso de PHP. Estructurando tu aplicación en torno a un conjunto de clases Servicio independientes es una bien conocida y confiable práctica mejor orientada a objetos. Estas habilidades son clave para ser un buen desarrollador en casi cualquier lenguaje.
+Entonces, ¿cuál es la ventaja? La ventaja de pensar en "servicios" es que comienzas a pensar en la separación de cada parte de la funcionalidad de tu aplicación como una serie de servicios. Puesto que cada servicio se limita a un trabajo, puedes acceder fácilmente a cada servicio y usar su funcionalidad siempre que la necesites. Cada servicio también se puede probar y configurar más fácilmente, ya que está separado de la otra funcionalidad de tu aplicación. Esta idea se llama `arquitectura orientada a servicios`_ y no es única de Symfony2 e incluso de PHP. Estructurando tu aplicación en torno a un conjunto de clases *Servicio* independientes es una bien conocida y confiable práctica mejor orientada a objetos. Estas habilidades son clave para ser un buen desarrollador en casi cualquier lenguaje.
 
 .. index::
    single: Contenedor de servicios; ¿Qué es?
@@ -124,8 +124,8 @@ La creación de nuevos servicios (es decir, objetos) a través del contenedor es
 
         services:
             mi_cartero:
-                class:        %my_mailer.class%
-                arguments:    [%my_mailer.transport%]
+                class:        %mi_cartero.class%
+                arguments:    [%mi_cartero.transport%]
 
     .. code-block:: xml
 
@@ -136,8 +136,8 @@ La creación de nuevos servicios (es decir, objetos) a través del contenedor es
         </parameters>
 
         <services>
-            <service id="mi_cartero" class="%my_mailer.class%">
-                <argument>%my_mailer.transport%</argument>
+            <service id="mi_cartero" class="%mi_cartero.class%">
+                <argument>%mi_cartero.transport%</argument>
             </service>
         </services>
 
@@ -150,8 +150,8 @@ La creación de nuevos servicios (es decir, objetos) a través del contenedor es
         $contenedor->setParameter('mi_cartero.transport', 'sendmail');
 
         $contenedor->setDefinition('mi_cartero', new Definition(
-            '%my_mailer.class%',
-            array('%my_mailer.transport%')
+            '%mi_cartero.class%',
+            array('%mi_cartero.transport%')
         ));
 
 El resultado final es exactamente igual que antes - la diferencia es sólo en *cómo* definimos el servicio. Al rodear las cadenas ``mi_cartero.class`` y ``mi_cartero.transport`` entre signos de porcentaje (``%``), el contenedor sabe que tiene que buscar los parámetros con esos nombres. Cuando se construye el contenedor, este busca el valor de cada parámetro y lo utiliza en la definición del servicio.
@@ -159,7 +159,7 @@ El resultado final es exactamente igual que antes - la diferencia es sólo en *c
 El propósito de los parámetros es alimentar información a los servicios. Por supuesto no había nada malo en la definición del servicio sin utilizar ningún parámetro.
 Los parámetros, sin embargo, tienen varias ventajas:
 
-* Separan y organizan todo el servicio en "opciones" bajo un sola clave ``parameters``;
+* Separan y organizan todo el servicio en "opciones" bajo una sola clave ``parameters``;
 
 * Los valores del parámetro se pueden utilizar en la definición de múltiples servicios;
 
@@ -202,8 +202,8 @@ En primer lugar, mueve la definición del contenedor de ``mi_cartero`` a un nuev
 
         services:
             mi_cartero:
-                class:        %my_mailer.class%
-                arguments:    [%my_mailer.transport%]
+                class:        %mi_cartero.class%
+                arguments:    [%mi_cartero.transport%]
 
     .. code-block:: xml
 
@@ -214,8 +214,8 @@ En primer lugar, mueve la definición del contenedor de ``mi_cartero`` a un nuev
         </parameters>
 
         <services>
-            <service id="mi_cartero" class="%my_mailer.class%">
-                <argument>%my_mailer.transport%</argument>
+            <service id="mi_cartero" class="%mi_cartero.class%">
+                <argument>%mi_cartero.transport%</argument>
             </service>
         </services>
 
@@ -228,8 +228,8 @@ En primer lugar, mueve la definición del contenedor de ``mi_cartero`` a un nuev
         $contenedor->setParameter('mi_cartero.transport', 'sendmail');
 
         $contenedor->setDefinition('mi_cartero', new Definition(
-            '%my_mailer.class%',
-            array('%my_mailer.transport%')
+            '%mi_cartero.class%',
+            array('%mi_cartero.transport%')
         ));
 
 La propia definición no ha cambiado, sólo su ubicación. Por supuesto, el contenedor de servicios no sabe sobre el nuevo archivo de recursos. Afortunadamente, es fácil importar el archivo de recursos utilizando la clave ``imports`` en la configuración de la aplicación.
@@ -276,7 +276,7 @@ Así es como funciona. Internamente, cada paquete define sus servicios muy parec
 
 En otras palabras, una extensión del contenedor de servicios configura los servicios para un paquete en tu nombre. Y como veremos en un momento, la extensión proporciona una interfaz sensible y de alto nivel para configurar el paquete.
 
-Tomemos el ``FrameworkBundle`` - el núcleo de la plataforma de Symfony2 - como ejemplo. La presencia del siguiente código en la configuración de tu aplicación invoca a la extensión en el interior del contenedor de servicios ``FrameworkBundle``:
+Tomemos el ``FrameworkBundle`` - el núcleo de la plataforma Symfony2 - como ejemplo. La presencia del siguiente código en la configuración de tu aplicación invoca a la extensión en el interior del contenedor de servicios ``FrameworkBundle``:
 
 .. configuration-block::
 
@@ -317,7 +317,7 @@ Cuando se analiza la configuración, el contenedor busca una extensión que pued
 
 Por supuesto que puedes hacer mucho más que simplemente "activar" la extensión del contenedor de servicios del ``FrameworkBundle``. Cada extensión te permite personalizar fácilmente el paquete, sin tener que preocuparte acerca de cómo se definen los servicios internos.
 
-En este caso, la extensión te permite personalizar el juego de caracteres - ``charset``, gestor de errores - ``error_handler``, protección CSRF - ``csrf_protection``, configuración del ruteador - ``router`` - y mucho más. Internamente, el ``FrameworkBundle`` utiliza las opciones especificadas aquí para definir y configurar los servicios específicos del mismo. El paquete se encarga de crear todos los ``parámetros`` y ``servicios`` necesarios para el contenedor de servicios, mientras permite que la mayor parte de la configuración se pueda personalizar fácilmente. Como bono adicional, la mayoría de las extensiones del contenedor de servicios también son lo suficientemente inteligentes como para realizar la validación - notificándote las opciones que faltan o el tipo de los datos incorrectos.
+En este caso, la extensión te permite personalizar el juego de caracteres - ``charset``, gestor de errores - ``error_handler``, protección CSRF - ``csrf_protection``, configuración del ruteador - ``router`` - y mucho más. Internamente, el ``FrameworkBundle`` utiliza las opciones especificadas aquí para definir y configurar los servicios específicos del mismo. El paquete se encarga de crear todos los ``parámetros`` y ``servicios`` necesarios para el contenedor de servicios, mientras permite que la mayor parte de la configuración se pueda personalizar fácilmente. Como bono adicional, la mayoría de las extensiones del contenedor de servicios también son lo suficientemente inteligentes como para realizar la validación - notificándote opciones omitidas o datos de tipo incorrecto.
 
 Al instalar o configurar un paquete, consulta la documentación del paquete de cómo se deben instalar y configurar los servicios para el paquete. Las opciones disponibles para los paquetes básicos se pueden encontrar dentro de la :doc:`Guía de Referencia </reference/index>`.
 
@@ -333,34 +333,34 @@ Refiriendo (inyectando) servicios
 
 Hasta el momento, nuestro servicio original ``mi_cartero`` es simple: sólo toma un argumento en su constructor, el cual es fácilmente configurable. Como verás, el poder real del contenedor se realiza cuando es necesario crear un servicio que depende de uno o varios otros servicios en el contenedor.
 
-Comencemos con un ejemplo. Supongamos que tenemos un nuevo servicio, ``NewsletterManager``, que ayuda a gestionar la preparación y entrega de un mensaje de correo electrónico a una colección de direcciones. Por supuesto el servicio ``mi_cartero`` ya es realmente bueno en la entrega de mensajes de correo electrónico, así que lo usaremos dentro de ``NewsletterManager`` para manejar la entrega real de los mensajes. Se pretende que esta clase pudiera ser algo como esto::
+Comencemos con un ejemplo. Supongamos que tenemos un nuevo servicio, ``BoletinGestor``, que ayuda a gestionar la preparación y entrega de un mensaje de correo electrónico a una colección de direcciones. Por supuesto el servicio ``mi_cartero`` ya es realmente bueno en la entrega de mensajes de correo electrónico, así que lo usaremos dentro de ``BoletinGestor`` para manejar la entrega real de los mensajes. Se pretende que esta clase pudiera ser algo como esto::
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
     use Acme\HolaBundle\Mailer;
 
-    class NewsletterManager
+    class BoletinGestor
     {
         protected $cartero;
 
         public function __construct(Mailer $cartero)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
 
         // ...
     }
 
-Sin utilizar el contenedor de servicios, podemos crear un nuevo ``NewsletterManager`` muy fácilmente desde el interior de un controlador::
+Sin utilizar el contenedor de servicios, podemos crear un nuevo ``BoletinGestor`` muy fácilmente desde el interior de un controlador::
 
     public function sendNewsletterAction()
     {
         $cartero = $this->get('mi_cartero');
-        $newsletter = new Acme\HolaBundle\Newsletter\NewsletterManager($cartero);
+        $boletin = new Acme\HolaBundle\Boletin\BoletinGestor($cartero);
         // ...
     }
 
-Este enfoque está bien, pero, ¿si más adelante decidimos que la clase ``NewsletterManager`` necesita un segundo o tercer argumento constructor? ¿Y si nos decidimos a reconstruir nuestro código y cambiar el nombre de la clase? En ambos casos, habría que encontrar todos los lugares donde se crea una instancia de ``NewsletterManager`` y modificarla. Por supuesto, el contenedor de servicios nos da una opción mucho más atractiva:
+Este enfoque está bien, pero, ¿si más adelante decidimos que la clase ``BoletinGestor`` necesita un segundo o tercer argumento constructor? ¿Y si nos decidimos a reconstruir nuestro código y cambiar el nombre de la clase? En ambos casos, habría que encontrar todos los lugares donde se crea una instancia de ``BoletinGestor`` y modificarla. Por supuesto, el contenedor de servicios nos da una opción mucho más atractiva:
 
 .. configuration-block::
 
@@ -369,13 +369,13 @@ Este enfoque está bien, pero, ¿si más adelante decidimos que la clase ``Newsl
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Newsletter\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Boletin\BoletinGestor
 
         services:
             mi_cartero:
                 # ...
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 arguments: [@mi_cartero]
 
     .. code-block:: xml
@@ -383,14 +383,14 @@ Este enfoque está bien, pero, ¿si más adelante decidimos que la clase ``Newsl
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Newsletter\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Boletin\BoletinGestor</parameter>
         </parameters>
 
         <services>
             <service id="mi_cartero" ... >
               <!-- ... -->
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%">
+            <service id="boletin_gestor" class="%boletin_gestor.class%">
                 <argument type="service" id="mi_cartero"/>
             </service>
         </services>
@@ -402,34 +402,34 @@ Este enfoque está bien, pero, ¿si más adelante decidimos que la clase ``Newsl
         use Symfony\Component\DependencyInjection\Reference;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
 
         $contenedor->setDefinition('mi_cartero', ... );
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%',
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%',
             array(new Reference('mi_cartero'))
         ));
 
-En YAML, la sintaxis especial ``@mi_cartero`` le dice al contenedor que busque un servicio llamado ``mi_cartero`` y pase ese objeto al constructor de ``NewsletterManager``. En este caso, sin embargo, el servicio especificado ``mi_cartero`` debe existir. Si no es así, lanzará una excepción. Puedes marcar tus dependencias como opcionales - explicaremos esto en la siguiente sección.
+En YAML, la sintaxis especial ``@mi_cartero`` le dice al contenedor que busque un servicio llamado ``mi_cartero`` y pase ese objeto al constructor de ``BoletinGestor``. En este caso, sin embargo, el servicio especificado ``mi_cartero`` debe existir. Si no es así, lanzará una excepción. Puedes marcar tus dependencias como opcionales - explicaremos esto en la siguiente sección.
 
-La utilización de referencias es una herramienta muy poderosa que te permite crear clases de servicios independientes con dependencias bien definidas. En este ejemplo, el servicio ``newsletter_manager`` necesita del servicio ``mi_cartero`` para poder funcionar. Al definir esta dependencia en el contenedor de servicios, el contenedor se encarga de todo el trabajo de crear instancias de objetos.
+La utilización de referencias es una herramienta muy poderosa que te permite crear clases de servicios independientes con dependencias bien definidas. En este ejemplo, el servicio ``boletin_gestor`` necesita del servicio ``mi_cartero`` para poder funcionar. Al definir esta dependencia en el contenedor de servicios, el contenedor se encarga de todo el trabajo de crear instancias de objetos.
 
 Dependencias opcionales: Inyección de definidores
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Inyectar dependencias en el constructor de esta manera es una excelente manera de asegurarte que la dependencia está disponible para usarla. Si tienes dependencias opcionales para una clase, entonces, la "inyección de definidor" puede ser una mejor opción. Esto significa inyectar la dependencia usando una llamada a método en lugar de a través del constructor. La clase se vería así::
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
     use Acme\HolaBundle\Mailer;
 
-    class NewsletterManager
+    class BoletinGestor
     {
         protected $cartero;
 
-        public function setMailer(Mailer $cartero)
+        public function setCartero(Mailer $cartero)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
 
         // ...
@@ -444,30 +444,30 @@ La inyección de la dependencia por medio del método definidor sólo necesita u
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Newsletter\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Boletin\BoletinGestor
 
         services:
             mi_cartero:
                 # ...
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 calls:
-                    - [ setMailer, [ @mi_cartero ] ]
+                    - [ setCartero, [ @mi_cartero ] ]
 
     .. code-block:: xml
 
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Newsletter\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Boletin\BoletinGestor</parameter>
         </parameters>
 
         <services>
             <service id="mi_cartero" ... >
               <!-- ... -->
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%">
-                <call method="setMailer">
+            <service id="boletin_gestor" class="%boletin_gestor.class%">
+                <call method="setCartero">
                      <argument type="service" id="mi_cartero" />
                 </call>
             </service>
@@ -480,12 +480,12 @@ La inyección de la dependencia por medio del método definidor sólo necesita u
         use Symfony\Component\DependencyInjection\Reference;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
 
         $contenedor->setDefinition('mi_cartero', ... );
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%'
-        ))->addMethodCall('setMailer', array(
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%'
+        ))->addMethodCall('setCartero', array(
             new Reference('mi_cartero')
         ));
 
@@ -496,7 +496,7 @@ La inyección de la dependencia por medio del método definidor sólo necesita u
 Haciendo referencias opcionales
 -------------------------------
 
-A veces, uno de tus servicios puede tener una dependencia opcional, lo cual significa que la dependencia no es necesaria para que el servicio funcione correctamente. En el ejemplo anterior, el servicio ``mi_cartero`` *debe* existir, si no, será lanzada una excepción. Al modificar la definición del servicio ``newsletter_manager``, puedes hacer opcional esta referencia. Entonces, el contenedor será inyectado si es que existe y no hace nada si no:
+A veces, uno de tus servicios puede tener una dependencia opcional, lo cual significa que la dependencia no es necesaria para que el servicio funcione correctamente. En el ejemplo anterior, el servicio ``mi_cartero`` *debe* existir, si no, será lanzada una excepción. Al modificar la definición del servicio ``boletin_gestor``, puedes hacer opcional esta referencia. Entonces, el contenedor será inyectado si es que existe y no hace nada si no:
 
 .. configuration-block::
 
@@ -507,8 +507,8 @@ A veces, uno de tus servicios puede tener una dependencia opcional, lo cual sign
             # ...
 
         services:
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 arguments: [@?mi_cartero]
 
     .. code-block:: xml
@@ -519,7 +519,7 @@ A veces, uno de tus servicios puede tener una dependencia opcional, lo cual sign
             <service id="mi_cartero" ... >
               <!-- ... -->
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%">
+            <service id="boletin_gestor" class="%boletin_gestor.class%">
                 <argument type="service" id="mi_cartero" on-invalid="ignore" />
             </service>
         </services>
@@ -532,15 +532,15 @@ A veces, uno de tus servicios puede tener una dependencia opcional, lo cual sign
         use Symfony\Component\DependencyInjection\ContainerInterface;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
 
         $contenedor->setDefinition('mi_cartero', ... );
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%',
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%',
             array(new Reference('mi_cartero', ContainerInterface::IGNORE_ON_INVALID_REFERENCE))
         ));
 
-En YAML, la sintaxis especial ``@?`` le dice al contenedor de servicios que la dependencia es opcional. Por supuesto, ``NewsletterManager`` también se debe escribir para permitir una dependencia opcional:
+En YAML, la sintaxis especial ``@?`` le dice al contenedor de servicios que la dependencia es opcional. Por supuesto, ``BoletinGestor`` también se debe escribir para permitir una dependencia opcional:
 
 .. code-block:: php
 
@@ -564,14 +564,14 @@ Puesto que Symfony2 y todos los paquetes de terceros configuran y recuperan sus 
 
 En Symfony2, constantemente vas a utilizar los servicios prestados por el núcleo de Symfony o paquetes de terceros para realizar tareas como la reproducción de plantillas (``templating``), el envío de mensajes de correo electrónico (``mailer``), o para acceder a información sobre la petición.
 
-Podemos dar un paso más allá usando estos servicios dentro de los servicios que haz creado para tu aplicación. Vamos a modificar el ``NewsletterManager`` para usar el gestor de correo real de Symfony2, el servicio ``mailer`` (en vez del pretendido ``mi_cartero``).
-También vamos a pasar el servicio del motor de plantillas al ``NewsletterManager`` para que puedas generar el contenido del correo electrónico a través de una plantilla::
+Podemos dar un paso más allá usando estos servicios dentro de los servicios que haz creado para tu aplicación. Vamos a modificar el ``BoletinGestor`` para usar el gestor de correo real de Symfony2, el servicio ``mailer`` (en vez del pretendido ``mi_cartero``).
+También vamos a pasar el servicio del motor de plantillas al ``BoletinGestor`` para que puedas generar el contenido del correo electrónico a través de una plantilla::
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
     use Symfony\Component\Templating\EngineInterface;
 
-    class NewsletterManager
+    class BoletinGestor
     {
         protected $cartero;
 
@@ -579,8 +579,8 @@ También vamos a pasar el servicio del motor de plantillas al ``NewsletterManage
 
         public function __construct(\Swift_Mailer $cartero, EngineInterface $plantilla)
         {
-            $this->mailer = $cartero;
-            $this->templating = $plantilla;
+            $this->cartero = $cartero;
+            $this->plantilla = $plantilla;
         }
 
         // ...
@@ -593,28 +593,28 @@ Configurar el contenedor de servicios es fácil:
     .. code-block:: yaml
 
         services:
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 arguments: [@mailer, @templating]
 
     .. code-block:: xml
 
-        <service id="newsletter_manager" class="%newsletter_manager.class%">
+        <service id="boletin_gestor" class="%boletin_gestor.class%">
             <argument type="service" id="mailer"/>
             <argument type="service" id="templating"/>
         </service>
 
     .. code-block:: php
 
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%',
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%',
             array(
                 new Reference('mailer'),
                 new Reference('templating')
             )
         ));
 
-El servicio ``newsletter_manager`` ahora tiene acceso a los servicios del núcleo ``mailer`` y ``templating``. Esta es una forma común de crear servicios específicos para tu aplicación que aprovechan el poder de los distintos servicios en la plataforma.
+El servicio ``boletin_gestor`` ahora tiene acceso a los servicios del núcleo ``mailer`` y ``templating``. Esta es una forma común de crear servicios específicos para tu aplicación que aprovechan el poder de los distintos servicios en la plataforma.
 
 .. tip::
 
@@ -660,9 +660,9 @@ Aquí está un ejemplo:
 
     .. code-block:: php
 
-        $definition = new Definition('Acme\HolaBundle\Foo');
-        $definition->setPublic(false);
-        $contenedor->setDefinition('foo', $definition);
+        $definicion = new Definition('Acme\HolaBundle\Foo');
+        $definicion->setPublic(false);
+        $contenedor->setDefinition('foo', $definicion);
 
 Ahora que el servicio es privado, *no* puedes llamar a::
 
@@ -697,8 +697,8 @@ Cuando utilizas el núcleo o paquetes de terceros dentro de tu aplicación, posi
 
     .. code-block:: php
 
-        $definition = new Definition('Acme\HolaBundle\Foo');
-        $contenedor->setDefinition('foo', $definition);
+        $definicion = new Definition('Acme\HolaBundle\Foo');
+        $contenedor->setDefinition('foo', $definicion);
 
         $containerBuilder->setAlias('bar', 'foo');
 
@@ -728,11 +728,11 @@ Puede haber casos de uso cuando necesites incluir otro archivo justo antes de ca
 
     .. code-block:: php
 
-        $definition = new Definition('Acme\HolaBundle\Foo\Bar');
-        $definition->setFile('%kernel.root_dir%/src/ruta/al/archivo/foo.php');
-        $contenedor->setDefinition('foo', $definition);
+        $definicion = new Definition('Acme\HolaBundle\Foo\Bar');
+        $definicion->setFile('%kernel.root_dir%/src/ruta/al/archivo/foo.php');
+        $contenedor->setDefinition('foo', $definicion);
 
-Ten en cuenta que internamente Symfony llama a la función PHP require_once, lo cual significa que el archivo se incluirá una sola vez por petición.
+Ten en cuenta que internamente Symfony llama a la función PHP ``require_once``, lo cual significa que el archivo se incluirá una sola vez por petición.
 
 .. _book-service-container-tags:
 
@@ -759,9 +759,9 @@ De la misma manera que en la Web una entrada de blog se puede etiquetar con cosa
 
     .. code-block:: php
 
-        $definition = new Definition('Acme\HolaBundle\Extension\FooExtension');
-        $definition->addTag('twig.extension');
-        $contenedor->setDefinition('foo.twig.extension', $definition);
+        $definicion = new Definition('Acme\HolaBundle\Extension\FooExtension');
+        $definicion->addTag('twig.extension');
+        $contenedor->setDefinition('foo.twig.extension', $definicion);
 
 La etiqueta ``twig.extension`` es una etiqueta especial que ``TwigBundle`` usa
 durante la configuración. Al dar al servicio esta etiqueta ``twig.extension``, el paquete sabe que el servicio ``foo.twig.extension`` se debe registrar como una extensión Twig con Twig. En otras palabras, Twig encuentra todos los servicios con la etiqueta ``twig.extension`` y automáticamente los registra como extensiones.

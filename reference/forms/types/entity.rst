@@ -1,8 +1,8 @@
 .. index::
    single: Formularios; Campos; choice
 
-Tipo de campo entidad
-=====================
+Tipo de campo ``entity``
+========================
 
 Un campo ``choice`` especial que está diseñado para cargar las opciones de una entidad Doctrine. Por ejemplo, si tiene una entidad ``Categoria``, puedes utilizar este campo para mostrar un campo ``select`` todos o algunos de los objetos ``Categoria`` de la base de datos.
 
@@ -68,7 +68,7 @@ Opciones del campo
 
 **tipo**: ``string`` **requerido**
 
-La clase de tu entidad (por ejemplo, ``Acme\TiendaBundle\Entity\Categoria``).
+La clase de tu entidad (por ejemplo, ``Acme\GuardaBundle\Entity\Categoria``).
 
 ``property``
 ~~~~~~~~~~~~

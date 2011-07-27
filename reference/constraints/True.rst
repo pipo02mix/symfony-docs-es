@@ -24,11 +24,11 @@ Esta restricción es muy útil para ejecutar lógica de validación personalizad
     // Acme/HolaBundle/Autor.php
     class Autor
     {
-        protected $token;
+        protected $muestra;
 
         public function isTokenValid()
         {
-            return $this->token == $this->generateToken();
+            return $this->muestra == $this->generateToken();
         }
     }
 
@@ -62,14 +62,14 @@ A continuación, puedes limitar este método con ``True``.
 
         class Autor
         {
-            protected $token;
+            protected $muestra;
 
             /**
              * @Assert\True(message = "The token is invalid")
              */
             public function isTokenValid()
             {
-                return $this->token == $this->generateToken();
+                return $this->muestra == $this->generateToken();
             }
         }
 
@@ -81,7 +81,7 @@ A continuación, puedes limitar este método con ``True``.
 
         class Autor
         {
-            protected $token;
+            protected $muestra;
 
             public static function loadValidatorMetadata(ClassMetadata $metadatos)
             {
@@ -92,7 +92,7 @@ A continuación, puedes limitar este método con ``True``.
 
             public function isTokenValid()
             {
-                return $this->token == $this->generateToken();
+                return $this->muestra == $this->generateToken();
             }
         }
 

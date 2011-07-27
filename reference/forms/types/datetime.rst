@@ -1,8 +1,8 @@
 .. index::
    single: Formularios; Campos; datetime
 
-Tipo de campo datetime
-======================
+Tipo de campo ``datetime``
+==========================
 
 Este tipo de campo permite al usuario modificar los datos que representan una fecha y hora específica (por ejemplo, ``05/06/2011 12:15:30``).
 

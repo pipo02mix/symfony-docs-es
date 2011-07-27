@@ -84,9 +84,9 @@ Un escucha de seguridad debería manejar el evento :class:`Symfony\\Component\\H
             $this->authenticationManager = $authenticationManager;
         }
 
-        public function handle(GetResponseEvent $event)
+        public function handle(GetResponseEvent $evento)
         {
-            $peticion = $event->getRequest();
+            $peticion = $evento->getRequest();
 
             if (!$peticion->headers->has('x-wsse')) {
                 return;
@@ -95,20 +95,20 @@ Un escucha de seguridad debería manejar el evento :class:`Symfony\\Component\\H
             $wsseRegex = '/UsernameToken Username="([^"]+)", PasswordDigest="([^"]+)", Nonce="([^"]+)", Creado="([^"]+)"/';
 
             if (preg_match($wsseRegex, $peticion->headers->get('x-wsse'), $matches)) {
-                $token = new WsseUserToken();
-                $token->setUser($matches[1]);
+                $muestra = new WsseUserToken();
+                $muestra->setUser($matches[1]);
 
-                $token->digest   = $matches[2];
-                $token->nonce    = $matches[3];
-                $token->creado  = $matches[4];
+                $muestra->digest   = $matches[2];
+                $muestra->nonce    = $matches[3];
+                $muestra->creado  = $matches[4];
 
                 try {
-                    $returnValue = $this->authenticationManager->authenticate($token);
+                    $returnValue = $this->authenticationManager->authenticate($muestra);
 
                     if ($returnValue instanceof TokenInterface) {
                         return $this->securityContext->setToken($returnValue);
                     } else if ($returnValue instanceof Response) {
-                        return $event->setResponse($returnValue);
+                        return $evento->setResponse($returnValue);
                     }
                 } catch (AuthenticationException $e) {
                     // aquí puedes registrar algo
@@ -117,7 +117,7 @@ Un escucha de seguridad debería manejar el evento :class:`Symfony\\Component\\H
 
             $respuesta = new Response();
             $respuesta->setStatusCode(403);
-            $event->setResponse($respuesta);
+            $evento->setResponse($respuesta);
         }
     }
 
@@ -156,13 +156,13 @@ Es decir, el proveedor verificará si es válido el valor de la cabecera ``Cread
             $this->cacheDir     = $cacheDir;
         }
 
-        public function authenticate(TokenInterface $token)
+        public function authenticate(TokenInterface $muestra)
         {
-            $user = $this->userProvider->loadUserByUsername($token->getUsername());
+            $user = $this->userProvider->loadUserByUsername($muestra->getUsername());
 
-            if ($user && $this->validateDigest($token->digest, $token->nonce, $token->creado, $user->getPassword())) {
-                $token->setUser($user);
-                return $token;
+            if ($user && $this->validateDigest($muestra->digest, $muestra->nonce, $muestra->creado, $user->getPassword())) {
+                $muestra->setUser($user);
+                return $muestra;
             }
 
             throw new AuthenticationException('The WSSE authentication failed.');
@@ -187,9 +187,9 @@ Es decir, el proveedor verificará si es válido el valor de la cabecera ``Cread
             return $digest === $expected;
         }
 
-        public function supports(TokenInterface $token)
+        public function supports(TokenInterface $muestra)
         {
-            return $token instanceof WsseUserToken;
+            return $muestra instanceof WsseUserToken;
         }
     }
 
@@ -224,7 +224,7 @@ Haz creado un testigo personalizado, escucha personalizado y proveedor personali
             ;
 
             $listenerId = 'security.authentication.listener.wsse.'.$id;
-            $listener = $contenedor->setDefinition($listenerId, new DefinitionDecorator('wsse.security.authentication.listener'));
+            $escucha = $contenedor->setDefinition($listenerId, new DefinitionDecorator('wsse.security.authentication.listener'));
 
             return array($providerId, $listenerId, $defaultEntryPoint);
         }

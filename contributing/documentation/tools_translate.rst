@@ -24,7 +24,7 @@ La herramienta libre de memoria de traducción OmegaT, utilizada para traducir l
 
 * Está escrita en Java, por lo tanto es multiplataforma.
 * Reza un dicho popular: "Divide y vencerás", OmegaT segmenta el texto a traducir basándose principalmente en la puntuación gramatical, pero también puedes especificar tus propias reglas de segmentación.
-* Usa memorias de traducción para almacenar los segmentos traducidos, útiles para cualquier otro proyecto.
+* Usa memorias de traducción para almacenar los segmentos traducidos útiles para cualquier otro proyecto.
 * No traduce por ti, pero cuenta con sugerencias de traducción proporcionadas por Google translate, Apertum y Belazar.
 * Cuenta con propagación de coincidencias, es decir, los segmentos iguales se traducen una sola vez.
 * Puedes escribir tus glosarios de términos usando OmegaT y también utilizar glosarios existentes.
@@ -57,7 +57,7 @@ Ahora, es necesario realizar algunos pasos para hacer que OmegaT reconozca los a
    :alt: Cuadro de diálogo para filtrar archivos
    :align: center
 
-* A continuación, aparece un nuevo cuadro de diálogo, en este añade dos nuevos filtros con las extensiones ``*.rst`` e ``*.inc``, selecciona ``utf-8`` como ``Codificación de archivos fuente`` y ``traducidos`` y haz clic en Aceptar para guardar los cambios. 
+* A continuación, aparece un nuevo cuadro de diálogo, en este añade dos nuevos filtros con las extensiones ``*.rst`` e ``*.inc``, selecciona ``utf-8`` como ``Codificación de archivos fuente`` y ``traducidos`` y haz clic en Aceptar para guardar los cambios.
 
 .. image:: /images/contributing/edit_filter.png
    :alt: Diálogo para editar filtros de archivo
@@ -149,9 +149,9 @@ Para bifurcar el repositorio de traducción debes crear una cuenta (si todavía 
 .. code-block:: bash
 
     $ cd c:/OmegaT/symfony-docs/omegat/
-    $ git config --global user.name "TuNombre"
-    $ git config --global user.correo TuCorreoE@ejemplo.com
-      
+    $ git config --global user.name "yourName"
+    $ git config --global user.correo yourEmail@example.com
+
     $ git init
     $ git clone git://github.com/gitnacho/omegat.git
 
@@ -162,7 +162,7 @@ A partir de ahora puedes comenzar a traducir, corregir errores y solicitar la at
 Revisando el avance
 -------------------
 
-Cuando escribes manualmente, en este caso durante la traducción, fácilmente puedes cometer errores como palabras dobles, intercambio en la posición de las letras, etc. Por ejemplo:
+Cuando escribes manualmente, en este caso durante la traducción, fácilmente puedes cometer errores como palabras dobles, intercambio en la posición de las letras, etc.
 
 **Mira, ¡qué interesante!**
     Sgeun un etsduio de una uivenrsdiad ignlsea, no ipmotra el odren en el que etsan ersciats las lteras, la úicna csoa ipormtnate es que la pmrirea y la útima ltera etsén ecsritas en la psicioón cocrrtea. El rsteo peuden estar ttaolmntee mal y aun pordas lerelo sin pobrleams. Etso es pquore no lemeos cada ltera por sí msima snio la paalbra cmoo un tdoo.
@@ -172,6 +172,7 @@ Cuando escribes manualmente, en este caso durante la traducción, fácilmente pu
 Este tipo de errores fácilmente los detecta el corrector ortográfico, pero, a pesar de que OmegaT cuenta con uno integrado, algunas veces olvidas comprobarlo y este tipo de error pasa desapercibido; también puedes leer físicamente el resultado pero, como acabas de ver, fácilmente puedes omitir ciertos errores tipográficos.
 
 Una excelente ayuda en la revisión y corrección de estos errores son los sistemas de texto a voz y Balabolka es uno de ellos, es libre y está disponible en varios idiomas. Para utilizarlo sólo tienes que activar las teclas globales en la configuración del sistema para que al estar traduciendo te “repita” lo que haz escrito.
+
 
 Consiguiendo Balabolka
 ~~~~~~~~~~~~~~~~~~~~~~

@@ -1,8 +1,8 @@
 .. index::
    single: Formularios; Campos; email
 
-Tipo de capo email
-==================
+Tipo de campo ``email``
+=======================
 
 El campo ``email`` es un campo de texto que se reproduce usando etiquetas ``HTML5 <input type=\"email\" />``.
 

@@ -155,7 +155,7 @@ A veces es difícil saber cuál de las entradas en el registro pertenece a cada 
     class SessionRequestProcessor
     {
         private $sesion;
-        private $token;
+        private $muestra;
 
         public function __construct(Session $sesion)
         {
@@ -164,15 +164,15 @@ A veces es difícil saber cuál de las entradas en el registro pertenece a cada 
 
         public function processRecord(array $record)
         {
-            if (null === $this->token) {
+            if (null === $this->muestra) {
                 try {
-                    $this->token = substr($this->session->getId(), 0, 8);
+                    $this->muestra = substr($this->session->getId(), 0, 8);
                 } catch (\RuntimeException $e) {
-                    $this->token = '????????';
+                    $this->muestra = '????????';
                 }
-                $this->token .= '-' . substr(uniqid(), -8);
+                $this->muestra .= '-' . substr(uniqid(), -8);
             }
-            $record['extra']['token'] = $this->token;
+            $record['extra']['token'] = $this->muestra;
 
             return $record;
         }

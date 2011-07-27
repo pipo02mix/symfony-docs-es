@@ -15,13 +15,13 @@ En el capítulo sobre seguridad, puedes ver cómo :ref:`proteger un controlador 
         // ...
     }
 
-También puedes proteger *cualquier* servicio de manera similar, inyectándole el servicio ``security.context``. Para una introducción general a la inyección de dependencias en servicios consulta el capítulo :doc:`/book/service_container` del libro. Por ejemplo, supongamos que tienes una clase ``NewsletterManager`` que envía mensajes de correo electrónico y deseas restringir su uso a únicamente los usuarios que tienen algún rol ``ROLE_NEWSLETTER_ADMIN``. Antes de agregar la protección, la clase se ve algo parecida a esta:
+También puedes proteger *cualquier* servicio de manera similar, inyectándole el servicio ``security.context``. Para una introducción general a la inyección de dependencias en servicios consulta el capítulo :doc:`/book/service_container` del libro. Por ejemplo, supongamos que tienes una clase ``BoletinGestor`` que envía mensajes de correo electrónico y deseas restringir su uso a únicamente los usuarios que tienen algún rol ``ROLE_BOLETIN_ADMIN``. Antes de agregar la protección, la clase se ve algo parecida a esta:
 
 .. code-block:: php
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
-    class NewsletterManager
+    class BoletinGestor
     {
 
         public function sendNewsletter()
@@ -32,13 +32,13 @@ También puedes proteger *cualquier* servicio de manera similar, inyectándole e
         // ...
     }
 
-Nuestro objetivo es comprobar el rol del usuario cuando se llama al método ``sendNewsletter()``. El primer paso para esto es inyectar el servicio ``security.context`` en el objeto. Dado que no tiene sentido *no* realizar la comprobación de seguridad, este es un candidato ideal para el constructor de inyección, lo cual garantiza que el objeto del contexto de seguridad estará disponible dentro de la clase ``NewsletterManager``::
+Nuestro objetivo es comprobar el rol del usuario cuando se llama al método ``sendNewsletter()``. El primer paso para esto es inyectar el servicio ``security.context`` en el objeto. Dado que no tiene sentido *no* realizar la comprobación de seguridad, este es un candidato ideal para el constructor de inyección, lo cual garantiza que el objeto del contexto de seguridad estará disponible dentro de la clase ``BoletinGestor``::
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
     use Symfony\Component\Security\Core\SecurityContextInterface;
 
-    class NewsletterManager
+    class BoletinGestor
     {
         protected $securityContext;
 
@@ -58,22 +58,22 @@ Luego, en tu configuración del servicio, puedes inyectar el servicio:
 
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
-            newsletter_manager.class: Acme\HolaBundle\Newsletter\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Boletin\BoletinGestor
 
         services:
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 arguments: [@security.context]
 
     .. code-block:: xml
 
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Newsletter\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Boletin\BoletinGestor</parameter>
         </parameters>
 
         <services>
-            <service id="newsletter_manager" class="%newsletter_manager.class%">
+            <service id="boletin_gestor" class="%boletin_gestor.class%">
                 <argument type="service" id="security.context"/>
             </service>
         </services>
@@ -84,22 +84,22 @@ Luego, en tu configuración del servicio, puedes inyectar el servicio:
         use Symfony\Component\DependencyInjection\Definition;
         use Symfony\Component\DependencyInjection\Reference;
 
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
 
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%',
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%',
             array(new Reference('security.context'))
         ));
 
 El servicio inyectado se puede utilizar para realizar la comprobación de seguridad cuando se llama al método ``sendNewsletter()``::
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
     use Symfony\Component\Security\Core\Exception\AccessDeniedException
     use Symfony\Component\Security\Core\SecurityContextInterface;
     // ...
 
-    class NewsletterManager
+    class BoletinGestor
     {
         protected $securityContext;
 
@@ -110,7 +110,7 @@ El servicio inyectado se puede utilizar para realizar la comprobación de seguri
 
         public function sendNewsletter()
         {
-            if (false === $this->securityContext->isGranted('ROLE_NEWSLETTER_ADMIN')) {
+            if (false === $this->securityContext->isGranted('ROLE_BOLETIN_ADMIN')) {
                 throw new AccessDeniedException();
             }
 
@@ -120,7 +120,7 @@ El servicio inyectado se puede utilizar para realizar la comprobación de seguri
         // ...
     }
 
-Si el usuario actual no tiene el rol ``ROLE_NEWSLETTER_ADMIN``, se le pedirá que inicie sesión.
+Si el usuario actual no tiene el rol ``ROLE_BOLETIN_ADMIN``, se le pedirá que inicie sesión.
 
 Protegiendo métodos usando anotaciones
 --------------------------------------
@@ -137,7 +137,7 @@ Para habilitar la funcionalidad de las anotaciones, :ref:`etiqueta <book-service
         # ...
 
         services:
-            newsletter_manager:
+            boletin_gestor:
                 # ...
                 tags:
                     -  { name: security.secure_service }
@@ -148,7 +148,7 @@ Para habilitar la funcionalidad de las anotaciones, :ref:`etiqueta <book-service
         <!-- ... -->
 
         <services>
-            <service id="newsletter_manager" class="%newsletter_manager.class%">
+            <service id="boletin_gestor" class="%boletin_gestor.class%">
                 <!-- ... -->
                 <tag name="security.secure_service" />
             </service>
@@ -160,25 +160,25 @@ Para habilitar la funcionalidad de las anotaciones, :ref:`etiqueta <book-service
         use Symfony\Component\DependencyInjection\Definition;
         use Symfony\Component\DependencyInjection\Reference;
 
-        $definition = new Definition(
-            '%newsletter_manager.class%',
+        $definicion = new Definition(
+            '%boletin_gestor.class%',
             array(new Reference('security.context'))
         ));
-        $definition->addTag('security.secure_service');
-        $contenedor->setDefinition('newsletter_manager', $definition);
+        $definicion->addTag('security.secure_service');
+        $contenedor->setDefinition('boletin_gestor', $definicion);
 
 Entonces puedes obtener los mismos resultados que el anterior usando una anotación::
 
-    namespace Acme\HolaBundle\Newsletter;
+    namespace Acme\HolaBundle\Boletin;
 
     use JMS\SecurityExtraBundle\Annotation\Secure;
     // ...
 
-    class NewsletterManager
+    class BoletinGestor
     {
 
         /**
-         * @Secure(roles="ROLE_NEWSLETTER_ADMIN")
+         * @Secure(roles="ROLE_BOLETIN_ADMIN")
          */
         public function sendNewsletter()
         {

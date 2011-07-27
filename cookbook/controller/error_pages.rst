@@ -27,7 +27,7 @@ Por ejemplo, para sustituir la plantilla de error predeterminada mostrada al usu
 
 .. tip::
 
-    Si no estás familiarizado con Twig, no te preocupes. Twig es un sencillo, potente y opcional motor de plantillas que se integra con ``Symfony2``.
+    Si no estás familiarizado con Twig, no te preocupes. Twig es un sencillo, potente y opcional motor de plantillas que se integra con ``Symfony2``. Para más información sobre Twig consulta :doc:`/book/templating`.
 
 Además de la página de error HTML estándar, Symfony proporciona una página de error predeterminada para muchos de los más comunes formatos de respuesta, como JSON (``error.json.twig``), XML (``error.xml.twig``) e incluso Javascript (``error.js.twig``), por nombrar algunos. Para sustituir cualquiera de estas plantillas, basta con crear un nuevo archivo con el mismo nombre en el directorio ``app/Resources/TwigBundle/views/Exception``. Esta es la manera estándar de sustituir cualquier plantilla que viva dentro de un paquete.
 

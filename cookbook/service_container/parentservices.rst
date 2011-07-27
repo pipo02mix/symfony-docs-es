@@ -8,19 +8,19 @@ A medida que agregas más funcionalidad a tu aplicación, puedes comenzar a tene
     use Acme\HolaBundle\Mailer;
     use Acme\HolaBundle\EmailFormatter;
 
-    class NewsletterManager
+    class BoletinGestor
     {
         protected $cartero;
         protected $emailFormatter;
 
-        public function setMailer(Mailer $cartero)
+        public function setCartero(Mailer $cartero)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
 
         public function setEmailFormatter(EmailFormatter $emailFormatter)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
         // ...
     }
@@ -37,14 +37,14 @@ y también una clase Tarjeta de Saludo que comparte las mismas dependencias::
         protected $cartero;
         protected $emailFormatter;
 
-        public function setMailer(Mailer $cartero)
+        public function setCartero(Mailer $cartero)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
 
         public function setEmailFormatter(EmailFormatter $emailFormatter)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
         // ...
     }
@@ -58,23 +58,23 @@ La configuración del servicio de estas clases se vería algo como esto:
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Mail\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Mail\BoletinGestor
             greeting_card_manager.class: Acme\HolaBundle\Mail\GreetingCardManager
         services:
             mi_cartero:
                 # ...
             my_correo_formatter:
                 # ...
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 calls:
-                    - [ setMailer, [ @mi_cartero ] ]
+                    - [ setCartero, [ @mi_cartero ] ]
                     - [ setEmailFormatter, [ @my_correo_formatter] ]
 
             greeting_card_manager:
                 class:     %greeting_card_manager.class%
                 calls:
-                    - [ setMailer, [ @mi_cartero ] ]
+                    - [ setCartero, [ @mi_cartero ] ]
                     - [ setEmailFormatter, [ @my_email_formatter] ]
 
     .. code-block:: xml
@@ -82,7 +82,7 @@ La configuración del servicio de estas clases se vería algo como esto:
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Mail\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Mail\BoletinGestor</parameter>
             <parameter key="greeting_card_manager.class">Acme\HolaBundle\Mail\GreetingCardManager</parameter>
         </parameters>
 
@@ -93,8 +93,8 @@ La configuración del servicio de estas clases se vería algo como esto:
             <service id="my_correo_formatter" ... >
               <!-- ... -->
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%">
-                <call method="setMailer">
+            <service id="boletin_gestor" class="%boletin_gestor.class%">
+                <call method="setCartero">
                      <argument type="service" id="mi_cartero" />
                 </call>
                 <call method="setEmailFormatter">
@@ -102,7 +102,7 @@ La configuración del servicio de estas clases se vería algo como esto:
                 </call>
             </service>
             <service id="greeting_card_manager" class="%greeting_card_manager.class%">
-                <call method="setMailer">
+                <call method="setCartero">
                      <argument type="service" id="mi_cartero" />
                 </call>
                 <call method="setEmailFormatter">
@@ -118,21 +118,21 @@ La configuración del servicio de estas clases se vería algo como esto:
         use Symfony\Component\DependencyInjection\Reference;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Mail\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Mail\BoletinGestor');
         $contenedor->setParameter('greeting_card_manager.class', 'Acme\HolaBundle\Mail\GreetingCardManager');
 
         $contenedor->setDefinition('mi_cartero', ... );
         $contenedor->setDefinition('my_correo_formatter', ... );
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%'
-        ))->addMethodCall('setMailer', array(
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%'
+        ))->addMethodCall('setCartero', array(
             new Reference('mi_cartero')
         ))->addMethodCall('setEmailFormatter', array(
             new Reference('my_correo_formatter')
         ));
         $contenedor->setDefinition('greeting_card_manager', new Definition(
             '%greeting_card_manager.class%'
-        ))->addMethodCall('setMailer', array(
+        ))->addMethodCall('setCartero', array(
             new Reference('mi_cartero')
         ))->addMethodCall('setEmailFormatter', array(
             new Reference('my_correo_formatter')
@@ -150,24 +150,24 @@ Hay mucha repetición, tanto en las clases como en la configuración. Esto signi
         protected $cartero;
         protected $emailFormatter;
 
-        public function setMailer(Mailer $cartero)
+        public function setCartero(Mailer $cartero)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
 
         public function setEmailFormatter(EmailFormatter $emailFormatter)
         {
-            $this->mailer = $cartero;
+            $this->cartero = $cartero;
         }
         // ...
     }
 
-Entonces ``NewsletterManager`` y ``GreetingCardManager`` pueden extender esta
+Entonces ``BoletinGestor`` y ``GreetingCardManager`` pueden extender esta
 superclase::
 
     namespace Acme\HolaBundle\Mail;
 
-    class NewsletterManager extends MailManager
+    class BoletinGestor extends MailManager
     {
         // ...
     }
@@ -190,7 +190,7 @@ De manera similar, el contenedor de servicios de Symfony2 también apoya la exte
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Mail\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Mail\BoletinGestor
             greeting_card_manager.class: Acme\HolaBundle\Mail\GreetingCardManager
             mail_manager.class: Acme\HolaBundle\Mail\MailManager
         services:
@@ -202,11 +202,11 @@ De manera similar, el contenedor de servicios de Symfony2 también apoya la exte
                 class:     %mail_manager.class%
                 abstract:  true
                 calls:
-                    - [ setMailer, [ @mi_cartero ] ]
+                    - [ setCartero, [ @mi_cartero ] ]
                     - [ setEmailFormatter, [ @my_correo_formatter] ]
             
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 parent: mail_manager
             
             greeting_card_manager:
@@ -218,7 +218,7 @@ De manera similar, el contenedor de servicios de Symfony2 también apoya la exte
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Mail\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Mail\BoletinGestor</parameter>
             <parameter key="greeting_card_manager.class">Acme\HolaBundle\Mail\GreetingCardManager</parameter>
             <parameter key="mail_manager.class">Acme\HolaBundle\Mail\MailManager</parameter>
         </parameters>
@@ -231,14 +231,14 @@ De manera similar, el contenedor de servicios de Symfony2 también apoya la exte
               <!-- ... -->
             </service>
             <service id="mail_manager" class="%mail_manager.class%" abstract="true">
-                <call method="setMailer">
+                <call method="setCartero">
                      <argument type="service" id="mi_cartero" />
                 </call>
                 <call method="setEmailFormatter">
                      <argument type="service" id="my_correo_formatter" />
                 </call>
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%" parent="mail_manager"/>
+            <service id="boletin_gestor" class="%boletin_gestor.class%" parent="mail_manager"/>
             <service id="greeting_card_manager" class="%greeting_card_manager.class%" parent="mail_manager"/>
         </services>
 
@@ -249,7 +249,7 @@ De manera similar, el contenedor de servicios de Symfony2 también apoya la exte
         use Symfony\Component\DependencyInjection\Reference;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Mail\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Mail\BoletinGestor');
         $contenedor->setParameter('greeting_card_manager.class', 'Acme\HolaBundle\Mail\GreetingCardManager');
         $contenedor->setParameter('mail_manager.class', 'Acme\HolaBundle\Mail\MailManager');
 
@@ -259,15 +259,15 @@ De manera similar, el contenedor de servicios de Symfony2 también apoya la exte
             '%mail_manager.class%'
         ))->SetAbstract(
             true
-        )->addMethodCall('setMailer', array(
+        )->addMethodCall('setCartero', array(
             new Reference('mi_cartero')
         ))->addMethodCall('setEmailFormatter', array(
             new Reference('my_correo_formatter')
         ));
-        $contenedor->setDefinition('newsletter_manager', new DefinitionDecorator(
+        $contenedor->setDefinition('boletin_gestor', new DefinitionDecorator(
             'mail_manager'
         ))->setClass(
-            '%newsletter_manager.class%'
+            '%boletin_gestor.class%'
         );
         $contenedor->setDefinition('greeting_card_manager', new DefinitionDecorator(
             'mail_manager'
@@ -287,7 +287,7 @@ La clase padre es abstracta, ya que no se deben crear instancias directamente. A
 Sustituyendo dependencias padre
 -------------------------------
 
-Puede haber ocasiones en las que deses sustituir que clase se pasa a una dependencia en un servicio hijo único. Afortunadamente, añadiendo la llamada al método de configuración para el servicio hijo, las dependencias establecidas por la clase principal se sustituyen. Así que si necesitas pasar una dependencia diferente sólo para la clase ``NewsletterManager``, la configuración sería la siguiente:
+Puede haber ocasiones en las que deses sustituir que clase se pasa a una dependencia en un servicio hijo único. Afortunadamente, añadiendo la llamada al método de configuración para el servicio hijo, las dependencias establecidas por la clase principal se sustituyen. Así que si necesitas pasar una dependencia diferente sólo para la clase ``BoletinGestor``, la configuración sería la siguiente:
 
 .. configuration-block::
 
@@ -296,7 +296,7 @@ Puede haber ocasiones en las que deses sustituir que clase se pasa a una depende
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Mail\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Mail\BoletinGestor
             greeting_card_manager.class: Acme\HolaBundle\Mail\GreetingCardManager
             mail_manager.class: Acme\HolaBundle\Mail\MailManager
         services:
@@ -310,14 +310,14 @@ Puede haber ocasiones en las que deses sustituir que clase se pasa a una depende
                 class:     %mail_manager.class%
                 abstract:  true
                 calls:
-                    - [ setMailer, [ @mi_cartero ] ]
+                    - [ setCartero, [ @mi_cartero ] ]
                     - [ setEmailFormatter, [ @my_correo_formatter] ]
 
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 parent: mail_manager
                 calls:
-                    - [ setMailer, [ @my_alternative_mailer ] ]
+                    - [ setCartero, [ @my_alternative_mailer ] ]
 
             greeting_card_manager:
                 class:     %greeting_card_manager.class%
@@ -328,7 +328,7 @@ Puede haber ocasiones en las que deses sustituir que clase se pasa a una depende
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Mail\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Mail\BoletinGestor</parameter>
             <parameter key="greeting_card_manager.class">Acme\HolaBundle\Mail\GreetingCardManager</parameter>
             <parameter key="mail_manager.class">Acme\HolaBundle\Mail\MailManager</parameter>
         </parameters>
@@ -344,15 +344,15 @@ Puede haber ocasiones en las que deses sustituir que clase se pasa a una depende
               <!-- ... -->
             </service>
             <service id="mail_manager" class="%mail_manager.class%" abstract="true">
-                <call method="setMailer">
+                <call method="setCartero">
                      <argument type="service" id="mi_cartero" />
                 </call>
                 <call method="setEmailFormatter">
                      <argument type="service" id="my_correo_formatter" />
                 </call>
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%" parent="mail_manager">
-                 <call method="setMailer">
+            <service id="boletin_gestor" class="%boletin_gestor.class%" parent="mail_manager">
+                 <call method="setCartero">
                      <argument type="service" id="my_alternative_mailer" />
                 </call>
             </service>
@@ -366,7 +366,7 @@ Puede haber ocasiones en las que deses sustituir que clase se pasa a una depende
         use Symfony\Component\DependencyInjection\Reference;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Mail\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Mail\BoletinGestor');
         $contenedor->setParameter('greeting_card_manager.class', 'Acme\HolaBundle\Mail\GreetingCardManager');
         $contenedor->setParameter('mail_manager.class', 'Acme\HolaBundle\Mail\MailManager');
 
@@ -377,30 +377,30 @@ Puede haber ocasiones en las que deses sustituir que clase se pasa a una depende
             '%mail_manager.class%'
         ))->SetAbstract(
             true
-        )->addMethodCall('setMailer', array(
+        )->addMethodCall('setCartero', array(
             new Reference('mi_cartero')
         ))->addMethodCall('setEmailFormatter', array(
             new Reference('my_correo_formatter')
         ));
-        $contenedor->setDefinition('newsletter_manager', new DefinitionDecorator(
+        $contenedor->setDefinition('boletin_gestor', new DefinitionDecorator(
             'mail_manager'
         ))->setClass(
-            '%newsletter_manager.class%'
-        )->addMethodCall('setMailer', array(
+            '%boletin_gestor.class%'
+        )->addMethodCall('setCartero', array(
             new Reference('my_alternative_mailer')
         ));
-        $contenedor->setDefinition('newsletter_manager', new DefinitionDecorator(
+        $contenedor->setDefinition('boletin_gestor', new DefinitionDecorator(
             'mail_manager'
         ))->setClass(
             '%greeting_card_manager.class%'
         );
 
-El ``GreetingCardManager`` recibirá las mismas dependencias que antes, pero la ``NewsletterManager`` será pasada a ``my_alternative_mailer`` en lugar del servicio ``mi_cartero``.
+El ``GreetingCardManager`` recibirá las mismas dependencias que antes, pero la ``BoletinGestor`` será pasada a ``my_alternative_mailer`` en lugar del servicio ``mi_cartero``.
 
 Colección de dependencias
 -------------------------
 
-Cabe señalar que el método definidor sustituido en el ejemplo anterior en realidad se llama dos veces - una vez en la definición del padre y otra más en la definición del hijo. En el ejemplo anterior, esto estaba muy bien, ya que la segunda llamada a ``setMailer`` sustituye al objeto mailer establecido por la primera llamada.
+Cabe señalar que el método definidor sustituido en el ejemplo anterior en realidad se llama dos veces - una vez en la definición del padre y otra más en la definición del hijo. En el ejemplo anterior, esto estaba muy bien, ya que la segunda llamada a ``setCartero`` sustituye al objeto mailer establecido por la primera llamada.
 
 En algunos casos, sin embargo, esto puede ser un problema. Por ejemplo, si la sustitución a la llamada al método consiste en añadir algo a una colección, entonces se agregarán dos objetos a la colección. A continuación mostramos tal caso, si la clase padre se parece a esto::
 
@@ -429,7 +429,7 @@ Si tiene la siguiente configuración:
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Mail\NewsletterManager
+            boletin_gestor.class: Acme\HolaBundle\Mail\BoletinGestor
             mail_manager.class: Acme\HolaBundle\Mail\MailManager
         services:
             my_filter:
@@ -442,8 +442,8 @@ Si tiene la siguiente configuración:
                 calls:
                     - [ setFilter, [ @my_filter ] ]
 
-            newsletter_manager:
-                class:     %newsletter_manager.class%
+            boletin_gestor:
+                class:     %boletin_gestor.class%
                 parent: mail_manager
                 calls:
                     - [ setFilter, [ @another_filter ] ]
@@ -453,7 +453,7 @@ Si tiene la siguiente configuración:
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Mail\NewsletterManager</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Mail\BoletinGestor</parameter>
             <parameter key="mail_manager.class">Acme\HolaBundle\Mail\MailManager</parameter>
         </parameters>
 
@@ -469,7 +469,7 @@ Si tiene la siguiente configuración:
                      <argument type="service" id="my_filter" />
                 </call>
             </service>
-            <service id="newsletter_manager" class="%newsletter_manager.class%" parent="mail_manager">
+            <service id="boletin_gestor" class="%boletin_gestor.class%" parent="mail_manager">
                  <call method="setFilter">
                      <argument type="service" id="another_filter" />
                 </call>
@@ -483,7 +483,7 @@ Si tiene la siguiente configuración:
         use Symfony\Component\DependencyInjection\Reference;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Mail\NewsletterManager');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Mail\BoletinGestor');
         $contenedor->setParameter('mail_manager.class', 'Acme\HolaBundle\Mail\MailManager');
 
         $contenedor->setDefinition('my_filter', ... );
@@ -495,12 +495,12 @@ Si tiene la siguiente configuración:
         )->addMethodCall('setFilter', array(
             new Reference('my_filter')
         ));
-        $contenedor->setDefinition('newsletter_manager', new DefinitionDecorator(
+        $contenedor->setDefinition('boletin_gestor', new DefinitionDecorator(
             'mail_manager'
         ))->setClass(
-            '%newsletter_manager.class%'
+            '%boletin_gestor.class%'
         )->addMethodCall('setFilter', array(
             new Reference('another_filter')
         ));
 
-En este ejemplo, el ``setFilter`` del servicio ``newsletter_manager`` se llamará dos veces, dando lugar a que el array ``$filters`` contenga tanto a ``my_filter objetos`` como ``another_filter``. Esto es genial si sólo quieres agregar filtros adicionales para subclases. Si deseas reemplazar los filtros pasados a la subclase, elimina de la matriz el ajuste de la configuración, esto evitará que la clase ``setFilter`` base sea llamada.
+En este ejemplo, el ``setFilter`` del servicio ``boletin_gestor`` se llamará dos veces, dando lugar a que el array ``$filters`` contenga tanto a ``my_filter objetos`` como ``another_filter``. Esto es genial si sólo quieres agregar filtros adicionales para subclases. Si deseas reemplazar los filtros pasados a la subclase, elimina de la matriz el ajuste de la configuración, esto evitará que la clase ``setFilter`` base sea llamada.

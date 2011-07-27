@@ -4,7 +4,7 @@ Cómo utilizar el patrón fábrica para crear servicios
 Los contenedores de servicios de Symfony2 proporcionan una forma eficaz de controlar la creación de objetos, lo cual te permite especificar los argumentos pasados ​​al constructor, así como llamar a los métodos y establecer parámetros. A veces, sin embargo, esto no te proporcionará todo lo necesario para construir tus objetos.
 Por esta situación, puedes utilizar una fábrica para crear el objeto y decirle al contenedor de servicios que llame a un método en la fábrica y no directamente una instancia del objeto.
 
-Supongamos que tienes una fábrica que configura y devuelve un nuevo objeto NewsletterManager::
+Supongamos que tienes una fábrica que configura y devuelve un nuevo objeto BoletinGestor::
 
     namespace Acme\HolaBundle\Newletter;
 
@@ -12,7 +12,7 @@ Supongamos que tienes una fábrica que configura y devuelve un nuevo objeto News
     {
         public function get()
         {
-            $newsletterManager = new NewsletterManager();
+            $newsletterManager = new BoletinGestor();
 
             // ...
 
@@ -20,7 +20,7 @@ Supongamos que tienes una fábrica que configura y devuelve un nuevo objeto News
         }
     }
 
-Para que el objeto ``NewsletterManager`` esté disponible como servicio, puedes configurar el contenedor de servicios para usar la clase de fábrica ``NewsletterFactory``:
+Para que el objeto ``BoletinGestor`` esté disponible como servicio, puedes configurar el contenedor de servicios para usar la clase de fábrica ``NewsletterFactory``:
 
 .. configuration-block::
 
@@ -29,11 +29,11 @@ Para que el objeto ``NewsletterManager`` esté disponible como servicio, puedes 
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Newsletter\NewsletterManager
-            newsletter_factory.class: Acme\HolaBundle\Newsletter\NewsletterFactory
+            boletin_gestor.class: Acme\HolaBundle\Boletin\BoletinGestor
+            boletin_factory.class: Acme\HolaBundle\Boletin\NewsletterFactory
         services:
-            newsletter_manager:
-                class:          %newsletter_manager.class%
+            boletin_gestor:
+                class:          %boletin_gestor.class%
                 factory_class:  %newsletter_factory.class%
                 factory_method: get 
 
@@ -42,13 +42,13 @@ Para que el objeto ``NewsletterManager`` esté disponible como servicio, puedes 
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Newsletter\NewsletterManager</parameter>
-            <parameter key="newsletter_factory.class">Acme\HolaBundle\Newsletter\NewsletterFactory</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Boletin\BoletinGestor</parameter>
+            <parameter key="boletin_factory.class">Acme\HolaBundle\Boletin\NewsletterFactory</parameter>
         </parameters>
 
         <services>
-            <service id="newsletter_manager" 
-                     class="%newsletter_manager.class%"
+            <service id="boletin_gestor" 
+                     class="%boletin_gestor.class%"
                      factory-class="%newsletter_factory.class%"
                      factory-method="get"
             />
@@ -60,11 +60,11 @@ Para que el objeto ``NewsletterManager`` esté disponible como servicio, puedes 
         use Symfony\Component\DependencyInjection\Definition;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
-        $contenedor->setParameter('newsletter_factory.class', 'Acme\HolaBundle\Newsletter\NewsletterFactory');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
+        $contenedor->setParameter('boletin_factory.class', 'Acme\HolaBundle\Boletin\NewsletterFactory');
 
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%'
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%'
         ))->setFactoryClass(
             '%newsletter_factory.class%'
         )->setFactoryMethod(
@@ -80,14 +80,14 @@ Cuando especificas la clase que utiliza la fábrica (a través de ``factory_clas
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Newsletter\NewsletterManager
-            newsletter_factory.class: Acme\HolaBundle\Newsletter\NewsletterFactory
+            boletin_gestor.class: Acme\HolaBundle\Boletin\BoletinGestor
+            boletin_factory.class: Acme\HolaBundle\Boletin\NewsletterFactory
         services:
-            newsletter_factory:
+            boletin_factory:
                 class:            %newsletter_factory.class%
-            newsletter_manager:
-                class:            %newsletter_manager.class%
-                factory_service:  newsletter_factory
+            boletin_gestor:
+                class:            %boletin_gestor.class%
+                factory_service:  boletin_factory
                 factory_method:   get 
 
     .. code-block:: xml
@@ -95,15 +95,15 @@ Cuando especificas la clase que utiliza la fábrica (a través de ``factory_clas
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Newsletter\NewsletterManager</parameter>
-            <parameter key="newsletter_factory.class">Acme\HolaBundle\Newsletter\NewsletterFactory</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Boletin\BoletinGestor</parameter>
+            <parameter key="boletin_factory.class">Acme\HolaBundle\Boletin\NewsletterFactory</parameter>
         </parameters>
 
         <services>
-            <service id="newsletter_factory" class="%newsletter_factory.class%"/>
-            <service id="newsletter_manager" 
-                     class="%newsletter_manager.class%"
-                     factory-service="newsletter_factory"
+            <service id="boletin_factory" class="%newsletter_factory.class%"/>
+            <service id="boletin_gestor" 
+                     class="%boletin_gestor.class%"
+                     factory-service="boletin_factory"
                      factory-method="get"
             />
         </services>
@@ -114,16 +114,16 @@ Cuando especificas la clase que utiliza la fábrica (a través de ``factory_clas
         use Symfony\Component\DependencyInjection\Definition;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
-        $contenedor->setParameter('newsletter_factory.class', 'Acme\HolaBundle\Newsletter\NewsletterFactory');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
+        $contenedor->setParameter('boletin_factory.class', 'Acme\HolaBundle\Boletin\NewsletterFactory');
 
-        $contenedor->setDefinition('newsletter_factory', new Definition(
+        $contenedor->setDefinition('boletin_factory', new Definition(
             '%newsletter_factory.class%'
         ))
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%'
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%'
         ))->setFactoryService(
-            'newsletter_factory'
+            'boletin_factory'
         )->setFactoryMethod(
             'get'
         );
@@ -144,14 +144,14 @@ Si tienes que pasar argumentos al método fábrica, puedes utilizar la opción `
         # src/Acme/HolaBundle/Resources/config/services.yml
         parameters:
             # ...
-            newsletter_manager.class: Acme\HolaBundle\Newsletter\NewsletterManager
-            newsletter_factory.class: Acme\HolaBundle\Newsletter\NewsletterFactory
+            boletin_gestor.class: Acme\HolaBundle\Boletin\BoletinGestor
+            boletin_factory.class: Acme\HolaBundle\Boletin\NewsletterFactory
         services:
-            newsletter_factory:
+            boletin_factory:
                 class:            %newsletter_factory.class%
-            newsletter_manager:
-                class:            %newsletter_manager.class%
-                factory_service:  newsletter_factory
+            boletin_gestor:
+                class:            %boletin_gestor.class%
+                factory_service:  boletin_factory
                 factory_method:   get
                 arguments:
                     -             @templating
@@ -161,15 +161,15 @@ Si tienes que pasar argumentos al método fábrica, puedes utilizar la opción `
         <!-- src/Acme/HolaBundle/Resources/config/services.xml -->
         <parameters>
             <!-- ... -->
-            <parameter key="newsletter_manager.class">Acme\HolaBundle\Newsletter\NewsletterManager</parameter>
-            <parameter key="newsletter_factory.class">Acme\HolaBundle\Newsletter\NewsletterFactory</parameter>
+            <parameter key="boletin_gestor.class">Acme\HolaBundle\Boletin\BoletinGestor</parameter>
+            <parameter key="boletin_factory.class">Acme\HolaBundle\Boletin\NewsletterFactory</parameter>
         </parameters>
 
         <services>
-            <service id="newsletter_factory" class="%newsletter_factory.class%"/>
-            <service id="newsletter_manager" 
-                     class="%newsletter_manager.class%"
-                     factory-service="newsletter_factory"
+            <service id="boletin_factory" class="%newsletter_factory.class%"/>
+            <service id="boletin_gestor" 
+                     class="%boletin_gestor.class%"
+                     factory-service="boletin_factory"
                      factory-method="get"
             >
                 <argument type="service" id="templating" />
@@ -182,17 +182,17 @@ Si tienes que pasar argumentos al método fábrica, puedes utilizar la opción `
         use Symfony\Component\DependencyInjection\Definition;
 
         // ...
-        $contenedor->setParameter('newsletter_manager.class', 'Acme\HolaBundle\Newsletter\NewsletterManager');
-        $contenedor->setParameter('newsletter_factory.class', 'Acme\HolaBundle\Newsletter\NewsletterFactory');
+        $contenedor->setParameter('boletin_gestor.class', 'Acme\HolaBundle\Boletin\BoletinGestor');
+        $contenedor->setParameter('boletin_factory.class', 'Acme\HolaBundle\Boletin\NewsletterFactory');
 
-        $contenedor->setDefinition('newsletter_factory', new Definition(
+        $contenedor->setDefinition('boletin_factory', new Definition(
             '%newsletter_factory.class%'
         ))
-        $contenedor->setDefinition('newsletter_manager', new Definition(
-            '%newsletter_manager.class%',
+        $contenedor->setDefinition('boletin_gestor', new Definition(
+            '%boletin_gestor.class%',
             array(new Reference('templating'))
         ))->setFactoryService(
-            'newsletter_factory'
+            'boletin_factory'
         )->setFactoryMethod(
             'get'
         );
