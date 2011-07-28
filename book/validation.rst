@@ -241,9 +241,9 @@ El validador de Symfony2 está activado por omisión, pero debes habilitar expl�
     .. code-block:: php
 
         // app/config/config.php
-        $contenedor->loadFromExtension('framework', array('validation' => array(
+        $container->loadFromExtension('framework', array('validation' => array(
             'enable_annotations' => true,
-        ));
+        )));
 
 .. index::
    single: Validación; Restricciones
@@ -329,8 +329,8 @@ Algunas restricciones, como :doc:`NotBlank</reference/constraints/NotBlank>`, so
             {
                 $metadatos->addPropertyConstraint('genero', new Choice(array(
                     'choices' => array('masculino', 'femenino'),
-                    'message' => 'Elige un género válido.',
-                ));
+                    'message' => 'Elige un género.',
+                )));
             }
         }
 
@@ -545,30 +545,106 @@ Hasta ahora, hemos sido capaces de agregar restricciones a una clase y consultar
 
 Por ejemplo, supongamos que tienes una clase ``usuario``, que se usa tanto cuando un usuario se registra como cuando un usuario actualiza su información de contacto más adelante::
 
-    // src/Acme/BlogBundle/Entity/Usuario.php
-    namespace Acme\BlogBundle\Entity;
+.. configuration-block::
 
-    use Symfony\Component\Security\Core\User\UserInterface
-    use Symfony\Component\Validator\Constraints as Assert;
+    .. code-block:: yaml
 
-    class Usuario implements UserInterface
-    {
-        /**
-        * @Assert\Correo(groups={"alta"})
-        */
-        private $correo;
+        # src/Acme/BlogBundle/Resources/config/validation.yml
+        Acme\BlogBundle\Entity\User:
+            properties:
+                email:
+                    - Email: { groups: [registration] }
+                password:
+                    - NotBlank: { groups: [registration] }
+                    - MinLength: { limit: 7, groups: [registration] }
+                city:
+                    - MinLength: 2
 
-        /**
-        * @Assert\NotBlank(groups={"alta"})
-        * @Assert\MinLength(limit=7, groups={"alta"})
-        */
-        private $pase;
+    .. code-block:: xml
 
-        /**
-        * @Assert\MinLength(2)
-        */
-        private $ciudad;
-    }
+        <!-- src/Acme/BlogBundle/Resources/config/validation.xml -->
+        <class name="Acme\BlogBundle\Entity\User">
+            <property name="email">
+                <constraint name="Email">
+                    <option name="groups">
+                        <value>registration</value>
+                    </option>
+                </constraint>
+            </property>
+            <property name="password">
+                <constraint name="NotBlank">
+                    <option name="groups">
+                        <value>registration</value>
+                    </option>
+                </constraint>
+                <constraint name="MinLength">
+                    <option name="limit">7</option>
+                    <option name="groups">
+                        <value>registration</value>
+                    </option>
+                </constraint>
+            </property>
+            <property name="city">
+                <constraint name="MinLength">7</constraint>
+            </property>
+        </class>
+
+    .. code-block:: php-annotations
+
+        // src/Acme/BlogBundle/Entity/User.php
+        namespace Acme\BlogBundle\Entity;
+
+        use Symfony\Component\Security\Core\User\UserInterface
+        use Symfony\Component\Validator\Constraints as Assert;
+
+        class User implements UserInterface
+        {
+            /**
+            * @Assert\Email(groups={"registration"})
+            */
+            private $email;
+
+            /**
+            * @Assert\NotBlank(groups={"registration"})
+            * @Assert\MinLength(limit=7, groups={"registration"})
+            */
+            private $password;
+
+            /**
+            * @Assert\MinLength(2)
+            */
+            private $city;
+        }
+
+    .. code-block:: php
+
+        // src/Acme/BlogBundle/Entity/User.php
+        namespace Acme\BlogBundle\Entity;
+
+        use Symfony\Component\Validator\Mapping\ClassMetadata;
+        use Symfony\Component\Validator\Constraints\Email;
+        use Symfony\Component\Validator\Constraints\NotBlank;
+        use Symfony\Component\Validator\Constraints\MinLength;
+
+        class User
+        {
+            public static function loadValidatorMetadata(ClassMetadata $metadata)
+            {
+                $metadata->addPropertyConstraint('email', new Email(array(
+                    'groups' => array('registration')
+                )));
+
+                $metadata->addPropertyConstraint('password', new NotBlank(array(
+                    'groups' => array('registration')
+                )));
+                $metadata->addPropertyConstraint('password', new MinLength(array(
+                    'limit'  => 7,
+                    'groups' => array('registration')
+                )));
+
+                $metadata->addPropertyConstraint('city', new MinLength(3));
+            }
+        }
 
 Con esta configuración, hay dos grupos de validación:
 
