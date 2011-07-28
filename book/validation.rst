@@ -407,7 +407,7 @@ Las restricciones se pueden aplicar a una propiedad de clase (por ejemplo, ``nom
 Propiedades
 ~~~~~~~~~~~
 
-La validación de propiedades de clase es la técnica de validación más básica. Symfony2 te permite validar propiedades privadas, protegidas o públicas. El siguiente listado muestra cómo configurar la propiedad ``$primerNombre`` de una clase ``Autor`` para que por lo menos tenga 3 caracteres.
+La validación de propiedades de clase es la técnica de validación más básica. Symfony2 te permite validar propiedades privadas, protegidas o públicas. El siguiente listado muestra cómo configurar la propiedad ``$nombreDePila`` de una clase ``Autor`` para que por lo menos tenga 3 caracteres.
 
 .. configuration-block::
 
@@ -541,9 +541,9 @@ Ahora, crea el método ``isPaseLegal()`` e incluye la lógica que necesites::
 Validando grupos
 ----------------
 
-Hasta ahora, hemos sido capaces de agregar restricciones a una clase y consultar si o no esa clase pasa todas las restricciones definidas. En algunos casos, sin embargo, tendrás que validar un objeto sólo contra *algunas* de las restricciones de esa clase. Para ello, puedes organizar cada restricción en uno o más "grupos de validación", y luego aplicar la validación contra un solo grupo de restricciones.
+Hasta ahora, hemos sido capaces de agregar restricciones a una clase y consultar si o no esa clase pasa todas las restricciones definidas. En algunos casos, sin embargo, tendrás que validar un objeto contra únicamente *algunas* restricciones de esa clase. Para ello, puedes organizar cada restricción en uno o más "grupos de validación", y luego aplicar la validación contra un solo grupo de restricciones.
 
-Por ejemplo, supongamos que tienes una clase ``usuario``, que se usa tanto cuando un usuario se registra como cuando un usuario actualiza su información de contacto más adelante::
+Por ejemplo, supongamos que tienes una clase ``Usuario``, la cual se usa más adelante tanto cuando un usuario se registra como cuando un usuario actualiza su información de contacto:
 
 .. configuration-block::
 
@@ -557,7 +557,7 @@ Por ejemplo, supongamos que tienes una clase ``usuario``, que se usa tanto cuand
                 password:
                     - NotBlank: { groups: [registration] }
                     - MinLength: { limit: 7, groups: [registration] }
-                city:
+                ciudad:
                     - MinLength: 2
 
     .. code-block:: xml
@@ -584,7 +584,7 @@ Por ejemplo, supongamos que tienes una clase ``usuario``, que se usa tanto cuand
                     </option>
                 </constraint>
             </property>
-            <property name="city">
+            <property name="ciudad">
                 <constraint name="MinLength">7</constraint>
             </property>
         </class>
@@ -613,7 +613,7 @@ Por ejemplo, supongamos que tienes una clase ``usuario``, que se usa tanto cuand
             /**
             * @Assert\MinLength(2)
             */
-            private $city;
+            private $ciudad;
         }
 
     .. code-block:: php
@@ -642,7 +642,7 @@ Por ejemplo, supongamos que tienes una clase ``usuario``, que se usa tanto cuand
                     'groups' => array('registration')
                 )));
 
-                $metadata->addPropertyConstraint('city', new MinLength(3));
+                $metadatos->addPropertyConstraint('ciudad', new MinLength(3));
             }
         }
 
