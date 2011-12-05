@@ -1,0 +1,343 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo integrar una colección de formularios &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Recetario" href="../index.html" />
+    <link rel="next" title="Cómo crear un tipo de campo para formulario personalizado" href="create_custom_field_type.html" />
+    <link rel="prev" title="Cómo generar formularios dinámicamente usando eventos del formulario" href="dynamic_form_generation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="create_custom_field_type.html" title="Cómo crear un tipo de campo para formulario personalizado"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="dynamic_form_generation.html" title="Cómo generar formularios dinámicamente usando eventos del formulario"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-integrar-una-coleccion-de-formularios">
+<span id="index-0"></span><h1>Cómo integrar una colección de formularios<a class="headerlink" href="#como-integrar-una-coleccion-de-formularios" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>En este artículo, aprenderás cómo crear un formulario que integra una colección de muchos otros formularios. Esto podría ser útil, por ejemplo, si tienes una clase <tt class="docutils literal"><span class="pre">Tarea</span></tt> y quieres crear/editar/eliminar muchos objetos <tt class="docutils literal"><span class="pre">Etiqueta</span></tt> relacionados con esa <tt class="docutils literal"><span class="pre">Tarea</span></tt>, justo dentro del mismo formulario.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p>En este artículo, vamos a suponer vagamente que estás utilizando <em>Doctrine</em> como almacén de base de datos. Pero si no estás usando <em>Doctrine</em> (por ejemplo, Propel o simplemente una conexión de base de datos), es casi lo mismo.</p>
+<p class="last">Si utilizas <em>Doctrine</em>, tendrás que añadir los metadatos de <em>Doctrine</em>, incluyendo las etiquetas <tt class="docutils literal"><span class="pre">ManyToMany</span></tt> en la propiedad <tt class="docutils literal"><span class="pre">tags</span></tt> de la <tt class="docutils literal"><span class="pre">Tarea</span></tt>.</p>
+</div>
+<p>Vamos a empezar por ahí: Supongamos que cada <tt class="docutils literal"><span class="pre">Tarea</span></tt> pertenece a múltiples objetos <tt class="docutils literal"><span class="pre">Tags</span></tt>. Empecemos creando una sencilla clase <tt class="docutils literal"><span class="pre">Task</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Entity/Task.php</span>
+<span class="x">namespace Acme\TaskBundle\Entity;</span>
+
+<span class="x">use Doctrine\Common\Collections\ArrayCollection;</span>
+
+<span class="x">class Task</span>
+<span class="x">{</span>
+<span class="x">    protected $description;</span>
+
+<span class="x">    protected $tags;</span>
+
+<span class="x">    public function __construct()</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;tags = new ArrayCollection();</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getDescription()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;description;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function setDescription($description)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;descripcion = $descripcion;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getTags()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;tags;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function setTags(ArrayCollection $tags)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;tags = $tags;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">El <tt class="docutils literal"><span class="pre">ArrayCollection</span></tt> es específico de <em>Doctrine</em> y básicamente es lo mismo que usar un <tt class="docutils literal"><span class="pre">array</span></tt> (pero este debe ser un <tt class="docutils literal"><span class="pre">ArrayCollection</span></tt>) si estás usando <em>Doctrine</em>.</p>
+</div>
+<p>Ahora, crea una clase <tt class="docutils literal"><span class="pre">Tag</span></tt>. Cómo vimos arriba, una <tt class="docutils literal"><span class="pre">Task</span></tt> puede tener muchos objetos <tt class="docutils literal"><span class="pre">Tag</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Entity/Tag.php</span>
+<span class="x">namespace Acme\TaskBundle\Entity;</span>
+
+<span class="x">class Tag</span>
+<span class="x">{</span>
+<span class="x">    public $name;</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Aquí, la propiedad <tt class="docutils literal"><span class="pre">name</span></tt> es pública, pero fácilmente puede ser solo protegida o privada (pero entonces necesitaríamos métodos <tt class="docutils literal"><span class="pre">getName</span></tt> y <tt class="docutils literal"><span class="pre">setName</span></tt>).</p>
+</div>
+<p>Ahora veamos los formularios. Crea una clase formulario para que el usuario pueda modificar un objeto <tt class="docutils literal"><span class="pre">Tag</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/Type/TagType.php</span>
+<span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+
+<span class="x">class TagType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $builder-&gt;add(&#39;name&#39;);</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getDefaultOptions(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;data_class&#39; =&gt; &#39;Acme\TaskBundle\Entity\Tag&#39;,</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getName()</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;tag&#39;;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Con esto, tenemos suficiente para reproducir una forma de etiqueta por sí mismo. Pero debido a que el objetivo final es permitir que las etiquetas de una <tt class="docutils literal"><span class="pre">Tarea</span></tt> sean modificadas directamente dentro del formulario de la tarea en sí mismo, crea un formulario para la clase <tt class="docutils literal"><span class="pre">Tarea</span></tt>.</p>
+<p>Ten en cuenta que integramos una colección de formularios <tt class="docutils literal"><span class="pre">TagType</span></tt> usando el tipo de campo <a class="reference internal" href="../../reference/forms/types/collection.html"><em>collection</em></a>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/Type/TaskType.php</span>
+<span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+
+<span class="x">class TaskType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $builder-&gt;add(&#39;description&#39;);</span>
+
+<span class="x">        $builder-&gt;add(&#39;tags&#39;, &#39;collection&#39;, array(&#39;type&#39; =&gt; new TagType()));</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getDefaultOptions(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;data_class&#39; =&gt; &#39;Acme\TaskBundle\Entity\Task&#39;,</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getName()</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;task&#39;;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>En tu controlador, ahora tendrás que iniciar una nueva instancia de <tt class="docutils literal"><span class="pre">TaskType</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Controller/TaskController.php</span>
+<span class="x">namespace Acme\TaskBundle\Controller;</span>
+
+<span class="x">use Acme\TaskBundle\Entity\Task;</span>
+<span class="x">use Acme\TaskBundle\Entity\Tag;</span>
+<span class="x">use Acme\TaskBundle\Form\TaskType;</span>
+<span class="x">use Symfony\Component\HttpFoundation\Request;</span>
+<span class="x">use Symfony\Bundle\FrameworkBundle\Controller\Controller;</span>
+
+<span class="x">class TaskController extends Controller</span>
+<span class="x">{</span>
+<span class="x">    public function newAction(Request $request)</span>
+<span class="x">    {</span>
+<span class="x">        $task = new Task();</span>
+
+<span class="x">        // código ficticio - esto está aquí sólo para que la tarea tenga algunas</span>
+<span class="x">        // etiquetas, de lo contrario, este no sería un ejemplo interesante</span>
+<span class="x">        $tag1 = new Tag()</span>
+<span class="x">        $tag1-&gt;name = &#39;tag1&#39;;</span>
+<span class="x">        $task-&gt;getTags()-&gt;add($tag1);</span>
+<span class="x">        $tag2 = new Tag()</span>
+<span class="x">        $tag2-&gt;name = &#39;tag2&#39;;</span>
+<span class="x">        $task-&gt;getTags()-&gt;add($tag2);</span>
+<span class="x">        // fin de código ficticio</span>
+
+<span class="x">        $form = $this-&gt;createForm(new TaskType(), $task);</span>
+
+<span class="x">        // aquí, tal vez haga algún tipo de proceso del formulario en una petición POST</span>
+
+<span class="x">        return $this-&gt;render(&#39;AcmeTaskBundle:Task:new.html.twig&#39;, array(</span>
+<span class="x">            &#39;form&#39; =&gt; $form-&gt;createView(),</span>
+<span class="x">        ));</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>La plantilla correspondiente, ahora es capaz de reproducir tanto el campo <tt class="docutils literal"><span class="pre">descripción</span></tt> del formulario de <tt class="docutils literal"><span class="pre">Tarea</span></tt>, así como todos los formularios <tt class="docutils literal"><span class="pre">TagType</span></tt> de las etiquetas que ya están relacionados con esta <tt class="docutils literal"><span class="pre">Tarea</span></tt>. En el controlador anterior, agregamos cierto código ficticio para poder ver esto en acción (debido a que una <tt class="docutils literal"><span class="pre">tarea</span></tt> tiene cero etiquetas al crearla por primera vez).</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/TaskBundle/Resources/views/Task/new.html.twig #}</span>
+<span class="c">{# ... #}</span>
+
+<span class="c">{# reproduce únicamente los campos task: descripción #}</span>
+<span class="cp">{{</span> <span class="nv">form_row</span><span class="o">(</span><span class="nv">form.description</span><span class="o">)</span> <span class="cp">}}</span>
+
+<span class="nt">&lt;h3&gt;</span>Tags<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;tags&quot;</span><span class="nt">&gt;</span>
+    <span class="c">{# itera sobre cada etiqueta existente y reproduce su único campo: name #}</span>
+                <span class="cp">{%</span> <span class="k">for</span> <span class="nv">tag</span> <span class="k">in</span> <span class="nv">form.tags</span> <span class="cp">%}</span>
+        <span class="nt">&lt;li&gt;</span><span class="cp">{{</span> <span class="nv">form_row</span><span class="o">(</span><span class="nv">tag.name</span><span class="o">)</span> <span class="cp">}}</span><span class="nt">&lt;/li&gt;</span>
+                <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="nt">&lt;/ul&gt;</span>
+
+<span class="cp">{{</span> <span class="nv">form_rest</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="c">{# ... #}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="c">&lt;!-- src/Acme/TaskBundle/Resources/views/Task/new.html.php --&gt;</span>
+<span class="c">&lt;!-- ... --&gt;</span>
+
+<span class="nt">&lt;h3&gt;</span>Tags<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;tags&quot;</span><span class="nt">&gt;</span>
+                <span class="cp">&lt;?php</span> <span class="k">foreach</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="k">as</span> <span class="nv">$tag</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span>
+        <span class="nt">&lt;li&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nv">$tag</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span><span class="nt">&lt;/li&gt;</span>
+                <span class="cp">&lt;?php</span> <span class="k">endforeach</span><span class="p">;</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+
+<span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">rest</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+<span class="c">&lt;!-- ... --&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Cuando el usuario envía el formulario, los datos presentados por los campos <tt class="docutils literal"><span class="pre">Tag</span></tt> se utilizan para construir un <tt class="docutils literal"><span class="pre">ArrayCollection</span></tt> de los objetos <tt class="docutils literal"><span class="pre">Tag</span></tt>, que luego se establecen en el campo <tt class="docutils literal"><span class="pre">tag</span></tt> de la instancia <tt class="docutils literal"><span class="pre">Tarea</span></tt>.</p>
+<p>La colección <tt class="docutils literal"><span class="pre">Tags</span></tt>, naturalmente, es accesible a través de <tt class="docutils literal"><span class="pre">$task-&gt;getTags()</span></tt> y se puede persistir en la base de datos o utilizar sin embargo donde sea necesaria.</p>
+<p>Hasta el momento, esto funciona muy bien, pero aún no te permite agregar dinámicamente nuevas tareas o eliminar existentes. Por lo tanto, durante la edición de tareas existentes funcionará bien, tu usuario en realidad no puede añadir ninguna nueva tarea, todavía.</p>
+<div class="section" id="permitiendo-nuevas-tareas-con-el-prototipo">
+<span id="cookbook-form-collections-new-prototype"></span><h2>Permitiendo &#8220;nuevas&#8221; tareas con el &#8220;prototipo&#8221;<a class="headerlink" href="#permitiendo-nuevas-tareas-con-el-prototipo" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Esta sección no se ha escrito todavía, pero muy pronto lo será. Si estás interesado en escribir esta entrada, consulta <a class="reference internal" href="../../contributing/documentation/overview.html"><em>Colaborando en la documentación</em></a>.</p>
+</div>
+<div class="section" id="permitiendo-remover-tareas">
+<span id="cookbook-form-collections-remove"></span><h2>Permitiendo remover tareas<a class="headerlink" href="#permitiendo-remover-tareas" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Esta sección no se ha escrito todavía, pero muy pronto lo será. Si estás interesado en escribir esta entrada, consulta <a class="reference internal" href="../../contributing/documentation/overview.html"><em>Colaborando en la documentación</em></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cómo integrar una colección de formularios</a><ul>
+<li><a class="reference internal" href="#permitiendo-nuevas-tareas-con-el-prototipo">Permitiendo &#8220;nuevas&#8221; tareas con el &#8220;prototipo&#8221;</a></li>
+<li><a class="reference internal" href="#permitiendo-remover-tareas">Permitiendo remover tareas</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="dynamic_form_generation.html"
+                        title="Capítulo anterior">Cómo generar formularios dinámicamente usando eventos del formulario</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="create_custom_field_type.html"
+                        title="Próximo capítulo">Cómo crear un tipo de campo para formulario personalizado</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="create_custom_field_type.html" title="Cómo crear un tipo de campo para formulario personalizado"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="dynamic_form_generation.html" title="Cómo generar formularios dinámicamente usando eventos del formulario"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

@@ -1,0 +1,291 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Utilizando transformadores de datos &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Recetario" href="../index.html" />
+    <link rel="next" title="Cómo generar formularios dinámicamente usando eventos del formulario" href="dynamic_form_generation.html" />
+    <link rel="prev" title="Cómo personalizar la reproducción de un formulario" href="form_customization.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="dynamic_form_generation.html" title="Cómo generar formularios dinámicamente usando eventos del formulario"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="form_customization.html" title="Cómo personalizar la reproducción de un formulario"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="utilizando-transformadores-de-datos">
+<h1>Utilizando transformadores de datos<a class="headerlink" href="#utilizando-transformadores-de-datos" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>A menudo te encontrarás con la necesidad de transformar los datos que el usuario introdujo en un formulario a algo
+más para usarlo en tu programa. Lo podrías hacer fácilmente a mano en tu controlador, pero, ¿qué pasa si quieres utilizar este formulario específico en sitios diferentes?</p>
+<p>Digamos que tienes una relación uno a uno entre una <tt class="docutils literal"><span class="pre">Tarea</span></tt> y un <tt class="docutils literal"><span class="pre">Asunto</span></tt>, por ejemplo, una <tt class="docutils literal"><span class="pre">Tarea</span></tt> opcionalmente está vinculada a un <tt class="docutils literal"><span class="pre">Asunto</span></tt>. Añadir un cuadro de lista con todos los posibles <tt class="docutils literal"><span class="pre">Asuntos</span></tt> finalmente te puede conducir a una lista realmente larga en la cual es imposible encontrar algo. En su lugar mejor querrás añadir un cuadro de texto, en el cual el usuario sencillamente puede introducir el número del asunto. En el controlador puedes convertir este número de asunto en una tarea real, y finalmente añadir errores al formulario si no se encuentra, pero naturalmente esto realmente no es limpio.</p>
+<p>Sería mejor si este asunto se buscara automáticamente y convirtiera a un objeto <tt class="docutils literal"><span class="pre">Asunto</span></tt>, para usarlo en tu acción. Aquí es donde entran en juego los Transformadores de datos.</p>
+<p>Primero, crea un tipo de formulario personalizado que tenga adjunto un Transformador de datos, el cual regresa el <tt class="docutils literal"><span class="pre">Asunto</span></tt> por número: El tipo selector de asunto. Finalmente este sencillamente será un campo de texto, cuando configuremos el padre para que sea  un campo de <tt class="docutils literal"><span class="pre">texto</span></tt>, en el cual se introducirá el número de asunto. El campo mostrará un error si no existe el número introducido:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/IssueSelectorType.php</span>
+<span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+<span class="x">use Acme\TaskBundle\Form\DataTransformer\IssueToNumberTransformer;</span>
+<span class="x">use Doctrine\Common\Persistence\ObjectManager;</span>
+
+<span class="x">class IssueSelectorType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    private $om;</span>
+
+<span class="x">    public function __construct(ObjectManager $om)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;om = $om;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $transformer = new IssueToNumberTransformer($this-&gt;om);</span>
+<span class="x">        $builder-&gt;appendClientTransformer($transformer);</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getDefaultOptions(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;invalid_message&#39; =&gt; &#39;The selected issue does not exist&#39;</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getParent(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;text&#39;;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getName()</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;issue_selector&#39;;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">También puedes usar transformadores sin crear un nuevo tipo de formulario personalizado llamando a <tt class="docutils literal"><span class="pre">appendClientTransformer</span></tt> en cualquier constructor de campo:</p>
+</div>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\TaskBundle\Form\DataTransformer\IssueToNumberTransformer;</span>
+
+<span class="x">class TaskType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        // ...</span>
+
+<span class="x">        // este asume que el gestor de la entidad se pasó como una opción</span>
+<span class="x">        $entityManager = $options[&#39;em&#39;];</span>
+<span class="x">        $transformer = new IssueToNumberTransformer($entityManager);</span>
+
+<span class="x">        // usa un campo de texto normal, pero transforma el texto en un objeto asunto</span>
+<span class="x">        $builder</span>
+<span class="x">            -&gt;add(&#39;issue&#39;, &#39;text&#39;)</span>
+<span class="x">            -&gt;appendClientTransformer($transformer)</span>
+<span class="x">        ;</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Luego, creamos el transformador de datos, el cual realiza la conversión real:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/DataTransformer/IssueToNumberTransformer.php</span>
+<span class="x">namespace Acme\TaskBundle\Form\DataTransformer;</span>
+
+<span class="x">use Symfony\Component\Form\Exception\TransformationFailedException;</span>
+<span class="x">use Symfony\Component\Form\DataTransformerInterface;</span>
+<span class="x">use Doctrine\Common\Persistence\ObjectManager;</span>
+
+<span class="x">class IssueToNumberTransformer implements DataTransformerInterface</span>
+<span class="x">{</span>
+<span class="x">    private $om;</span>
+
+<span class="x">    public function __construct(ObjectManager $om)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;om = $om;</span>
+<span class="x">    }</span>
+
+<span class="x">    // transforma el objeto asunto a una cadena</span>
+<span class="x">    public function transform($val)</span>
+<span class="x">    {</span>
+<span class="x">        if (null === $val) {</span>
+<span class="x">            return &#39;&#39;;</span>
+<span class="x">        }</span>
+
+<span class="x">        return $val-&gt;getNumber();</span>
+<span class="x">    }</span>
+
+<span class="x">    // transforma el número del asunto en un objeto Asunto</span>
+<span class="x">    public function reverseTransform($val)</span>
+<span class="x">    {</span>
+<span class="x">        if (!$val) {</span>
+<span class="x">            return null;</span>
+<span class="x">        }</span>
+
+<span class="x">        $issue = $this-&gt;om-&gt;getRepository(&#39;AcmeTaskBundle:Issue&#39;)-&gt;findOneBy(array(&#39;number&#39; =&gt; $val));</span>
+
+<span class="x">        if (null === $issue) {</span>
+<span class="x">            throw new TransformationFailedException(sprintf(&#39;An issue with number %s does not exist!&#39;, $val));</span>
+<span class="x">        }</span>
+
+<span class="x">        return $issue;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Finalmente, debido a que hemos decidido crear un tipo de formulario personalizado que usa el transformador de datos, registramos el <tt class="docutils literal"><span class="pre">Tipo</span></tt> en el contenedor de servicios, a modo de poder inyectar el gestor de la entidad automáticamente:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">acme_demo.type.issue_selector</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Acme\TaskBundle\Form\IssueSelectorType</span>
+        <span class="l-Scalar-Plain">arguments</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="s">&quot;@doctrine.orm.entity_manager&quot;</span><span class="p-Indicator">]</span>
+        <span class="l-Scalar-Plain">tags</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">name</span><span class="p-Indicator">:</span>     <span class="nv">form.type</span><span class="p-Indicator">,</span> <span class="nv">alias</span><span class="p-Indicator">:</span> <span class="nv">issue_selector</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;acme_demo.type.issue_selector&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\TaskBundle\Form\IssueSelectorType&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;argument</span> <span class="na">type=</span><span class="s">&quot;service&quot;</span> <span class="na">id=</span><span class="s">&quot;doctrine.orm.entity_manager&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;tag</span> <span class="na">name=</span><span class="s">&quot;form.type&quot;</span> <span class="na">alias=</span><span class="s">&quot;issue_selector&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/service&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Ahora puedes añadir el tipo a tu formulario por su alias de la siguiente manera:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/Type/TaskType.php</span>
+
+<span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+
+<span class="x">class TaskType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $builder-&gt;add(&#39;task&#39;);</span>
+<span class="x">        $builder-&gt;add(&#39;dueDate&#39;, null, array(&#39;widget&#39; =&gt; &#39;single_text&#39;));</span>
+<span class="x">        $builder-&gt;add(&#39;issue&#39;, &#39;issue_selector&#39;);</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getName()</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;task&#39;;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ahora es muy fácil en cualquier sitio aleatorio en tu aplicación utilizar este tipo selector para elegir un asunto por número. Ninguna lógica se tiene que añadir a tu Controlador en absoluto.</p>
+<p>Si quieres crear un nuevo asunto cuándo se introduzca un número desconocido, puedes crear una nueva instancia en lugar de lanzar una <tt class="docutils literal"><span class="pre">TransformationFailedException</span></tt>, e incluso persistirla en tu gestor de la entidad si la tarea no tiene opciones en cascada para el <tt class="docutils literal"><span class="pre">asunto</span></tt>.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="form_customization.html"
+                        title="Capítulo anterior">Cómo personalizar la reproducción de un formulario</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="dynamic_form_generation.html"
+                        title="Próximo capítulo">Cómo generar formularios dinámicamente usando eventos del formulario</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="dynamic_form_generation.html" title="Cómo generar formularios dinámicamente usando eventos del formulario"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="form_customization.html" title="Cómo personalizar la reproducción de un formulario"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

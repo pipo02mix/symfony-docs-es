@@ -1,0 +1,389 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo crear la consola/línea de ordenes &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../index.html" />
+    <link rel="up" title="Recetario" href="index.html" />
+    <link rel="next" title="Cómo optimizar tu entorno de desarrollo para depuración" href="debugging.html" />
+    <link rel="prev" title="Cómo encontrar archivos" href="tools/finder.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="debugging.html" title="Cómo optimizar tu entorno de desarrollo para depuración"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="tools/finder.html" title="Cómo encontrar archivos"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-crear-la-consola-linea-de-ordenes">
+<span id="index-0"></span><h1>Cómo crear la consola/línea de ordenes<a class="headerlink" href="#como-crear-la-consola-linea-de-ordenes" title="Enlazar permanentemente con este título">¶</a></h1>
+<p><em>Symfony2</em> viene con un componente Consola, que te permite crear ordenes para la línea de ordenes. Tus ordenes de consola se pueden utilizar para cualquier tarea repetitiva, como <tt class="docutils literal"><span class="pre">cronjobs</span></tt>, importaciones, u otros trabajos por lotes.</p>
+<div class="section" id="creando-una-orden-basica">
+<h2>Creando una orden básica<a class="headerlink" href="#creando-una-orden-basica" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Para hacer que las ordenes de la consola estén disponibles automáticamente con <em>Symfony2</em>, crea un directorio <tt class="docutils literal"><span class="pre">Command</span></tt> dentro de tu paquete y crea un archivo <em>PHP</em> con el sufijo <tt class="docutils literal"><span class="pre">Command.php</span></tt> para cada orden que deses proveer. Por ejemplo, si deseas ampliar el <tt class="docutils literal"><span class="pre">AcmeDemoBundle</span></tt> (disponible en la edición estándar de <em>Symfony</em>) para darnos la bienvenida desde la línea de ordenes, crea <tt class="docutils literal"><span class="pre">GreetCommand.php</span></tt> y añade lo siguiente al mismo:</p>
+<div class="highlight-python"><pre>// src/Acme/DemoBundle/Command/GreetCommand.php
+namespace Acme\DemoBundle\Command;
+
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class GreetCommand extends ContainerAwareCommand
+{
+    protected function configure()
+    {
+        $this
+            -&gt;setName('demo:greet')
+            -&gt;setDescription('Greet someone')
+            -&gt;addArgument('name', InputArgument::OPTIONAL, 'Who do you want to greet?')
+            -&gt;addOption('yell', null, InputOption::VALUE_NONE, 'If set, the task will yell in uppercase letters')
+        ;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $name = $input-&gt;getArgument('name');
+        if ($name) {
+            $text = 'Hello '.$name;
+        } else {
+            $text = 'Hello';
+        }
+
+        if ($input-&gt;getOption('yell')) {
+            $text = strtoupper($text);
+        }
+
+        $output-&gt;writeln($text);
+    }
+}</pre>
+</div>
+<p>Prueba la nueva consola de ordenes ejecutando lo siguiente</p>
+<div class="highlight-bash"><div class="highlight"><pre>app/console demo:greet Fabien
+</pre></div>
+</div>
+<p>Esto imprimirá lo siguiente en la línea de ordenes:</p>
+<div class="highlight-text"><div class="highlight"><pre>Hello Fabien
+</pre></div>
+</div>
+<p>También puedes utilizar a <tt class="docutils literal"><span class="pre">--yell</span></tt> para convertir todo a mayúsculas:</p>
+<div class="highlight-bash"><div class="highlight"><pre>app/console demo:greet Fabien --yell
+</pre></div>
+</div>
+<p>Esto imprime:</p>
+<div class="highlight-python"><pre>HELLO FABIEN</pre>
+</div>
+<div class="section" id="coloreando-la-salida">
+<h3>Coloreando la salida<a class="headerlink" href="#coloreando-la-salida" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Cada vez que produces texto, puedes escribir el texto con etiquetas para colorear tu salida. Por ejemplo:</p>
+<div class="highlight-python"><pre>// texto verde
+$output-&gt;writeln('&lt;info&gt;foo&lt;/info&gt;');
+
+// texto amarillo
+$output-&gt;writeln('&lt;comment&gt;foo&lt;/comment&gt;');
+
+// texto negro sobre fondo cian
+$output-&gt;writeln('&lt;question&gt;foo&lt;/question&gt;');
+
+// texto blanco sobre fondo rojo
+$output-&gt;writeln('&lt;error&gt;foo&lt;/error&gt;');</pre>
+</div>
+</div>
+</div>
+<div class="section" id="utilizando-argumentos-de-ordenes">
+<h2>Utilizando argumentos de ordenes<a class="headerlink" href="#utilizando-argumentos-de-ordenes" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>La parte más interesante de las ordenes son los argumentos y opciones que puedes hacer disponibles. Los argumentos son cadenas &#8212;separadas por espacios&#8212; que vienen después del nombre de la orden misma. Ellos están ordenados, y pueden ser opcionales u obligatorios. Por ejemplo, añade un argumento <tt class="docutils literal"><span class="pre">last_name</span></tt> opcional a la orden y haz que el argumento <tt class="docutils literal"><span class="pre">name</span></tt> sea obligatorio:</p>
+<div class="highlight-python"><pre>$this
+    // ...
+    -&gt;addArgument('name', InputArgument::REQUIRED, 'Who do you want to greet?')
+    -&gt;addArgument('last_name', InputArgument::OPTIONAL, 'Your last name?')
+    // ...</pre>
+</div>
+<p>Ahora tienes acceso a un argumento <tt class="docutils literal"><span class="pre">last_name</span></tt> en la orden:</p>
+<div class="highlight-python"><pre>if ($lastName = $input-&gt;getArgument('last_name')) {
+    $text .= ' '.$lastName;
+}</pre>
+</div>
+<p>Ahora la orden se puede utilizar en cualquiera de las siguientes maneras:</p>
+<div class="highlight-bash"><div class="highlight"><pre>app/console demo:greet Fabien
+app/console demo:greet Fabien Potencier
+</pre></div>
+</div>
+</div>
+<div class="section" id="usando-las-opciones-de-la-orden">
+<h2>Usando las opciones de la orden<a class="headerlink" href="#usando-las-opciones-de-la-orden" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>A diferencia de los argumentos, las opciones no están ordenadas (lo cual significa que las puedes especificar en cualquier orden) y se especifican con dos guiones (por ejemplo, <tt class="docutils literal"><span class="pre">--yell</span></tt> también puedes declarar un atajo de una letra que puedes invocar con un único guión como <tt class="docutils literal"><span class="pre">-y</span></tt>). Las opciones son: <em>always</em> opcional, y se puede configurar para aceptar un valor (por ejemplo, <tt class="docutils literal"><span class="pre">dir=src</span></tt>) o simplemente como una variable lógica sin valor (por ejemplo, <tt class="docutils literal"><span class="pre">yell</span></tt>).</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">También es posible hacer que un argumento <em>opcionalmente</em> acepte un valor (de modo que <tt class="docutils literal"><span class="pre">--yell</span></tt> o <tt class="docutils literal"><span class="pre">yell=loud</span></tt> funcione). Las opciones también se pueden configurar para aceptar una matriz de valores.</p>
+</div>
+<p>Por ejemplo, añadir una nueva opción a la orden que se puede usar para especificar cuántas veces se debe imprimir el mensaje en una fila:</p>
+<div class="highlight-python"><pre>$this
+    // ...
+    -&gt;addOption('iterations', null, InputOption::VALUE_REQUIRED, 'How many times should the message be printed?', 1)</pre>
+</div>
+<p>A continuación, utilízalo en la orden para imprimir el mensaje varias veces:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">for ($i = 0; $i &lt; $input-&gt;getOption(&#39;iterations&#39;); $i++) {</span>
+<span class="x">    $output-&gt;writeln($text);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ahora, al ejecutar la tarea, si lo deseas, puedes especificar un indicador <tt class="docutils literal"><span class="pre">--iterations</span></tt>:</p>
+<div class="highlight-bash"><div class="highlight"><pre>app/console demo:greet Fabien
+
+app/console demo:greet Fabien --iterations<span class="o">=</span>5
+</pre></div>
+</div>
+<p>El primer ejemplo sólo se imprimirá una vez, ya que <tt class="docutils literal"><span class="pre">iterations</span></tt> está vacía y el predeterminado es <tt class="docutils literal"><span class="pre">1</span></tt> (el último argumento de <tt class="docutils literal"><span class="pre">addOption</span></tt>). El segundo ejemplo se imprimirá cinco veces.</p>
+<p>Recordemos que a las opciones no les preocupa su orden. Por lo tanto, cualquiera de las siguientes trabajará:</p>
+<div class="highlight-bash"><div class="highlight"><pre>app/console demo:greet Fabien --iterations<span class="o">=</span>5 --yell
+app/console demo:greet Fabien --yell --iterations<span class="o">=</span>5
+</pre></div>
+</div>
+<p>Hay 4 variantes de la opción que puedes utilizar:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Opción</th>
+<th class="head">Valor</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>InputOption::VALUE_IS_ARRAY</td>
+<td>Esta opción acepta múltiples valores</td>
+</tr>
+<tr class="row-odd"><td>InputOption::VALUE_NONE</td>
+<td>No acepta entradas para esta opción (por ejemplo <tt class="docutils literal"><span class="pre">--yell</span></tt>)</td>
+</tr>
+<tr class="row-even"><td>InputOption::VALUE_REQUIRED</td>
+<td>Este valor es obligatorio (por ejemplo <tt class="docutils literal"><span class="pre">iterations=5</span></tt>)</td>
+</tr>
+<tr class="row-odd"><td>InputOption::VALUE_OPTIONAL</td>
+<td>Este valor es opcional</td>
+</tr>
+</tbody>
+</table>
+<p>Puedes combinar el VALUE_IS_ARRAY con VALUE_REQUIRED o VALUE_OPTIONAL de la siguiente manera:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$this</span>
+<span class="x">    // ...</span>
+<span class="x">    -&gt;addOption(&#39;iterations&#39;, null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, &#39;How many times should the message be printed?&#39;, 1)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pidiendo-informacion-al-usuario">
+<h2>Pidiendo información al usuario<a class="headerlink" href="#pidiendo-informacion-al-usuario" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Al crear ordenes, tienes la capacidad de recopilar más información de los usuarios haciéndoles preguntas. Por ejemplo, supongamos que deseas confirmar una acción antes de llevarla a cabo realmente. Añade lo siguiente a tu orden:</p>
+<div class="highlight-python"><pre>$dialog = $this-&gt;getHelperSet()-&gt;get('dialog');
+if (!$dialog-&gt;askConfirmation($output, '&lt;question&gt;Continue with this action?&lt;/question&gt;', false)) {
+    return;
+}</pre>
+</div>
+<p>En este caso, el usuario tendrá que &#8220;Continuar con esta acción&#8221;, y, a menos que responda con <tt class="docutils literal"><span class="pre">y</span></tt>, la tarea se detendrá. El tercer argumento de <tt class="docutils literal"><span class="pre">askConfirmation</span></tt> es el valor predeterminado que se devuelve si el usuario no introduce algo.</p>
+<p>También puedes hacer preguntas con más que una simple respuesta sí/no. Por ejemplo, si necesitas saber el nombre de algo, puedes hacer lo siguiente:</p>
+<div class="highlight-python"><pre>$dialog = $this-&gt;getHelperSet()-&gt;get('dialog');
+$name = $dialog-&gt;ask($output, 'Please enter the name of the widget', 'foo');</pre>
+</div>
+</div>
+<div class="section" id="probando-ordenes">
+<h2>Probando ordenes<a class="headerlink" href="#probando-ordenes" title="Enlazar permanentemente con este título">¶</a></h2>
+<p><em>Symfony2</em> proporciona varias herramientas para ayudarte a probar las ordenes. La más útil es la clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Console\Tester\CommandTester</span></tt>. Esta utiliza clases entrada y salida especiales para facilitar la prueba sin una consola real:</p>
+<div class="highlight-python"><pre>use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Acme\DemoBundle\Command\GreetCommand;
+
+class ListCommandTest extends \PHPUnit_Framework_TestCase
+{
+    public function testExecute()
+    {
+        // simula el Kernel o crea uno dependiendo de tus necesidades
+        $application = new Application($kernel);
+        $application-&gt;add(new GreetCommand());
+
+        $command = $application-&gt;find('demo:greet');
+        $commandTester = new CommandTester($command);
+        $commandTester-&gt;execute(array('command' =&gt; $command-&gt;getName()));
+
+        $this-&gt;assertRegExp('/.../', $commandTester-&gt;getDisplay());
+
+        // ...
+    }
+}</pre>
+</div>
+<p>El método <a href="#id1"><span class="problematic" id="id2">:method:`Symfony\\Component\\Console\\Tester\\CommandTester::getDisplay`</span></a> devuelve lo que se ha exhibido durante una llamada normal de la consola.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">También puedes probar toda una aplicación de consola utilizando <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Console\Tester\ApplicationTester</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="obteniendo-servicios-del-contenedor-de-servicios">
+<h2>Obteniendo servicios del contenedor de servicios<a class="headerlink" href="#obteniendo-servicios-del-contenedor-de-servicios" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Al usar <tt class="xref py py-class docutils literal"><span class="pre">SymfonyBundleFrameworkBundleCommandContainerAwareCommand</span></tt> como la clase base para la orden (en lugar del más básico <tt class="xref py py-class docutils literal"><span class="pre">SymfonyComponentConsoleCommandCommand</span></tt>), tienes acceso al contenedor de servicios. En otras palabras, tienes acceso a cualquier servicio configurado.
+Por ejemplo, fácilmente podrías extender la tarea para que sea traducible:</p>
+<div class="highlight-python"><pre>protected function execute(InputInterface $input, OutputInterface $output)
+{
+    $name = $input-&gt;getArgument('name');
+    $translator = $this-&gt;getContainer()-&gt;get('translator');
+    if ($name) {
+        $output-&gt;writeln($translator-&gt;trans('Hello %name%!', array('%name%' =&gt; $name)));
+    } else {
+        $output-&gt;writeln($translator-&gt;trans('Hello!'));
+    }
+}</pre>
+</div>
+</div>
+<div class="section" id="llamando-una-orden-existente">
+<h2>Llamando una orden existente<a class="headerlink" href="#llamando-una-orden-existente" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Si una orden depende de que se ejecute otra antes, en lugar de obligar al usuario a recordar el orden de ejecución, puedes llamarla directamente tú mismo.
+Esto también es útil si deseas crear una &#8220;metaorden&#8221; que ejecute un montón de otras ordenes (por ejemplo, todas las ordenes que se deben ejecutar cuando el código del proyecto ha cambiado en los servidores de producción: vaciar la caché, generar delegados <em>Doctrine2</em>, volcar activos <tt class="docutils literal"><span class="pre">Assetic</span></tt>, ...).</p>
+<p>Llamar a una orden desde otra es sencillo:</p>
+<div class="highlight-python"><pre>protected function execute(InputInterface $input, OutputInterface $output)
+{
+    $command = $this-&gt;getApplication()-&gt;find('demo:greet');
+
+    $arguments = array(
+        'command' =&gt; 'demo:greet',
+        'name'    =&gt; 'Fabien',
+        '--yell'  =&gt; true,
+    );
+
+    $input = new ArrayInput($arguments);
+    $returnCode = $command-&gt;run($input, $output);
+
+    // ...
+}</pre>
+</div>
+<p>En primer lugar, <a href="#id3"><span class="problematic" id="id4">:method:`Symfony\\Component\\Console\\Command\\Command::find`</span></a> busca la orden que deseas ejecutar pasando el nombre de la orden.</p>
+<p>Entonces, es necesario crear una nueva clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Console\Input\ArrayInput</span></tt> con los argumentos y opciones que desees pasar a la orden.</p>
+<p>Eventualmente, llamar al método <tt class="docutils literal"><span class="pre">run()</span></tt> en realidad ejecuta la orden y regresa el código devuelto por la orden (<tt class="docutils literal"><span class="pre">0</span></tt> si todo va bien, cualquier otro número entero de otra manera).</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">La mayor parte del tiempo, llamar a una orden desde código que no se ejecuta en la línea de ordenes no es una buena idea por varias razones. En primer lugar, la salida de la orden se ha optimizado para la consola. Pero lo más importante, puedes pensar de una orden como si fuera un controlador; este debe utilizar el modelo para hacer algo y mostrar algún comentario al usuario. Así, en lugar de llamar una orden desde la <em>Web</em>, reconstruye tu código y mueve la lógica a una nueva clase.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cómo crear la consola/línea de ordenes</a><ul>
+<li><a class="reference internal" href="#creando-una-orden-basica">Creando una orden básica</a><ul>
+<li><a class="reference internal" href="#coloreando-la-salida">Coloreando la salida</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utilizando-argumentos-de-ordenes">Utilizando argumentos de ordenes</a></li>
+<li><a class="reference internal" href="#usando-las-opciones-de-la-orden">Usando las opciones de la orden</a></li>
+<li><a class="reference internal" href="#pidiendo-informacion-al-usuario">Pidiendo información al usuario</a></li>
+<li><a class="reference internal" href="#probando-ordenes">Probando ordenes</a></li>
+<li><a class="reference internal" href="#obteniendo-servicios-del-contenedor-de-servicios">Obteniendo servicios del contenedor de servicios</a></li>
+<li><a class="reference internal" href="#llamando-una-orden-existente">Llamando una orden existente</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="tools/finder.html"
+                        title="Capítulo anterior">Cómo encontrar archivos</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="debugging.html"
+                        title="Próximo capítulo">Cómo optimizar tu entorno de desarrollo para depuración</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="debugging.html" title="Cómo optimizar tu entorno de desarrollo para depuración"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="tools/finder.html" title="Cómo encontrar archivos"
+             >anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

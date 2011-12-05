@@ -1,0 +1,896 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Funcionamiento interno &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../index.html" />
+    <link rel="up" title="Libro" href="index.html" />
+    <link rel="next" title="API estable de Symfony2" href="stable_api.html" />
+    <link rel="prev" title="Rendimiento" href="performance.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="stable_api.html" title="API estable de Symfony2"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="performance.html" title="Rendimiento"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Libro</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="funcionamiento-interno">
+<span id="index-0"></span><h1>Funcionamiento interno<a class="headerlink" href="#funcionamiento-interno" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Parece que quieres entender cómo funciona y cómo extender <em>Symfony2</em>.
+¡Eso me hace muy feliz! Esta sección es una explicación en profundidad de <em>Symfony2</em> desde dentro.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Necesitas leer esta sección sólo si quieres entender cómo funciona <em>Symfony2</em> detrás de la escena, o si deseas ampliar <em>Symfony2</em>.</p>
+</div>
+<div class="section" id="descripcion">
+<h2>Descripción<a class="headerlink" href="#descripcion" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El código <em>Symfony2</em> está hecho de varias capas independientes. Cada capa está construida en lo alto de la anterior.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">La carga automática no la gestiona la plataforma directamente; sino que se hace independientemente con la ayuda de la clase</p>
+</div>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\ClassLoader\UniversalClassLoader</span></tt> y el archivo <tt class="docutils literal"><span class="pre">src/autoload.php</span></tt>. Lee el <a class="reference internal" href="../cookbook/tools/autoloader.html"><em>capítulo dedicado</em></a> para más información.</p>
+<div class="section" id="componente-httpfoundation">
+<h3>Componente <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt><a class="headerlink" href="#componente-httpfoundation" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Al nivel más profundo está el componente <a href="#id1"><span class="problematic" id="id2">:namespace:`Symfony\\Component\\HttpFoundation`</span></a>. <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt> proporciona los principales objetos necesarios para hacer frente a <em>HTTP</em>.
+Es una abstracción orientada a objetos de algunas funciones y variables nativas de <em>PHP</em>:</p>
+<ul class="simple">
+<li>La clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Request</span></tt> resume las principales variables globales de <em>PHP</em>, tales como <tt class="docutils literal"><span class="pre">$_GET</span></tt>, <tt class="docutils literal"><span class="pre">$_POST</span></tt>, <tt class="docutils literal"><span class="pre">$_COOKIE</span></tt>, <tt class="docutils literal"><span class="pre">$_FILES</span></tt> y <tt class="docutils literal"><span class="pre">$_SERVER</span></tt>;</li>
+<li>La clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Response</span></tt> abstrae algunas funciones <em>PHP</em> como <tt class="docutils literal"><span class="pre">header()</span></tt>, <tt class="docutils literal"><span class="pre">setcookie()</span></tt> y <tt class="docutils literal"><span class="pre">echo</span></tt>;</li>
+<li>La clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Session</span></tt> y la interfaz <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\SessionStorage\SessionStorageInterface</span></tt>, abstraen la gestión de sesiones y las funciones <tt class="docutils literal"><span class="pre">session_*()</span></tt>.</li>
+</ul>
+</div>
+<div class="section" id="componente-httpkernel">
+<h3>Componente <tt class="docutils literal"><span class="pre">HttpKernel</span></tt><a class="headerlink" href="#componente-httpkernel" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>En lo alto de <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt> está el componente <a href="#id3"><span class="problematic" id="id4">:namespace:`Symfony\\Component\\HttpKernel`</span></a>. <tt class="docutils literal"><span class="pre">HttpKernel</span></tt> se encarga de la parte dinámica de <em>HTTP</em>; es una fina capa en la parte superior de las clases <tt class="docutils literal"><span class="pre">Petición</span></tt> y <tt class="docutils literal"><span class="pre">Respuesta</span></tt> para estandarizar la forma en que se manejan las peticiones. Esta también proporciona puntos de extensión y herramientas que lo convierten en el punto de partida ideal para crear una plataforma Web sin demasiado trabajo.</p>
+<p>Además, opcionalmente añade configurabilidad y extensibilidad, gracias al componente de inyección de dependencias y un potente sistema de complementos (paquetes).</p>
+<div class="admonition-ver-tambien admonition seealso">
+<p class="first admonition-title">Ver también</p>
+<p class="last">Lee más sobre el componente <tt class="xref doc docutils literal"><span class="pre">HttpKernel</span></tt>. Lee más sobre la
+<a class="reference internal" href="service_container.html"><em>Inyección de dependencias</em></a> y los <a class="reference internal" href="../cookbook/bundles/best_practices.html"><em>Paquetes</em></a>.</p>
+</div>
+</div>
+<div class="section" id="paquete-frameworkbundle">
+<h3>Paquete <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt><a class="headerlink" href="#paquete-frameworkbundle" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>El paquete <a href="#id5"><span class="problematic" id="id6">:namespace:`Symfony\\Bundle\\FrameworkBundle`</span></a> es el paquete que une los principales componentes y bibliotecas para hacer una plataforma <em>MVC</em> ligera y rápida. Este viene con una configuración predeterminada sensible y convenios para facilitar la curva de aprendizaje.</p>
+</div>
+</div>
+<div class="section" id="kernel">
+<span id="index-1"></span><h2><tt class="docutils literal"><span class="pre">Kernel</span></tt><a class="headerlink" href="#kernel" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>La clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\HttpKernel</span></tt> es la clase central de <em>Symfony2</em> y es responsable de procesar las peticiones del cliente. Su objetivo principal es &#8220;convertir&#8221; un objeto <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Request</span></tt> a un objeto <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Response</span></tt>.</p>
+<p>Cada <tt class="docutils literal"><span class="pre">Kernel</span></tt> de <em>Symfony2</em> implementa <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\HttpKernelInterface</span></tt>:</p>
+<div class="highlight-python"><pre>function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)</pre>
+</div>
+<div class="section" id="controladores">
+<span id="index-2"></span><h3>Controladores<a class="headerlink" href="#controladores" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Para convertir una <tt class="docutils literal"><span class="pre">Petición</span></tt> a una <tt class="docutils literal"><span class="pre">Respuesta</span></tt>, el <tt class="docutils literal"><span class="pre">Kernel</span></tt> cuenta con un <tt class="docutils literal"><span class="pre">&quot;Controlador&quot;</span></tt>. Un controlador puede ser cualquier <em>PHP</em> ejecutable válido.</p>
+<p>El <tt class="docutils literal"><span class="pre">Kernel</span></tt> delega la selección de cual controlador se debe ejecutar a una implementación de <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Controller\ControllerResolverInterface</span></tt>:</p>
+<div class="highlight-python"><pre>public function getController(Request $request);
+
+public function getArguments(Request $request, $controller);</pre>
+</div>
+<p>El método <a href="#id7"><span class="problematic" id="id8">:method:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface::getController`</span></a> devuelve el controlador (un <em>PHP</em> ejecutable) asociado a la petición dada. La implementación predeterminada de (<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Controller\ControllerResolver</span></tt>) busca un atributo <tt class="docutils literal"><span class="pre">_controller</span></tt> en la petición que representa el nombre del controlador (una cadena &#8220;clase::método&#8221;, cómo <tt class="docutils literal"><span class="pre">Bundle\BlogBundle\PostController:indexAction</span></tt>).</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">La implementación predeterminada utiliza la clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Bundle\FrameworkBundle\EventListener\RouterListener</span></tt> para definir el atributo <tt class="docutils literal"><span class="pre">_controller</span></tt> de la petición (consulta <em class="xref std std-ref">kernel-core_request</em>).</p>
+</div>
+<p>El método <a href="#id9"><span class="problematic" id="id10">:method:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface::getArguments`</span></a> devuelve una matriz de argumentos para pasarla al Controlador ejecutable. La implementación predeterminada automáticamente resuelve los argumentos del método, basándose en los atributos de la Petición.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Cuadrando los argumentos del método <tt class="docutils literal"><span class="pre">Controlador</span></tt> desde los atributos de la <tt class="docutils literal"><span class="pre">Petición</span></tt></p>
+<p>Por cada argumento del método, <em>Symfony2</em> trata de obtener el valor de un atributo de la <tt class="docutils literal"><span class="pre">Petición</span></tt> con el mismo nombre. Si no se proporciona, el valor predeterminado es el argumento utilizado de estar definido:</p>
+<div class="last highlight-python"><pre>// Symfony2 debe buscar un atributo 'id' (obligatorio)
+//  y un 'admin' (opcional)
+public function showAction($id, $admin = true)
+{
+    // ...
+}</pre>
+</div>
+</div>
+</div>
+<div class="section" id="procesando-peticiones">
+<span id="index-3"></span><h3>Procesando peticiones<a class="headerlink" href="#procesando-peticiones" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>El método <tt class="docutils literal"><span class="pre">handle()</span></tt> toma una <tt class="docutils literal"><span class="pre">Petición</span></tt> y <em>siempre</em> devuelve una <tt class="docutils literal"><span class="pre">Respuesta</span></tt>.
+Para convertir la <tt class="docutils literal"><span class="pre">Petición</span></tt>, <tt class="docutils literal"><span class="pre">handle()</span></tt> confía en el mecanismo de resolución y una cadena ordenada de notificaciones de evento (consulta la siguiente sección para más información acerca de cada evento):</p>
+<ol class="arabic simple">
+<li>Antes de hacer cualquier otra cosa, difunde el evento <tt class="docutils literal"><span class="pre">kernel.request</span></tt> &#8212; si alguno de los escuchas devuelve una <tt class="docutils literal"><span class="pre">Respuesta</span></tt>, salta directamente al paso 8;</li>
+<li>El mecanismo de resolución es llamado para determinar el controlador a ejecutar;</li>
+<li>Los escuchas del evento <tt class="docutils literal"><span class="pre">kernel.controller</span></tt> ahora pueden manipular el controlador ejecutable como quieras (cambiarlo, envolverlo, ...);</li>
+<li>El núcleo verifica que el controlador en realidad es un <em>PHP</em> ejecutable válido;</li>
+<li>Se llama al mecanismo de resolución para determinar los argumentos a pasar al controlador;</li>
+<li>El <tt class="docutils literal"><span class="pre">Kernel</span></tt> llama al controlador;</li>
+<li>Si el controlador no devuelve una <tt class="docutils literal"><span class="pre">Respuesta</span></tt>, los escuchas del evento <tt class="docutils literal"><span class="pre">kernel.view</span></tt> pueden convertir en <tt class="docutils literal"><span class="pre">Respuesta</span></tt> el valor devuelto por el Controlador;</li>
+<li>Los escuchas del evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt> pueden manipular la <tt class="docutils literal"><span class="pre">Respuesta</span></tt> (contenido y cabeceras);</li>
+<li>Devuelve la respuesta.</li>
+</ol>
+<p>Si se produce una Excepción durante el procesamiento, difunde la <tt class="docutils literal"><span class="pre">kernel.exception</span></tt> y se da la oportunidad a los escuchas de convertir la excepción en una <tt class="docutils literal"><span class="pre">Respuesta</span></tt>. Si esto funciona, se difunde el evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt>; si no, se vuelve a lanzar la excepción.</p>
+<p>Si no deseas que se capturen las Excepciones (para peticiones incrustadas, por ejemplo), desactiva el evento <tt class="docutils literal"><span class="pre">kernel.exception</span></tt> pasando <tt class="docutils literal"><span class="pre">false</span></tt> como tercer argumento del método <tt class="docutils literal"><span class="pre">handle()</span></tt>.</p>
+</div>
+<div class="section" id="funcionamiento-interno-de-las-peticiones">
+<span id="index-4"></span><h3>Funcionamiento interno de las peticiones<a class="headerlink" href="#funcionamiento-interno-de-las-peticiones" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>En cualquier momento durante el manejo de una petición (la &#8216;maestra&#8217; uno), puede manejar una subpetición. Puedes pasar el tipo de petición al método <tt class="docutils literal"><span class="pre">handle()</span></tt> (su segundo argumento):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">HttpKernelInterface::MASTER_REQUEST</span></tt>;</li>
+<li><tt class="docutils literal"><span class="pre">HttpKernelInterface::SUB_REQUEST</span></tt>.</li>
+</ul>
+<p>El tipo se pasa a todos los eventos y los escuchas pueden actuar en consecuencia (algún procesamiento sólo debe ocurrir en la petición maestra).</p>
+</div>
+<div class="section" id="eventos">
+<span id="index-5"></span><h3>Eventos<a class="headerlink" href="#eventos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Cada evento lanzado por el <tt class="docutils literal"><span class="pre">Kernel</span></tt> es una subclase de <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\KernelEvent</span></tt>. Esto significa que cada evento tiene acceso a la misma información básica:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">getRequestType()</span></tt> &#8212; devuelve el <em>tipo</em> de la petición   (<tt class="docutils literal"><span class="pre">HttpKernelInterface::MASTER_REQUEST</span></tt> o <tt class="docutils literal"><span class="pre">HttpKernelInterface::SUB_REQUEST</span></tt>);</li>
+<li><tt class="docutils literal"><span class="pre">getKernel()</span></tt> &#8212; devuelve el <tt class="docutils literal"><span class="pre">Kernel</span></tt> que está procesando la petición;</li>
+<li><tt class="docutils literal"><span class="pre">getRequest()</span></tt> &#8212; devuelve la <tt class="docutils literal"><span class="pre">Petición</span></tt> que se está procesando actualmente.</li>
+</ul>
+<div class="section" id="getrequesttype">
+<h4><tt class="docutils literal"><span class="pre">getRequestType()</span></tt><a class="headerlink" href="#getrequesttype" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>El método <tt class="docutils literal"><span class="pre">getRequestType()</span></tt> permite a los escuchas conocer el tipo de la petición. Por ejemplo, si un escucha sólo debe estar atento a las peticiones maestras, agrega el siguiente código al principio de tu método escucha:</p>
+<div class="highlight-python"><pre>use Symfony\Component\HttpKernel\HttpKernelInterface;
+
+if (HttpKernelInterface::MASTER_REQUEST !== $event-&gt;getRequestType()) {
+    // regresa inmediatamente
+    return;
+}</pre>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Si todavía no estás familiarizado con el Despachador de Eventos de <em>Symfony2</em>, primero lee la sección
+<a class="reference internal" href="#event-dispatcher"><em>Eventos</em></a>.</p>
+</div>
+</div>
+<div class="section" id="evento-kernel-request">
+<span id="kernel-core-request"></span><span id="index-6"></span><h4>Evento <tt class="docutils literal"><span class="pre">kernel.request</span></tt><a class="headerlink" href="#evento-kernel-request" title="Enlazar permanentemente con este título">¶</a></h4>
+<p><em>Clase del evento</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\GetResponseEvent</span></tt></p>
+<p>El objetivo de este evento es devolver inmediatamente un objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt> o variables de configuración para poder invocar un controlador después del evento. Cualquier escucha puede devolver un objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt> a través del método <tt class="docutils literal"><span class="pre">setResponse()</span></tt> en el evento. En este caso, todos los otros escuchas no serán llamados.</p>
+<p>Este evento lo utiliza el <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> para llenar el atributo <tt class="docutils literal"><span class="pre">_controller</span></tt> de la <tt class="docutils literal"><span class="pre">Petición</span></tt>, a través de <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Bundle\FrameworkBundle\EventListener\RouterListener</span></tt>. <tt class="docutils literal"><span class="pre">RequestListener</span></tt> usa un objeto <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Routing\RouterInterface</span></tt> para coincidir la <tt class="docutils literal"><span class="pre">Petición</span></tt> y determinar el nombre del controlador (guardado en el atributo <tt class="docutils literal"><span class="pre">_controller</span></tt> de la  <tt class="docutils literal"><span class="pre">Petición</span></tt>).</p>
+</div>
+<div class="section" id="evento-kernel-controller">
+<span id="index-7"></span><h4>Evento <tt class="docutils literal"><span class="pre">kernel.controller</span></tt><a class="headerlink" href="#evento-kernel-controller" title="Enlazar permanentemente con este título">¶</a></h4>
+<p><em>Clase del evento</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterControllerEvent</span></tt></p>
+<p>Este evento no lo utiliza <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>, pero puede ser un punto de entrada para modificar el controlador que se debe ejecutar:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpKernel\Event\FilterControllerEvent;</span>
+
+<span class="x">public function onKernelController(FilterControllerEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $controller = $event-&gt;getController();</span>
+<span class="x">    // ...</span>
+
+<span class="x">    // el controlador se puede cambiar a cualquier PHP ejecutable</span>
+<span class="x">    $event-&gt;setController($controller);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evento-kernel-view">
+<span id="index-8"></span><h4>Evento <tt class="docutils literal"><span class="pre">kernel.view</span></tt><a class="headerlink" href="#evento-kernel-view" title="Enlazar permanentemente con este título">¶</a></h4>
+<p><em>Clase del evento</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent</span></tt></p>
+<p>Este evento no lo utiliza el <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>, pero se puede usar para implementar un subsistema de vistas. Este evento se llama <em>sólo</em> si el controlador <em>no</em> devuelve un objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt>. El propósito del evento es permitir que algún otro valor de retorno se convierta en una <tt class="docutils literal"><span class="pre">Respuesta</span></tt>.</p>
+<p>El valor devuelto por el controlador es accesible a través del método <tt class="docutils literal"><span class="pre">getControllerResult</span></tt>:</p>
+<div class="highlight-python"><pre>use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
+use Symfony\Component\HttpFoundation\Response;
+
+public function onKernelView(GetResponseForControllerResultEvent $event)
+{
+    $val = $event-&gt;getReturnValue();
+    $response = new Response();
+    // De alguna manera modifica la respuesta desde el valor de retorno
+
+    $event-&gt;setResponse($response);
+}</pre>
+</div>
+</div>
+<div class="section" id="evento-kernel-response">
+<span id="index-9"></span><h4>Evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt><a class="headerlink" href="#evento-kernel-response" title="Enlazar permanentemente con este título">¶</a></h4>
+<p><em>Clase del evento</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterResponseEvent</span></tt></p>
+<p>El propósito de este evento es permitir que otros sistemas modifiquen o sustituyan el objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt> después de su creación:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function onKernelResponse(FilterResponseEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $response = $event-&gt;getResponse();</span>
+<span class="x">    // .. modifica el objeto Respuesta</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>El <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> registra varios escuchas:</p>
+<ul class="simple">
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\ProfilerListener</span></tt>:
+recoge los datos de la petición actual;</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener</span></tt>:
+inyecta la barra de herramientas de depuración web;</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\ResponseListener</span></tt>: fija el <tt class="docutils literal"><span class="pre">Content-Type</span></tt> de la respuesta basándose en el formato de la petición;</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\EsiListener</span></tt>: agrega una cabecera <em>HTTP</em> <tt class="docutils literal"><span class="pre">Surrogate-Control</span></tt> cuando es necesario analizar etiquetas <em>ESI</em> en la respuesta.</li>
+</ul>
+</div>
+<div class="section" id="evento-kernel-exception">
+<span id="kernel-kernel-exception"></span><span id="index-10"></span><h4>Evento <tt class="docutils literal"><span class="pre">kernel.exception</span></tt><a class="headerlink" href="#evento-kernel-exception" title="Enlazar permanentemente con este título">¶</a></h4>
+<p><em>Clase del evento</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> registra un <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\ExceptionListener</span></tt> el cual remite la <tt class="docutils literal"><span class="pre">Petición</span></tt> a un determinado controlador (el valor del parámetro <tt class="docutils literal"><span class="pre">exception_listener.controller</span></tt> &#8211; debe estar en notación <tt class="docutils literal"><span class="pre">clase::método</span></tt>).</p>
+<p>Un escucha en este evento puede crear y establecer un objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt>, crear y establecer un nuevo objeto <tt class="docutils literal"><span class="pre">Excepción</span></tt>, o simplemente no hacer nada:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;</span>
+<span class="x">use Symfony\Component\HttpFoundation\Response;</span>
+
+<span class="x">public function onKernelException(GetResponseForExceptionEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $exception = $event-&gt;getException();</span>
+<span class="x">    $response = new Response();</span>
+<span class="x">    // configura el objeto respuesta basándose en la excepción capturada</span>
+<span class="x">    $event-&gt;setResponse($response);</span>
+
+<span class="x">    // alternativamente puedes establecer una nueva excepción</span>
+<span class="x">    // $exception = new \Exception(&#39;Some special exception&#39;);</span>
+<span class="x">    // $event-&gt;setException($exception);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="el-despachador-de-eventos">
+<span id="book-internals-event-dispatcher"></span><span id="index-11"></span><h2>El despachador de eventos<a class="headerlink" href="#el-despachador-de-eventos" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El paradigma orientado a objetos ha recorrido un largo camino para garantizar la extensibilidad del código. Al crear clases que tienen responsabilidades bien definidas, el código se vuelve más flexible y un desarrollador lo puede extender con subclases para modificar su comportamiento. Pero si quieres compartir tus cambios con otros desarrolladores que también han hecho sus propias subclases, la herencia de código es discutible.</p>
+<p>Consideremos un ejemplo del mundo real en el que deseas proporcionar un sistema de complementos a tu proyecto. Un complemento debe ser capaz de agregar métodos, o hacer algo antes o después de ejecutar un método, sin interferir con otros complementos. Esto no es un problema fácil de resolver con la herencia simple y herencia múltiple (si fuera posible con <em>PHP</em>) tiene sus propios inconvenientes.</p>
+<p>El despachador de eventos de <em>Symfony2</em> implementa el patrón <a class="reference external" href="http://en.wikipedia.org/wiki/Observer_pattern">observador</a> en una manera sencilla y efectiva para hacer todo esto posible y para hacer realmente extensibles tus proyectos.</p>
+<p>Tomemos un ejemplo simple desde el <a class="reference external" href="https://github.com/symfony/HttpKernel">componente HttpKernel de Symfony2</a>. Una vez creado un objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt>, puede ser útil permitir que otros elementos en el sistema lo modifiquen (por ejemplo, añadan algunas cabeceras caché) antes de utilizarlo realmente. Para hacer esto posible, el núcleo de <em>Symfony2</em> lanza un evento &#8212; <tt class="docutils literal"><span class="pre">kernel.response</span></tt>. Así es como funciona:</p>
+<ul class="simple">
+<li>Un <em>escucha</em> (objeto <em>PHP</em>) le dice a un objeto <em>despachador</em> central que quiere escuchar el evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt>;</li>
+<li>En algún momento, el núcleo de <em>Symfony2</em> dice al objeto <em>despachador</em> que difunda el evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt>, pasando con este un objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> que tiene acceso al objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt>;</li>
+<li>El despachador notifica a (es decir, llama a un método en) todos los escuchas del evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt>, permitiendo que cada uno de ellos haga modificaciones al objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt>.</li>
+</ul>
+<div class="section" id="event-dispatcher">
+<span id="index-12"></span><span id="id11"></span><h3>Eventos<a class="headerlink" href="#event-dispatcher" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Cuando se envía un evento, es identificado por un nombre único (por ejemplo, <tt class="docutils literal"><span class="pre">kernel.response</span></tt>), al que cualquier cantidad de escuchas podría estar atento. También se crea una instancia de <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt> y se pasa a todos los escuchas. Como veremos más adelante, el objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> mismo, a menudo contiene datos sobre cuando se despachó el evento.</p>
+<div class="section" id="convenciones-de-nomenclatura">
+<span id="index-13"></span><h4>Convenciones de nomenclatura<a class="headerlink" href="#convenciones-de-nomenclatura" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>El nombre único del evento puede ser cualquier cadena, pero opcionalmente sigue una serie de convenciones de nomenclatura simples:</p>
+<ul class="simple">
+<li>Sólo usa letras minúsculas, números, puntos (<tt class="docutils literal"><span class="pre">.</span></tt>) y subrayados (<tt class="docutils literal"><span class="pre">_</span></tt>);</li>
+<li>Prefija los nombres con un espacio de nombres seguido de un punto (por ejemplo, <tt class="docutils literal"><span class="pre">kernel.</span></tt>);</li>
+<li>Termina los nombres con un verbo que indica qué acción se está tomando (por ejemplo, <tt class="docutils literal"><span class="pre">request</span></tt>).</li>
+</ul>
+<p>Estos son algunos ejemplos de nombres de evento aceptables:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">kernel.response</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">form.pre_set_data</span></tt></li>
+</ul>
+</div>
+<div class="section" id="nombres-de-evento-y-objetos-evento">
+<span id="index-14"></span><h4>Nombres de evento y objetos evento<a class="headerlink" href="#nombres-de-evento-y-objetos-evento" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>Cuando el despachador notifica a los escuchas, este pasa un objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> real a los escuchas. La clase base <tt class="docutils literal"><span class="pre">Evento</span></tt> es muy simple: contiene un método para detener la <a class="reference internal" href="#event-dispatcher-event-propagation"><em>propagación del evento</em></a>, pero no mucho más.</p>
+<p>Muchas veces, los datos acerca de un evento específico se tienen que pasar junto con el objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> para que los escuchas tengan la información necesaria. En el caso del evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt>, el objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> creado y pasado a cada escucha realmente es de tipo <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterResponseEvent</span></tt>, una subclase del objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> base. Esta clase contiene métodos como <tt class="docutils literal"><span class="pre">getResponse</span></tt> y <tt class="docutils literal"><span class="pre">setResponse</span></tt>, que permiten a los escuchas recibir e incluso sustituir el objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt>.</p>
+<p>La moraleja de la historia es esta: cuando creas un escucha para un evento, el objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> que se pasa al escucha puede ser una subclase especial que tiene métodos adicionales para recuperar información desde y para responder al evento.</p>
+</div>
+</div>
+<div class="section" id="el-despachador">
+<h3>El despachador<a class="headerlink" href="#el-despachador" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>El despachador es el objeto central del sistema despachador de eventos. En general, se crea un único despachador, el cual mantiene un registro de escuchas. Cuando se difunde un evento a través del despachador, este notifica a todos los escuchas registrados con ese evento.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\EventDispatcher\EventDispatcher;</span>
+
+<span class="x">$dispatcher = new EventDispatcher();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="conectando-escuchas">
+<span id="index-15"></span><h3>Conectando escuchas<a class="headerlink" href="#conectando-escuchas" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Para aprovechar las ventajas de un evento existente, es necesario conectar un escucha con el despachador para que pueda ser notificado cuando se despache el evento. Una llamada al método despachador <tt class="docutils literal"><span class="pre">addListener()</span></tt> asocia cualquier objeto <em>PHP</em> ejecutable a un evento:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$listener = new AcmeListener();</span>
+<span class="x">$dispatcher-&gt;addListener(&#39;foo.action&#39;, array($listener, &#39;onFooAction&#39;));</span>
+</pre></div>
+</div>
+<p>El método <tt class="docutils literal"><span class="pre">addListener()</span></tt> toma hasta tres argumentos:</p>
+<ul class="simple">
+<li>El nombre del evento (cadena) que este escucha quiere atender;</li>
+<li>Un objeto <em>PHP</em> ejecutable que será notificado cuando se produzca un evento al que está atento;</li>
+<li>Un entero de prioridad opcional (mayor es igual a más importante) que determina cuando un escucha se activa frente a otros escuchas (por omisión es <tt class="docutils literal"><span class="pre">0</span></tt>). Si dos escuchas tienen la misma prioridad, se ejecutan en el orden en que se agregaron al despachador.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p>Un <a class="reference external" href="http://www.php.net/manual/es/language.pseudo-types.php#language.types.callback">PHP ejecutable</a> es una variable <em>PHP</em> que la función <tt class="docutils literal"><span class="pre">call_user_func()</span></tt> puede utilizar y devuelve <tt class="docutils literal"><span class="pre">true</span></tt> cuando pasa a la función <tt class="docutils literal"><span class="pre">is_callable()</span></tt>. Esta puede ser una instancia de <tt class="docutils literal"><span class="pre">\Closure</span></tt>, una cadena que representa una función, o una matriz que representa a un objeto método o un método de clase.</p>
+<p>Hasta ahora, hemos visto cómo los objetos <em>PHP</em> se pueden registrar como escuchas. También puedes registrar <a class="reference external" href="http://www.php.net/manual/es/functions.anonymous.php">Cierres</a> <em>PHP</em> como escuchas de eventos:</p>
+<div class="last highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\EventDispatcher\Event;</span>
+
+<span class="x">$dispatcher-&gt;addListener(&#39;foo.action&#39;, function (Event $event) {</span>
+<span class="x">    // se debe ejecutar al despachar el evento foo.action</span>
+<span class="x">});</span>
+</pre></div>
+</div>
+</div>
+<p>Una vez que se registra el escucha en el despachador, este espera hasta que el evento sea notificado. En el ejemplo anterior, cuando se despacha el evento <tt class="docutils literal"><span class="pre">foo.action</span></tt>, el despachador llama al método <tt class="docutils literal"><span class="pre">AcmeListener::onFooAction</span></tt> y pasa el objeto <tt class="docutils literal"><span class="pre">Evento</span></tt> como único argumento:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\EventDispatcher\Event;</span>
+
+<span class="x">class AcmeListener</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    public function onFooAction(Event $event)</span>
+<span class="x">    {</span>
+<span class="x">        // Hace algo</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Si utilizas la plataforma <em>MVC</em> de <em>Symfony2</em>, los escuchas se pueden registrar a través de tu <a class="reference internal" href="../reference/dic_tags.html#dic-tags-kernel-event-listener"><em>configuración</em></a>. Como bono adicional, los objetos escucha sólo se crean cuando son necesarios.</p>
+</div>
+<p>En muchos casos, una subclase especial <tt class="docutils literal"><span class="pre">Evento</span></tt> específica para el evento dado es pasada al escucha. Esto le da al escucha acceso a información especial sobre el evento. Consulta la documentación o la implementación de cada evento para determinar la instancia exacta de <tt class="docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt> que se ha pasado. Por ejemplo, el evento <tt class="docutils literal"><span class="pre">kernel.event</span></tt> pasa una instancia de <tt class="docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterResponseEvent</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpKernel\Event\FilterResponseEvent</span>
+
+<span class="x">public function onKernelResponse(FilterResponseEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $response = $event-&gt;getResponse();</span>
+<span class="x">    $request = $event-&gt;getRequest();</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<span class="target" id="event-dispatcher-closures-as-listeners"></span></div>
+<div class="section" id="creando-y-despachando-un-evento">
+<span id="index-16"></span><h3>Creando y despachando un evento<a class="headerlink" href="#creando-y-despachando-un-evento" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Además de registrar escuchas con eventos existentes, puedes crear y lanzar tus propios eventos. Esto es útil cuando creas bibliotecas de terceros y también cuando deseas mantener flexibles y desconectados diferentes componentes de tu propio sistema.</p>
+<div class="section" id="la-clase-estatica-events">
+<h4>La clase estática <tt class="docutils literal"><span class="pre">Events</span></tt><a class="headerlink" href="#la-clase-estatica-events" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>Supongamos que deseas crear un nuevo evento &#8212;<tt class="docutils literal"><span class="pre">store.order</span></tt>&#8212; el cual se despacha cada vez que es creada una orden dentro de tu aplicación. Para mantener las cosas organizadas, empieza por crear una clase <tt class="docutils literal"><span class="pre">StoreEvents</span></tt> dentro de tu aplicación que sirva para definir y documentar tu evento:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\StoreBundle;</span>
+
+<span class="x">final class StoreEvents</span>
+<span class="x">{</span>
+<span class="x">    /**</span>
+<span class="x">     * El evento &#39;store.order&#39; es lanzado cada vez que se crea una orden</span>
+<span class="x">     * en el sistema.</span>
+<span class="x">     *</span>
+<span class="x">     * El escucha del evento recibe una instancia de</span>
+<span class="x">     * Acme\StoreBundle\Event\FilterOrderEvent.</span>
+<span class="x">     *</span>
+<span class="x">     * @var string</span>
+<span class="x">     */</span>
+<span class="x">    const onStoreOrder = &#39;store.order&#39;;</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ten en cuenta que esta clase en realidad <em>no hace</em> nada. El propósito de la clase <tt class="docutils literal"><span class="pre">StoreEvents</span></tt> sólo es ser un lugar donde se pueda centralizar la información sobre los eventos comunes. Observa también que se pasará una clase especial <tt class="docutils literal"><span class="pre">FilterOrderEvent</span></tt> a cada escucha de este evento.</p>
+</div>
+<div class="section" id="creando-un-objeto-evento">
+<h4>Creando un objeto <tt class="docutils literal"><span class="pre">Evento</span></tt><a class="headerlink" href="#creando-un-objeto-evento" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>Más tarde, cuando despaches este nuevo evento, debes crear una instancia del <tt class="docutils literal"><span class="pre">Evento</span></tt> y pasarla al despachador. Entonces el despachador pasa esta misma instancia a cada uno de los escuchas del evento. Si no necesitas pasar alguna información a tus escuchas, puedes utilizar la clase predeterminada <tt class="docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt>. La mayoría de las veces, sin embargo, <em>necesitarás</em> pasar información sobre el evento a cada escucha. Para lograr esto, vamos a crear una nueva clase que extiende a <tt class="docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt>.</p>
+<p>En este ejemplo, cada escucha tendrá acceso a algún objeto <tt class="docutils literal"><span class="pre">Order</span></tt>. Crea una clase <tt class="docutils literal"><span class="pre">Evento</span></tt> que lo hace posible:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\StoreBundle\Event;</span>
+
+<span class="x">use Symfony\Component\EventDispatcher\Event;</span>
+<span class="x">use Acme\StoreBundle\Order;</span>
+
+<span class="x">class FilterOrderEvent extends Event</span>
+<span class="x">{</span>
+<span class="x">    protected $order;</span>
+
+<span class="x">    public function __construct(Order $order)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;order = $order;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getOrder()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;order;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ahora, cada escucha tiene acceso al objeto <tt class="docutils literal"><span class="pre">Order</span></tt> a través del método <tt class="docutils literal"><span class="pre">getOrder</span></tt>.</p>
+</div>
+<div class="section" id="despachando-el-evento">
+<h4>Despachando el evento<a class="headerlink" href="#despachando-el-evento" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>El método <a href="#id12"><span class="problematic" id="id13">:method:`Symfony\\Component\\EventDispatcher\\EventDispatcher::dispatch`</span></a> notifica a todos los escuchas del evento dado. Este toma dos argumentos: el nombre del evento a despachar, y la instancia del <tt class="docutils literal"><span class="pre">Evento</span></tt> a pasar a cada escucha de ese evento:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\StoreBundle\StoreEvents;</span>
+<span class="x">use Acme\StoreBundle\Order;</span>
+<span class="x">use Acme\StoreBundle\Event\FilterOrderEvent;</span>
+
+<span class="x">// la orden de alguna manera es creada o recuperada</span>
+<span class="x">$order = new Order();</span>
+<span class="x">// ...</span>
+
+<span class="x">// crea el FilterOrderEvent y lo despacha</span>
+<span class="x">$event = new FilterOrderEvent($order);</span>
+<span class="x">$dispatcher-&gt;dispatch(StoreEvents::onStoreOrder, $event);</span>
+</pre></div>
+</div>
+<p>Ten en cuenta que el objeto especial <tt class="docutils literal"><span class="pre">FilterOrderEvent</span></tt> se crea y pasa al método <tt class="docutils literal"><span class="pre">dispatch</span></tt>. Ahora, cualquier escucha del evento <tt class="docutils literal"><span class="pre">store.order</span></tt> recibirá el <tt class="docutils literal"><span class="pre">FilterOrderEvent</span></tt> y tendrá acceso al objeto <tt class="docutils literal"><span class="pre">Order</span></tt> a través del método <tt class="docutils literal"><span class="pre">getOrder</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// alguna clase escucha que se ha registrado para onStoreOrder</span>
+<span class="x">use Acme\StoreBundle\Event\FilterOrderEvent;</span>
+
+<span class="x">public function onStoreOrder(FilterOrderEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $order = $event-&gt;getOrder();</span>
+<span class="x">    // haz algo para o con la orden</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pasando-el-objeto-despachador-de-evento">
+<h3>Pasando el objeto despachador de evento<a class="headerlink" href="#pasando-el-objeto-despachador-de-evento" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Si echas un vistazo a la clase <tt class="docutils literal"><span class="pre">EventDispatcher</span></tt>, te darás cuenta de que la clase no actúa como una instancia única (no hay un método estático <tt class="docutils literal"><span class="pre">getInstance()</span></tt>).
+Esto es intencional, ya que posiblemente desees tener varios despachadores de eventos simultáneos en una sola petición <em>PHP</em>. Pero también significa que necesitas una manera de pasar el despachador a los objetos que necesitan conectar o notificar eventos.</p>
+<p>La mejor práctica consiste en inyectar el objeto despachador de eventos en tus objetos, también conocido como inyección de dependencias.</p>
+<p>Puedes usar la inyección del constructor:</p>
+<div class="highlight-python"><pre>class Foo
+{
+    protected $dispatcher = null;
+
+    public function __construct(EventDispatcher $dispatcher)
+    {
+        $this-&gt;dispatcher = $dispatcher;
+    }
+}</pre>
+</div>
+<p>O inyección del definidor:</p>
+<div class="highlight-python"><pre>class Foo
+{
+    protected $dispatcher = null;
+
+    public function setEventDispatcher(EventDispatcher $dispatcher)
+    {
+        $this-&gt;dispatcher = $dispatcher;
+    }
+}</pre>
+</div>
+<p>La elección entre los dos realmente es cuestión de gusto. Muchos tienden a preferir el constructor de inyección porque los objetos son totalmente iniciados en tiempo de construcción. Pero cuando tienes una larga lista de dependencias, la inyección de definidores puede ser el camino a seguir, especialmente para dependencias opcionales.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p>Si utilizas la inyección de dependencias como lo hicimos en los dos ejemplos anteriores, entonces puedes utilizar el <a class="reference external" href="https://github.com/symfony/DependencyInjection">componente de Inyección de dependencias de Symfony2</a> para manejar elegantemente la inyección del servicio <tt class="docutils literal"><span class="pre">event_dispatcher</span></tt> en estos objetos.</p>
+<blockquote class="last">
+<div><div class="highlight-yaml"><pre># src/Acme/HelloBundle/Resources/config/services.yml
+services:
+    foo_service:
+        class: Acme/HelloBundle/Foo/FooService
+        arguments: [@event_dispatcher]</pre>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="usando-suscriptores-de-evento">
+<span id="index-17"></span><h3>Usando suscriptores de evento<a class="headerlink" href="#usando-suscriptores-de-evento" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>La forma más común para escuchar a un evento es registrar un <em>escucha de evento</em> con el despachador. Este escucha puede estar atento a uno o más eventos y ser notificado cada vez que se envían los eventos.</p>
+<p>Otra forma de escuchar eventos es a través de un <em>suscriptor de eventos</em>. Un suscriptor de eventos es una clase <em>PHP</em> que es capaz de decir al despachador exactamente a cuales eventos debe estar suscrito. Este implementa la interfaz <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\EventDispatcher\EventSubscriberInterface</span></tt>, que requiere un solo método estático llamado <tt class="docutils literal"><span class="pre">getSubscribedEvents</span></tt>. Considera el siguiente ejemplo de un suscriptor que está inscrito a los eventos <tt class="docutils literal"><span class="pre">kernel.response</span></tt> y <tt class="docutils literal"><span class="pre">store.order</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\StoreBundle\Event;</span>
+
+<span class="x">use Symfony\Component\EventDispatcher\EventSubscriberInterface;</span>
+<span class="x">use Symfony\Component\HttpKernel\Event\FilterResponseEvent;</span>
+
+<span class="x">class StoreSubscriber implements EventSubscriberInterface</span>
+<span class="x">{</span>
+<span class="x">    static public function getSubscribedEvents()</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;kernel.response&#39; =&gt; &#39;onKernelResponse&#39;,</span>
+<span class="x">            &#39;store.order&#39;     =&gt; &#39;onStoreOrder&#39;,</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    public function onKernelResponse(FilterResponseEvent $event)</span>
+<span class="x">    {</span>
+<span class="x">        // ...</span>
+<span class="x">    }</span>
+
+<span class="x">    public function onStoreOrder(FilterOrderEvent $event)</span>
+<span class="x">    {</span>
+<span class="x">        // ...</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Esto es muy similar a una clase escucha, salvo que la propia clase puede decir al despachador cuales eventos debe escuchar. Para registrar un suscriptor al despachador, utiliza el método <a href="#id14"><span class="problematic" id="id15">:method:`Symfony\\Component\\EventDispatcher\\EventDispatcher::addSubscriber`</span></a>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\StoreBundle\Event\StoreSubscriber;</span>
+
+<span class="x">$subscriber = new StoreSubscriber();</span>
+<span class="x">$dispatcher-&gt;addSubscriber($subscriber);</span>
+</pre></div>
+</div>
+<p>El despachador registrará automáticamente al suscriptor para cada evento devuelto por el método <tt class="docutils literal"><span class="pre">getSubscribedEvents</span></tt>. Este método devuelve una matriz indexada por el nombre del evento y cuyos valores son el nombre del método a llamar o una matriz compuesta por el nombre del método a llamar y la prioridad.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Si utilizas la plataforma <em>MVC</em> de <em>Symfony2</em>, los suscriptores se pueden registrar a través de tu <a class="reference internal" href="../reference/dic_tags.html#dic-tags-kernel-event-subscriber"><em>configuración</em></a>. Como bono adicional, los objetos suscriptores sólo se crean cuando son necesarios.</p>
+</div>
+</div>
+<div class="section" id="deteniendo-el-flujo-propagacion-del-evento">
+<span id="event-dispatcher-event-propagation"></span><span id="index-18"></span><h3>Deteniendo el flujo/propagación del evento<a class="headerlink" href="#deteniendo-el-flujo-propagacion-del-evento" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>En algunos casos, puede tener sentido que un escucha evite que se llame a otros escuchas. En otras palabras, el escucha tiene que poder decirle al despachador detenga la propagación del evento a todos los escuchas en el futuro (es decir, no notificar a más escuchas). Esto se puede lograr desde el interior de un escucha a través del método <a href="#id16"><span class="problematic" id="id17">:method:`Symfony\\Component\\EventDispatcher\\Event::stopPropagation`</span></a>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\StoreBundle\Event\FilterOrderEvent;</span>
+
+<span class="x">public function onStoreOrder(FilterOrderEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    $event-&gt;stopPropagation();</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ahora, cualquier escucha de <tt class="docutils literal"><span class="pre">store.order</span></tt> que no haya llamado aún, <em>no</em> será invocado.</p>
+</div>
+</div>
+<div class="section" id="generador-de-perfiles">
+<span id="index-19"></span><h2>Generador de perfiles<a class="headerlink" href="#generador-de-perfiles" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Cuando se activa, el generador de perfiles de <em>Symfony2</em> recoge información útil sobre cada petición presentada a tu aplicación y la almacena para su posterior análisis. Utiliza el generador de perfiles en el entorno de desarrollo para que te ayude a depurar tu código y mejorar el rendimiento; úsalo en el entorno de producción para explorar problemas después del hecho.</p>
+<p>Rara vez tienes que lidiar con el generador de perfiles directamente puesto que <em>Symfony2</em> proporciona herramientas de visualización como la barra de herramientas de depuración web y el generador de perfiles web. Si utilizas la Edición estándar de <em>Symfony2</em>, el generador de perfiles, la barra de herramientas de depuración web, y el generador de perfiles web, ya están configurados con ajustes razonables.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">El generador de perfiles recopila información para todas las peticiones (peticiones simples, redirecciones, excepciones, peticiones <em>Ajax</em>, peticiones <em>ESI</em>;  y para todos los métodos <em>HTTP</em> y todos los formatos). Esto significa que para una única <em>URL</em>, puedes tener varios perfiles de datos asociados (un par petición/respuesta externa).</p>
+</div>
+<div class="section" id="visualizando-perfiles-de-datos">
+<span id="index-20"></span><h3>Visualizando perfiles de datos<a class="headerlink" href="#visualizando-perfiles-de-datos" title="Enlazar permanentemente con este título">¶</a></h3>
+<div class="section" id="usando-la-barra-de-depuracion-web">
+<h4>Usando la barra de depuración web<a class="headerlink" href="#usando-la-barra-de-depuracion-web" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>En el entorno de desarrollo, la barra de depuración web está disponible en la parte inferior de todas las páginas. Esta muestra un buen resumen de los datos perfilados que te da acceso instantáneo a una gran cantidad de información útil cuando algo no funciona como esperabas.</p>
+<p>Si el resumen presentado por las herramientas de la barra de depuración web no es suficiente, haz clic en el enlace simbólico (una cadena compuesta de 13 caracteres aleatorios) para acceder al generador de perfiles web.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Si no se puede hacer clic en el enlace, significa que las rutas del generador de perfiles no están registradas (más abajo hay información de configuración).</p>
+</div>
+</div>
+<div class="section" id="analizando-datos-del-perfil-con-el-generador-de-perfiles-web">
+<h4>Analizando datos del perfil con el generador de perfiles web<a class="headerlink" href="#analizando-datos-del-perfil-con-el-generador-de-perfiles-web" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>El generador de perfiles web es una herramienta de visualización para perfilar datos que puedes utilizar en desarrollo para depurar tu código y mejorar el rendimiento; pero también lo puedes utilizar para explorar problemas que ocurren en producción. Este expone toda la información recogida por el generador de perfiles en una interfaz web.</p>
+</div>
+<div class="section" id="accediendo-a-informacion-del-generador-de-perfiles">
+<span id="index-21"></span><h4>Accediendo a información del generador de perfiles<a class="headerlink" href="#accediendo-a-informacion-del-generador-de-perfiles" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>No es necesario utilizar el visualizador predeterminado para acceder a la información de perfiles. Pero ¿cómo se puede recuperar información de perfiles de una petición específica después del hecho? Cuando el generador de perfiles almacena datos sobre una <tt class="docutils literal"><span class="pre">Petición</span></tt>, también le asocia un símbolo; esta muestra está disponible en la cabecera <em>HTTP</em> <tt class="docutils literal"><span class="pre">X-Debug-Token</span></tt> de la Respuesta:</p>
+<div class="highlight-python"><pre>$profile = $container-&gt;get('profiler')-&gt;loadProfileFromResponse($response);
+
+$profile = $container-&gt;get('profiler')-&gt;loadProfile($token);</pre>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Cuando el generador de perfiles está habilitado pero no la barra de herramientas de depuración <em>web</em>, o cuando desees obtener el símbolo de una petición <em>Ajax</em>, utiliza una herramienta como <em>Firebug</em> para obtener el valor de la cabecera <em>HTTP</em> <tt class="docutils literal"><span class="pre">X-Debug-Token</span></tt>.</p>
+</div>
+<p>Usa el método <tt class="docutils literal"><span class="pre">find()</span></tt> para acceder a elementos basándose en algún criterio:</p>
+<div class="highlight-python"><pre>// consigue los 10 últimas fragmentos
+$tokens = $container-&gt;get('profiler')-&gt;find('', '', 10);
+
+// consigue los 10 últimos fragmentos de todas las URL que contienen /admin/
+$tokens = $container-&gt;get('profiler')-&gt;find('', '/admin/', 10);
+
+// consigue los 10 últimos fragmentos de peticiones locales
+$tokens = $container-&gt;get('profiler')-&gt;find('127.0.0.1', '', 10);</pre>
+</div>
+<p>Si deseas manipular los datos del perfil en una máquina diferente a la que generó la información, utiliza los métodos <tt class="docutils literal"><span class="pre">export()</span></tt> e <tt class="docutils literal"><span class="pre">import()</span></tt>:</p>
+<div class="highlight-python"><pre>// en la máquina en producción
+$profile = $container-&gt;get('profiler')-&gt;loadProfile($token);
+$data = $profiler-&gt;export($profile);
+
+// en la máquina de desarrollo
+$profiler-&gt;import($data);</pre>
+</div>
+</div>
+<div class="section" id="configurando">
+<span id="index-22"></span><h4>Configurando<a class="headerlink" href="#configurando" title="Enlazar permanentemente con este título">¶</a></h4>
+<p>La configuración predeterminada de <em>Symfony2</em> viene con ajustes razonables para el generador de perfiles, la barra de herramientas de depuración web, y el generador de perfiles web. Aquí está por ejemplo la configuración para el entorno de desarrollo:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># carga el generador de perfiles</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">only_exceptions</span><span class="p-Indicator">:</span> <span class="nv">false</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># activa el generador de perfiles web</span>
+<span class="l-Scalar-Plain">web_profiler</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">toolbar</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+    <span class="l-Scalar-Plain">intercept_redirects</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+    <span class="l-Scalar-Plain">verbose</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- xmlns:webprofiler=&quot;http://symfony.com/schema/dic/webprofiler&quot; --&gt;</span>
+<span class="c">&lt;!-- xsi:schemaLocation=&quot;http://symfony.com/schema/dic/webprofiler http://symfony.com/schema/dic/webprofiler/webprofiler-1.0.xsd&quot;&gt; --&gt;</span>
+
+<span class="c">&lt;!-- carga el generador de perfiles --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler</span> <span class="na">only-exceptions=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- activa el generador de perfiles web --&gt;</span>
+<span class="nt">&lt;webprofiler:config</span>
+    <span class="na">toolbar=</span><span class="s">&quot;true&quot;</span>
+    <span class="na">intercept-redirects=</span><span class="s">&quot;true&quot;</span>
+    <span class="na">verbose=</span><span class="s">&quot;true&quot;</span>
+<span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// carga el generador de perfiles</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(&#39;only-exceptions&#39; =&gt; false),</span>
+<span class="x">));</span>
+
+<span class="x">// activa el generador de perfiles web</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;web_profiler&#39;, array(</span>
+<span class="x">    &#39;toolbar&#39; =&gt; true,</span>
+<span class="x">    &#39;intercept-redirects&#39; =&gt; true,</span>
+<span class="x">    &#39;verbose&#39; =&gt; true,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Cuando <tt class="docutils literal"><span class="pre">only-exceptions</span></tt> se establece a <tt class="docutils literal"><span class="pre">true</span></tt>, el generador de perfiles sólo recoge datos cuando tu aplicación lanza una excepción.</p>
+<p>Cuando <tt class="docutils literal"><span class="pre">intercept-redirects</span></tt> está establecido en <tt class="docutils literal"><span class="pre">true</span></tt>, el generador de perfiles web intercepta las redirecciones y te da la oportunidad de analizar los datos recogidos antes de seguir la redirección.</p>
+<p>Cuando <tt class="docutils literal"><span class="pre">verbose</span></tt> está establecido en <tt class="docutils literal"><span class="pre">true</span></tt>, la barra de herramientas de depuración web muestra una gran cantidad de información. Configurar <tt class="docutils literal"><span class="pre">verbose</span></tt> a <tt class="docutils literal"><span class="pre">false</span></tt> oculta algo de información secundaria para hacer más corta la barra de herramientas.</p>
+<p>Si activas el generador de perfiles web, también es necesario montar las rutas de los perfiles:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre>_profiler:
+    resource: @WebProfilerBundle/Resources/config/routing/profiler.xml
+    prefix:   /_profiler</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;import</span> <span class="na">resource=</span><span class="s">&quot;@WebProfilerBundle/Resources/config/routing/profiler.xml&quot;</span> <span class="na">prefix=</span><span class="s">&quot;/_profiler&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$coleccion-&gt;addCollection($loader-&gt;import(&quot;@WebProfilerBundle/Resources/config/routing/profiler.xml&quot;), &#39;/_profiler&#39;);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Dado que el generador de perfiles añade algo de sobrecarga, posiblemente desees activarlo sólo bajo ciertas circunstancias en el entorno de producción. La configuración <tt class="docutils literal"><span class="pre">only-exceptions</span></tt> limita al generador de perfiles a 500 páginas, ¿pero si quieres obtener información cuando el cliente <em>IP</em> proviene de una dirección específica, o para una parte limitada de la página web? Puedes utilizar una emparejadora de petición:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># activa el generador de perfiles sólo para peticiones entrantes de la red 192.168.0.0</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">ip</span><span class="p-Indicator">:</span> <span class="nv">192.168.0.0/24</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># activa el generador de perfiles sólo para las URL /admin</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="s">&quot;^/admin/&quot;</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># combina reglas</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">ip</span><span class="p-Indicator">:</span> <span class="nv">192.168.0.0/24</span><span class="p-Indicator">,</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="s">&quot;^/admin/&quot;</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># usa una instancia emparejadora personalizada definida en el servicio &quot;custom_matcher&quot;</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">service</span><span class="p-Indicator">:</span> <span class="nv">custom_matcher</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- activa el generador de perfiles sólo para peticiones entrantes de la red 192.168.0.0 --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">ip=</span><span class="s">&quot;192.168.0.0/24&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- activa el generador de perfiles sólo para las URL /admin --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">path=</span><span class="s">&quot;^/admin/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- combina reglas --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">ip=</span><span class="s">&quot;192.168.0.0/24&quot;</span> <span class="na">path=</span><span class="s">&quot;^/admin/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- usa una instancia emparejadora personalizada definida en el servicio &quot;custom_matcher&quot; --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">service=</span><span class="s">&quot;custom_matcher&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// activa el generador de perfiles sólo para peticiones entrantes de la red 192.168.0.0</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;ip&#39; =&gt; &#39;192.168.0.0/24&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+
+<span class="x">// activa el generador de perfiles sólo para las URL /admin</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;path&#39; =&gt; &#39;^/admin/&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+
+<span class="x">// combina reglas</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;ip&#39; =&gt; &#39;192.168.0.0/24&#39;, &#39;path&#39; =&gt; &#39;^/admin/&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+
+<span class="x"># usa una instancia emparejadora personalizada definida en el servicio &quot;custom_matcher&quot;</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;service&#39; =&gt; &#39;custom_matcher&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="aprende-mas-en-el-recetario">
+<h2>Aprende más en el recetario<a class="headerlink" href="#aprende-mas-en-el-recetario" title="Enlazar permanentemente con este título">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../cookbook/testing/profiling.html"><em>Cómo utilizar el generador de perfiles en una prueba funcional</em></a></li>
+<li><a class="reference internal" href="../cookbook/profiler/data_collector.html"><em>Cómo crear un colector de datos personalizado</em></a></li>
+<li><a class="reference internal" href="../cookbook/event_dispatcher/class_extension.html"><em>Cómo extender una clase sin necesidad de utilizar herencia</em></a></li>
+<li><a class="reference internal" href="../cookbook/event_dispatcher/method_behavior.html"><em>Cómo personalizar el comportamiento de un método sin utilizar herencia</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Funcionamiento interno</a><ul>
+<li><a class="reference internal" href="#descripcion">Descripción</a><ul>
+<li><a class="reference internal" href="#componente-httpfoundation">Componente <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt></a></li>
+<li><a class="reference internal" href="#componente-httpkernel">Componente <tt class="docutils literal"><span class="pre">HttpKernel</span></tt></a></li>
+<li><a class="reference internal" href="#paquete-frameworkbundle">Paquete <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kernel"><tt class="docutils literal"><span class="pre">Kernel</span></tt></a><ul>
+<li><a class="reference internal" href="#controladores">Controladores</a></li>
+<li><a class="reference internal" href="#procesando-peticiones">Procesando peticiones</a></li>
+<li><a class="reference internal" href="#funcionamiento-interno-de-las-peticiones">Funcionamiento interno de las peticiones</a></li>
+<li><a class="reference internal" href="#eventos">Eventos</a><ul>
+<li><a class="reference internal" href="#getrequesttype"><tt class="docutils literal"><span class="pre">getRequestType()</span></tt></a></li>
+<li><a class="reference internal" href="#evento-kernel-request">Evento <tt class="docutils literal"><span class="pre">kernel.request</span></tt></a></li>
+<li><a class="reference internal" href="#evento-kernel-controller">Evento <tt class="docutils literal"><span class="pre">kernel.controller</span></tt></a></li>
+<li><a class="reference internal" href="#evento-kernel-view">Evento <tt class="docutils literal"><span class="pre">kernel.view</span></tt></a></li>
+<li><a class="reference internal" href="#evento-kernel-response">Evento <tt class="docutils literal"><span class="pre">kernel.response</span></tt></a></li>
+<li><a class="reference internal" href="#evento-kernel-exception">Evento <tt class="docutils literal"><span class="pre">kernel.exception</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#el-despachador-de-eventos">El despachador de eventos</a><ul>
+<li><a class="reference internal" href="#event-dispatcher">Eventos</a><ul>
+<li><a class="reference internal" href="#convenciones-de-nomenclatura">Convenciones de nomenclatura</a></li>
+<li><a class="reference internal" href="#nombres-de-evento-y-objetos-evento">Nombres de evento y objetos evento</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#el-despachador">El despachador</a></li>
+<li><a class="reference internal" href="#conectando-escuchas">Conectando escuchas</a></li>
+<li><a class="reference internal" href="#creando-y-despachando-un-evento">Creando y despachando un evento</a><ul>
+<li><a class="reference internal" href="#la-clase-estatica-events">La clase estática <tt class="docutils literal"><span class="pre">Events</span></tt></a></li>
+<li><a class="reference internal" href="#creando-un-objeto-evento">Creando un objeto <tt class="docutils literal"><span class="pre">Evento</span></tt></a></li>
+<li><a class="reference internal" href="#despachando-el-evento">Despachando el evento</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pasando-el-objeto-despachador-de-evento">Pasando el objeto despachador de evento</a></li>
+<li><a class="reference internal" href="#usando-suscriptores-de-evento">Usando suscriptores de evento</a></li>
+<li><a class="reference internal" href="#deteniendo-el-flujo-propagacion-del-evento">Deteniendo el flujo/propagación del evento</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generador-de-perfiles">Generador de perfiles</a><ul>
+<li><a class="reference internal" href="#visualizando-perfiles-de-datos">Visualizando perfiles de datos</a><ul>
+<li><a class="reference internal" href="#usando-la-barra-de-depuracion-web">Usando la barra de depuración web</a></li>
+<li><a class="reference internal" href="#analizando-datos-del-perfil-con-el-generador-de-perfiles-web">Analizando datos del perfil con el generador de perfiles web</a></li>
+<li><a class="reference internal" href="#accediendo-a-informacion-del-generador-de-perfiles">Accediendo a información del generador de perfiles</a></li>
+<li><a class="reference internal" href="#configurando">Configurando</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#aprende-mas-en-el-recetario">Aprende más en el recetario</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="performance.html"
+                        title="Capítulo anterior">Rendimiento</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="stable_api.html"
+                        title="Próximo capítulo"><em>API</em> estable de <em>Symfony2</em></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="stable_api.html" title="API estable de Symfony2"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="performance.html" title="Rendimiento"
+             >anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" >Libro</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

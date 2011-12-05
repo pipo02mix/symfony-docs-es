@@ -1,0 +1,206 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo cargar clases automáticamente &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Recetario" href="../index.html" />
+    <link rel="next" title="Cómo encontrar archivos" href="finder.html" />
+    <link rel="prev" title="Cómo configurar Monolog para reportar errores por correo electrónico" href="../logging/monolog_email.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="finder.html" title="Cómo encontrar archivos"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="../logging/monolog_email.html" title="Cómo configurar Monolog para reportar errores por correo electrónico"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-cargar-clases-automaticamente">
+<span id="index-0"></span><h1>Cómo cargar clases automáticamente<a class="headerlink" href="#como-cargar-clases-automaticamente" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Siempre que uses una clase no definida, <em>PHP</em> utiliza el mecanismo de carga automática para delegar la carga de un archivo de definición de clase. <em>Symfony2</em> proporciona un cargador automático &#8220;universal&#8221;, que es capaz de cargar clases desde los archivos que implementan uno de los siguientes convenios:</p>
+<ul class="simple">
+<li>Los <a class="reference external" href="http://groups.google.com/group/php-standards/web/psr-0-final-proposal">estándares</a> de interoperabilidad técnica para los espacios de nombres y nombres de clases de <em>PHP 5.3</em>;</li>
+<li>La convención de nomenclatura de clases de <a class="reference external" href="http://pear.php.net/manual/en/standards.php">PEAR</a>.</li>
+</ul>
+<p>Si tus clases y las bibliotecas de terceros que utilizas en tu proyecto siguen estas normas, el cargador automático de <em>Symfony2</em> es el único cargador automático que necesitarás siempre.</p>
+<div class="section" id="uso">
+<h2>Uso<a class="headerlink" href="#uso" title="Enlazar permanentemente con este título">¶</a></h2>
+<p class="versionadded">
+<span class="versionmodified">Nuevo en la versión 2.1: </span>El método <tt class="docutils literal"><span class="pre">useIncludePath</span></tt> se agregó en <em>Symfony</em> 2.1.</p>
+<p>Registrar la clase del cargador automático <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\ClassLoader\UniversalClassLoader</span></tt> es sencillo:</p>
+<div class="highlight-python"><pre>require_once '/ruta/a/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+
+use Symfony\Component\ClassLoader\UniversalClassLoader;
+
+$loader = new UniversalClassLoader();
+
+// como último recurso busca en include_path.
+$loader-&gt;useIncludePath(true);
+
+$loader-&gt;register();</pre>
+</div>
+<p>Para una menor ganancia en rendimiento puedes memorizar en caché las rutas de las clases usando <em>APC</em>, con sólo registrar la clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\ClassLoader\ApcUniversalClassLoader</span></tt>:</p>
+<div class="highlight-python"><pre>require_once '/ruta/a/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+require_once '/ruta/a/src/Symfony/Component/ClassLoader/ApcUniversalClassLoader.php';
+
+use Symfony\Component\ClassLoader\ApcUniversalClassLoader;
+
+$loader = new ApcUniversalClassLoader('apc.prefix.');
+$loader-&gt;register();</pre>
+</div>
+<p>El cargador automático es útil sólo si agregas algunas bibliotecas al cargador automático.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">El autocargador se registra automáticamente en una aplicación <em>Symfony2</em> (consulta el <tt class="docutils literal"><span class="pre">app/autoload.php</span></tt>).</p>
+</div>
+<p>Si las clases a cargar automáticamente utilizan espacios de nombres, utiliza cualquiera de los métodos <a href="#id1"><span class="problematic" id="id2">:method:`Symfony\\Component\\ClassLoader\\UniversalClassLoader::registerNamespace`</span></a> o <a href="#id3"><span class="problematic" id="id4">:method:`Symfony\\Component\\ClassLoader\\UniversalClassLoader::registerNamespaces`</span></a>:</p>
+<div class="highlight-python"><pre>$loader-&gt;registerNamespace('Symfony', __DIR__.'/vendor/symfony/src');
+
+$loader-&gt;registerNamespaces(array(
+    'Symfony' =&gt; __DIR__.'/../vendor/symfony/src',
+    'Monolog' =&gt; __DIR__.'/../vendor/monolog/src',
+));
+
+$loader-&gt;register();</pre>
+</div>
+<p>Para las clases que siguen la convención de nomenclatura de PEAR, utiliza cualquiera de los métodos <a href="#id5"><span class="problematic" id="id6">:method:`Symfony\\Component\\ClassLoader\\UniversalClassLoader::registerPrefix`</span></a> o <a href="#id7"><span class="problematic" id="id8">:method:`Symfony\\Component\\ClassLoader\\UniversalClassLoader::registerPrefixes`</span></a>:</p>
+<div class="highlight-python"><pre>$loader-&gt;registerPrefix('Twig_', __DIR__.'/vendor/twig/lib');
+
+$loader-&gt;registerPrefixes(array(
+    'Swift_' =&gt; __DIR__.'/vendor/swiftmailer/lib/classes',
+    'Twig_'  =&gt; __DIR__.'/vendor/twig/lib',
+));
+
+$loader-&gt;register();</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Algunas bibliotecas también requieren que su ruta de acceso raíz esté registrada en la ruta de include <em>PHP</em> (<tt class="docutils literal"><span class="pre">set_include_path()</span></tt>).</p>
+</div>
+<p>Las clases de un subespacio de nombres o una subjerarquía de clases <em>PEAR</em> se puede buscar en una lista de ubicaciones para facilitar la utilización de un subconjunto de clases de terceros para los grandes proyectos:</p>
+<div class="highlight-python"><pre>$loader-&gt;registerNamespaces(array(
+    'Doctrine\\Common'           =&gt; __DIR__.'/vendor/doctrine-common/lib',
+    'Doctrine\\DBAL\\Migrations' =&gt; __DIR__.'/vendor/doctrine-migrations/lib',
+    'Doctrine\\DBAL'             =&gt; __DIR__.'/vendor/doctrine-dbal/lib',
+    'Doctrine'                   =&gt; __DIR__.'/vendor/doctrine/lib',
+));
+
+$loader-&gt;register();</pre>
+</div>
+<p>En este ejemplo, si intentas utilizar una clase en el espacio de nombres <tt class="docutils literal"><span class="pre">Doctrine\Common</span></tt> o uno de sus hijos, el cargador automático buscará primero la clase en el directorio <tt class="docutils literal"><span class="pre">doctrine\common</span></tt>, y entonces vuelve a la reserva al directorio predeterminado <tt class="docutils literal"><span class="pre">doctrine</span></tt> (el último configurado) si no se encuentra, antes de darse por vencido.
+El orden de registro es importante en este caso.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cómo cargar clases automáticamente</a><ul>
+<li><a class="reference internal" href="#uso">Uso</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="../logging/monolog_email.html"
+                        title="Capítulo anterior">Cómo configurar <tt class="docutils literal docutils literal docutils literal"><span class="pre">Monolog</span></tt> para reportar errores por correo electrónico</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="finder.html"
+                        title="Próximo capítulo">Cómo encontrar archivos</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="finder.html" title="Cómo encontrar archivos"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="../logging/monolog_email.html" title="Cómo configurar Monolog para reportar errores por correo electrónico"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

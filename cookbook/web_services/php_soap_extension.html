@@ -1,0 +1,266 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo crear un servicio Web SOAP en un controlador de Symfony2 &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Recetario" href="../index.html" />
+    <link rel="next" title="En qué difiere Symfony2 de symfony1" href="../symfony1.html" />
+    <link rel="prev" title="Cómo crear un colector de datos personalizado" href="../profiler/data_collector.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../symfony1.html" title="En qué difiere Symfony2 de symfony1"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="../profiler/data_collector.html" title="Cómo crear un colector de datos personalizado"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-crear-un-servicio-web-soap-en-un-controlador-de-symfony2">
+<span id="index-0"></span><h1>Cómo crear un servicio <em>Web SOAP</em> en un controlador de <em>Symfony2</em><a class="headerlink" href="#como-crear-un-servicio-web-soap-en-un-controlador-de-symfony2" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Configurar un controlador para que actúe como un servidor <em>SOAP</em> es muy sencillo con un par de herramientas.  Debes, por supuesto, tener instalada la extensión <a class="reference external" href="http://www.php.net/manual/es/book.soap.php">SOAP de PHP</a>.
+Debido a que la extensión <em>SOAP</em> de <em>PHP</em>, actualmente no puede generar un <em>WSDL</em>, debes crear uno desde cero o utilizar un generador de un tercero.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Hay varias implementaciones de servidor <em>SOAP</em> disponibles para usarlas con <em>PHP</em>.  <a class="reference external" href="http://framework.zend.com/manual/en/zend.soap.server.html">Zend SOAP</a> y <a class="reference external" href="http://sourceforge.net/projects/nusoap">NuSOAP</a> son dos ejemplos.  A pesar de que usamos la extensión <em>SOAP</em> de <em>PHP</em> en nuestros ejemplos, la idea general debería seguir siendo aplicable a otras implementaciones.</p>
+</div>
+<p><em>SOAP</em> trabaja explotando los métodos de un objeto <em>PHP</em> a una entidad externa (es decir, la persona que utiliza el servicio <em>SOAP</em>). Para empezar, crea una clase &#8212;<tt class="docutils literal"><span class="pre">HelloService</span></tt>&#8212; que representa la funcionalidad que vas a exponer en tu servicio <em>SOAP</em>.
+En este caso, el servicio <em>SOAP</em> debe permitir al cliente invocar a un método llamado <tt class="docutils literal"><span class="pre">hello</span></tt>, el cual sucede que envía una dirección de correo electrónico:</p>
+<div class="highlight-python"><pre>namespace Acme\SoapBundle;
+
+class HelloService
+{
+    private $mailer;
+
+    public function __construct(\Swift_Mailer $mailer)
+    {
+        $this-&gt;mailer = $mailer;
+    }
+
+    public function hello($name)
+    {
+
+        $message = \Swift_Message::newInstance()
+                                -&gt;setTo('me@example.com')
+                                -&gt;setSubject('Hello Service')
+                                -&gt;setBody($name . ' says hi!');
+
+        $this-&gt;cartero-&gt;send($mensaje);
+
+
+        return 'Hello, ' . $name;
+    }
+
+}</pre>
+</div>
+<p>A continuación, puedes entrenar a <em>Symfony</em> para que sea capaz de crear una instancia de esta clase.
+Puesto que la clase envía un correo electrónico, se ha diseñado para aceptar una instancia de <tt class="docutils literal"><span class="pre">Swift_Mailer</span></tt>. Usando el contenedor de servicios, podemos configurar a <em>Symfony</em> para construir correctamente un objeto <tt class="docutils literal"><span class="pre">HelloService</span></tt>:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+<span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">hello_service</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Acme\DemoBundle\Services\HelloService</span>
+        <span class="l-Scalar-Plain">arguments</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">mailer</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;services&gt;</span>
+ <span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;hello_service&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\DemoBundle\Services\HelloService&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;argument&gt;</span>mailer<span class="nt">&lt;/argument&gt;</span>
+ <span class="nt">&lt;/service&gt;</span>
+<span class="nt">&lt;/services&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>A continuación mostramos un ejemplo de un controlador que es capaz de manejar una petición <em>SOAP</em>.  Si <tt class="docutils literal"><span class="pre">indexAction()</span></tt> es accesible a través de la ruta <tt class="docutils literal"><span class="pre">/soap</span></tt>, se puede recuperar el documento WSDL a través de <tt class="docutils literal"><span class="pre">/soap?wsdl</span></tt>.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\SoapBundle\Controller;</span>
+
+<span class="x">use Symfony\Bundle\FrameworkBundle\Controller\Controller;</span>
+
+<span class="x">class HelloServiceController extends Controller</span>
+<span class="x">{</span>
+<span class="x">    public function indexAction()</span>
+<span class="x">    {</span>
+<span class="x">        $server = new \SoapServer(&#39;/path/to/hello.wsdl&#39;);</span>
+<span class="x">        $server-&gt;setObject($this-&gt;get(&#39;hello_service&#39;));</span>
+
+<span class="x">        $response = new Response();</span>
+<span class="x">        $response-&gt;headers-&gt;set(&#39;Content-Type&#39;, &#39;text/xml; charset=ISO-8859-1&#39;);</span>
+
+<span class="x">        ob_start();</span>
+<span class="x">        $server-&gt;handle();</span>
+<span class="x">        $response-&gt;setContent(ob_get_clean());</span>
+
+<span class="x">        return $response;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Toma nota de las llamadas a <tt class="docutils literal"><span class="pre">ob_start()</span></tt> y <tt class="docutils literal"><span class="pre">ob_get_clean()</span></tt>.  Estos métodos controlan la <a class="reference external" href="http://www.php.net/manual/es/book.outcontrol.php">salida almacenada temporalmente</a> que te permite &#8220;atrapar&#8221; la salida difundida por <tt class="docutils literal"><span class="pre">$server-&gt;handle()</span></tt>. Esto es necesario porque <em>Symfony</em> espera que el controlador devuelva un objeto <tt class="docutils literal"><span class="pre">Respuesta</span></tt> con la salida como &#8220;contenido&#8221;.
+También debes recordar establecer la cabecera <tt class="docutils literal"><span class="pre">Content-Type</span></tt> a <tt class="docutils literal"><span class="pre">text/xml</span></tt>, ya que esto es lo que espera el cliente.  Por lo tanto, utiliza <tt class="docutils literal"><span class="pre">ob_start()</span></tt> para empezar a amortiguar la <tt class="docutils literal"><span class="pre">STDOUT</span></tt> y usa <tt class="docutils literal"><span class="pre">ob_get_clean()</span></tt> para volcar la salida difundida al contenido de la <tt class="docutils literal"><span class="pre">Respuesta</span></tt> y limpiar la salida.  Por último, estás listo para devolver la <tt class="docutils literal"><span class="pre">Respuesta</span></tt>.</p>
+<p>A continuación hay un ejemplo de llamada al servicio usando el cliente <a class="reference external" href="http://sourceforge.net/projects/nusoap">NuSOAP</a>.  Este ejemplo asume que el <tt class="docutils literal"><span class="pre">indexAction</span></tt> del controlador de arriba es accesible a través de la ruta <tt class="docutils literal"><span class="pre">/soap</span></tt>:</p>
+<div class="highlight-python"><pre>$client = new \soapclient('http://example.com/app.php/soap?wsdl', true);
+
+$result = $client-&gt;call('hello', array('name' =&gt; 'Scott'));</pre>
+</div>
+<p>Abajo está un ejemplo de <tt class="docutils literal"><span class="pre">WSDL</span></tt>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;</span>
+ <span class="nt">&lt;definitions</span> <span class="na">xmlns:SOAP-ENV=</span><span class="s">&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;</span>
+     <span class="na">xmlns:xsd=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema&quot;</span>
+     <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+     <span class="na">xmlns:SOAP-ENC=</span><span class="s">&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;</span>
+     <span class="na">xmlns:tns=</span><span class="s">&quot;urn:arnleadservicewsdl&quot;</span>
+     <span class="na">xmlns:soap=</span><span class="s">&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot;</span>
+     <span class="na">xmlns:wsdl=</span><span class="s">&quot;http://schemas.xmlsoap.org/wsdl/&quot;</span>
+     <span class="na">xmlns=</span><span class="s">&quot;http://schemas.xmlsoap.org/wsdl/&quot;</span>
+     <span class="na">targetNamespace=</span><span class="s">&quot;urn:helloservicewsdl&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;types&gt;</span>
+   <span class="nt">&lt;xsd:schema</span> <span class="na">targetNamespace=</span><span class="s">&quot;urn:hellowsdl&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;xsd:import</span> <span class="na">namespace=</span><span class="s">&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;xsd:import</span> <span class="na">namespace=</span><span class="s">&quot;http://schemas.xmlsoap.org/wsdl/&quot;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;/xsd:schema&gt;</span>
+  <span class="nt">&lt;/types&gt;</span>
+  <span class="nt">&lt;message</span> <span class="na">name=</span><span class="s">&quot;helloRequest&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;part</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">type=</span><span class="s">&quot;xsd:string&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/message&gt;</span>
+  <span class="nt">&lt;message</span> <span class="na">name=</span><span class="s">&quot;helloResponse&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;part</span> <span class="na">name=</span><span class="s">&quot;return&quot;</span> <span class="na">type=</span><span class="s">&quot;xsd:string&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/message&gt;</span>
+  <span class="nt">&lt;portType</span> <span class="na">name=</span><span class="s">&quot;hellowsdlPortType&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;operation</span> <span class="na">name=</span><span class="s">&quot;hello&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;documentation&gt;</span>Hello World<span class="nt">&lt;/documentation&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">message=</span><span class="s">&quot;tns:helloRequest&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;output</span> <span class="na">message=</span><span class="s">&quot;tns:helloResponse&quot;</span><span class="nt">/&gt;</span>
+   <span class="nt">&lt;/operation&gt;</span>
+  <span class="nt">&lt;/portType&gt;</span>
+  <span class="nt">&lt;binding</span> <span class="na">name=</span><span class="s">&quot;hellowsdlBinding&quot;</span> <span class="na">type=</span><span class="s">&quot;tns:hellowsdlPortType&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;soap:binding</span> <span class="na">style=</span><span class="s">&quot;rpc&quot;</span> <span class="na">transport=</span><span class="s">&quot;http://schemas.xmlsoap.org/soap/http&quot;</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;operation</span> <span class="na">name=</span><span class="s">&quot;hello&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;soap:operation</span> <span class="na">soapAction=</span><span class="s">&quot;urn:arnleadservicewsdl#hello&quot;</span> <span class="na">style=</span><span class="s">&quot;rpc&quot;</span><span class="nt">/&gt;</span>
+   <span class="nt">&lt;input&gt;</span>
+    <span class="nt">&lt;soap:body</span> <span class="na">use=</span><span class="s">&quot;encoded&quot;</span> <span class="na">namespace=</span><span class="s">&quot;urn:hellowsdl&quot;</span>
+        <span class="na">encodingStyle=</span><span class="s">&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;</span><span class="nt">/&gt;</span>
+   <span class="nt">&lt;/input&gt;</span>
+   <span class="nt">&lt;output&gt;</span>
+    <span class="nt">&lt;soap:body</span> <span class="na">use=</span><span class="s">&quot;encoded&quot;</span> <span class="na">namespace=</span><span class="s">&quot;urn:hellowsdl&quot;</span>
+        <span class="na">encodingStyle=</span><span class="s">&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;</span><span class="nt">/&gt;</span>
+   <span class="nt">&lt;/output&gt;</span>
+  <span class="nt">&lt;/operation&gt;</span>
+ <span class="nt">&lt;/binding&gt;</span>
+ <span class="nt">&lt;service</span> <span class="na">name=</span><span class="s">&quot;hellowsdl&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;port</span> <span class="na">name=</span><span class="s">&quot;hellowsdlPort&quot;</span> <span class="na">binding=</span><span class="s">&quot;tns:hellowsdlBinding&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;soap:address</span> <span class="na">location=</span><span class="s">&quot;http://example.com/app.php/soap&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/port&gt;</span>
+ <span class="nt">&lt;/service&gt;</span>
+<span class="nt">&lt;/definitions&gt;</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="../profiler/data_collector.html"
+                        title="Capítulo anterior">Cómo crear un colector de datos personalizado</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="../symfony1.html"
+                        title="Próximo capítulo">En qué difiere <em>Symfony2</em> de <em>symfony1</em></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../symfony1.html" title="En qué difiere Symfony2 de symfony1"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="../profiler/data_collector.html" title="Cómo crear un colector de datos personalizado"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

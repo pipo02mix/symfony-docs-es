@@ -1,0 +1,370 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo implementar un sencillo formulario de inscripción con MongoDB &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="DoctrineMongoDBBundle" href="index.html" />
+    <link rel="next" title="Colaborando" href="../../contributing/index.html" />
+    <link rel="prev" title="Configurando DoctrineMongoDBBundle" href="config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../../contributing/index.html" title="Colaborando"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Configurando DoctrineMongoDBBundle"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Paquetes de la edición estándar de <em>Symfony2</em></a> &raquo;</li>
+          <li><a href="index.html" accesskey="U"><tt class="docutils literal docutils literal docutils literal docutils literal"><span class="pre">DoctrineMongoDBBundle</span></tt></a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-implementar-un-sencillo-formulario-de-inscripcion-con-mongodb">
+<h1>Cómo implementar un sencillo formulario de inscripción con <em>MongoDB</em><a class="headerlink" href="#como-implementar-un-sencillo-formulario-de-inscripcion-con-mongodb" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Algunos formularios tienen campos adicionales cuyos valores no es necesario almacenar en la base de datos. En este ejemplo, vamos a crear un formulario de registro con algunos campos adicionales, y un campo &#8220;términos aceptados&#8221; (como casilla de verificación) incluido en el formulario que en realidad no se almacena en la información de la cuenta. Vamos a utilizar <em>MongoDB</em> para almacenar los datos.</p>
+<div class="section" id="el-modelo-de-usuario-simple">
+<h2>El modelo de Usuario simple<a class="headerlink" href="#el-modelo-de-usuario-simple" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Por lo tanto, en esta guía comenzaremos con el modelo para un documento <tt class="docutils literal"><span class="pre">Usuario</span></tt>:</p>
+<div class="highlight-python"><pre>// src/Acme/AccountBundle/Document/User.php
+namespace Acme\AccountBundle\Document;
+
+use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bundle\DoctrineMongoDBBundle\Validator\Constraints\Unique as MongoDBUnique;
+
+/**
+ * @MongoDB\Document(collection="users")
+ * @MongoDBUnique(path="email")
+ */
+class User
+{
+    /**
+     * @MongoDB\Id
+     */
+    protected $id;
+
+    /**
+     * @MongoDB\Field(type="string")
+     * @Assert\NotBlank()
+     * @Assert\Email()
+     */
+    protected $email;
+
+    /**
+     * @MongoDB\Field(type="string")
+     * @Assert\NotBlank()
+     */
+    protected $password;
+
+    public function getId()
+    {
+        return $this-&gt;id;
+    }
+
+    public function getEmail()
+    {
+        return $this-&gt;email;
+    }
+
+    public function setEmail($email)
+    {
+        $this-&gt;email = $email;
+    }
+
+    public function getPassword()
+    {
+        return $this-&gt;password;
+    }
+
+    // encriptado estúpidamente simple (¡por favor no copies esto!)
+    public function setPassword($password)
+    {
+        $this-&gt;password = sha1($password);
+    }
+}</pre>
+</div>
+<p>Este documento <tt class="docutils literal"><span class="pre">Usuario</span></tt> contiene tres campos y dos de ellos (correo y contraseña) se deben mostrar en el formulario. La propiedad correo debe ser única en la base de datos, por lo tanto añadimos esta validación en lo alto de la clase.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Si deseas integrar este Usuario en el sistema de seguridad, es necesario implementar la <a class="reference internal" href="../../book/security.html#book-security-user-entity"><em>Interfaz de usuario</em></a> del componente de Seguridad.</p>
+</div>
+</div>
+<div class="section" id="creando-un-formulario-para-el-modelo">
+<h2>Creando un formulario para el modelo<a class="headerlink" href="#creando-un-formulario-para-el-modelo" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>A continuación, crea el formulario para el modelo <tt class="docutils literal"><span class="pre">Usuario</span></tt>:</p>
+<div class="highlight-python"><pre>// src/Acme/AccountBundle/Form/Type/UserType.php
+namespace Acme\AccountBundle\Form\Type;
+
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\FormBuilder;
+
+class UserType extends AbstractType
+{
+    public function buildForm(FormBuilder $builder, array $options)
+    {
+        $builder-&gt;add('email', 'email');
+        $builder-&gt;add('password', 'repeated', array(
+           'first_name' =&gt; 'password',
+           'second_name' =&gt; 'confirm',
+           'type' =&gt; 'password'
+        ));
+    }
+
+    public function getDefaultOptions(array $options)
+    {
+        return array('data_class' =&gt; 'Acme\AccountBundle\Document\User');
+    }
+
+    public function getName()
+    {
+        return 'user';
+    }
+}</pre>
+</div>
+<p>Acabamos de añadir dos campos: correo y contraseña (repetido para confirmar la contraseña introducida). La opción <tt class="docutils literal"><span class="pre">data_class</span></tt> le indica al formulario el nombre de la clase de los datos (es decir, el documento <tt class="docutils literal"><span class="pre">Usuario</span></tt>).</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Para explorar más cosas sobre el componente Formulario, lee esta <a class="reference internal" href="../../book/forms.html"><em>documentación</em></a>.</p>
+</div>
+</div>
+<div class="section" id="incorporando-el-formulario-usuario-en-un-formulario-de-inscripcion">
+<h2>Incorporando el formulario Usuario en un formulario de inscripción<a class="headerlink" href="#incorporando-el-formulario-usuario-en-un-formulario-de-inscripcion" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El formulario que vamos a usar para la página de registro no es el mismo que el formulario utilizado para simplemente modificar al <tt class="docutils literal"><span class="pre">Usuario</span></tt> (es decir, <tt class="docutils literal"><span class="pre">UserType</span></tt>). El formulario de registro contiene más campos como &#8220;acepto las condiciones&#8221;, cuyo valor no se almacenará en la base de datos.</p>
+<p>En otras palabras, creas un segundo formulario de inscripción, el cual incorpora el formulario <tt class="docutils literal"><span class="pre">Usuario</span></tt> y añades el campo extra necesario. Empecemos creando una clase simple que representa la &#8220;inscripción&#8221;:</p>
+<div class="highlight-python"><pre>// src/Acme/AccountBundle/Form/Model/Registration.php
+namespace Acme\AccountBundle\Form\Model;
+
+use Symfony\Component\Validator\Constraints as Assert;
+
+use Acme\AccountBundle\Document\User;
+
+class Registration
+{
+    /**
+     * @Assert\Type(type="Acme\AccountBundle\Document\User")
+     */
+    protected $user;
+
+    /**
+     * @Assert\NotBlank()
+     * @Assert\True()
+     */
+    protected $termsAccepted;
+
+    public function setUser(User $user)
+    {
+        $this-&gt;usuario = $usuario;
+    }
+
+    public function getUser()
+    {
+        return $this-&gt;user;
+    }
+
+    public function getTermsAccepted()
+    {
+        return $this-&gt;termsAccepted;
+    }
+
+    public function setTermsAccepted($termsAccepted)
+    {
+        $this-&gt;termsAccepted = (boolean)$termsAccepted;
+    }
+}</pre>
+</div>
+<p>A continuación, crea el formulario para el modelo <tt class="docutils literal"><span class="pre">Registro</span></tt>:</p>
+<div class="highlight-python"><pre>// src/Acme/AccountBundle/Form/Type/RegistrationType.php
+namespace Acme\AccountBundle\Form\Type;
+
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\FormBuilder;
+
+class RegistrationType extends AbstractType
+{
+    public function buildForm(FormBuilder $builder, array $options)
+    {
+        $builder-&gt;add('user', new UserType());
+        $builder-&gt;add('terms', 'checkbox', array('property_path' =&gt; 'termsAccepted'));
+    }
+
+    public function getName()
+    {
+        return 'registration';
+    }
+}</pre>
+</div>
+<p>No necesitas utilizar métodos especiales para integrar el <tt class="docutils literal"><span class="pre">UserType</span></tt> en el formulario.
+Un formulario es un campo, también &#8212; por lo tanto lo puedes añadir como cualquier otro campo, con la expectativa de que la propiedad <tt class="docutils literal"><span class="pre">Usuario</span></tt> correspondiente mantendrá una instancia de la clase <tt class="docutils literal"><span class="pre">UserType</span></tt>.</p>
+</div>
+<div class="section" id="manejando-el-envio-del-formulario">
+<h2>Manejando el envío del formulario<a class="headerlink" href="#manejando-el-envio-del-formulario" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>A continuación, necesitas un controlador para manejar el formulario. Comienza creando un controlador simple para mostrar el formulario de inscripción:</p>
+<div class="highlight-python"><pre>// src/Acme/AccountBundle/Controller/AccountController.php
+namespace Acme\AccountBundle\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
+
+use Acme\AccountBundle\Form\Type\RegistrationType;
+use Acme\AccountBundle\Form\Model\Registration;
+
+class AccountController extends Controller
+{
+    public function registerAction()
+    {
+        $form = $this-&gt;createForm(new RegistrationType(), new Registration());
+
+        return $this-&gt;render('AcmeAccountBundle:Account:register.html.twig', array('form' =&gt; $form-&gt;createView()));
+    }
+}</pre>
+</div>
+<p>y su plantilla:</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/AccountBundle/Resources/views/Account/register.html.twig #}</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">path</span><span class="o">(</span><span class="s1">&#39;create&#39;</span><span class="o">)</span><span class="cp">}}</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="cp">{{</span> <span class="nv">form_enctype</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">form_widget</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>Finalmente, crea el controlador que maneja el envío del formulario.  Esto realiza la validación y guarda los datos en <em>MongoDB</em>:</p>
+<div class="highlight-python"><pre>public function createAction()
+{
+    $dm = $this-&gt;get('doctrine.odm.mongodb.default_document_manager');
+
+    $form = $this-&gt;createForm(new RegistrationType(), new Registration());
+
+    $form-&gt;bindRequest($this-&gt;getRequest());
+
+    if ($form-&gt;isValid()) {
+        $registration = $form-&gt;getData();
+
+        $dm-&gt;persist($registration-&gt;getUser());
+        $dm-&gt;flush();
+
+        return $this-&gt;redirect(...);
+    }
+
+    return $this-&gt;render('AcmeAccountBundle:Account:register.html.twig', array('form' =&gt; $form-&gt;createView()));
+}</pre>
+</div>
+<p>¡Eso es todo! Tu formulario ahora valida, y te permite guardar el objeto <tt class="docutils literal"><span class="pre">Usuario</span></tt> a <em>MongoDB</em>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cómo implementar un sencillo formulario de inscripción con <em>MongoDB</em></a><ul>
+<li><a class="reference internal" href="#el-modelo-de-usuario-simple">El modelo de Usuario simple</a></li>
+<li><a class="reference internal" href="#creando-un-formulario-para-el-modelo">Creando un formulario para el modelo</a></li>
+<li><a class="reference internal" href="#incorporando-el-formulario-usuario-en-un-formulario-de-inscripcion">Incorporando el formulario Usuario en un formulario de inscripción</a></li>
+<li><a class="reference internal" href="#manejando-el-envio-del-formulario">Manejando el envío del formulario</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="config.html"
+                        title="Capítulo anterior">Configurando <tt class="docutils literal docutils literal"><span class="pre">DoctrineMongoDBBundle</span></tt></a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="../../contributing/index.html"
+                        title="Próximo capítulo">Colaborando</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../../contributing/index.html" title="Colaborando"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Configurando DoctrineMongoDBBundle"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Paquetes de la edición estándar de <em>Symfony2</em></a> &raquo;</li>
+          <li><a href="index.html" ><tt class="docutils literal docutils literal docutils literal docutils literal"><span class="pre">DoctrineMongoDBBundle</span></tt></a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

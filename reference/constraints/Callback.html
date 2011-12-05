@@ -1,0 +1,303 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Callback &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Referencia de restricciones de validación" href="../constraints.html" />
+    <link rel="next" title="All" href="All.html" />
+    <link rel="prev" title="Image" href="Image.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="All.html" title="All"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="Image.html" title="Image"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Documentos de referencia</a> &raquo;</li>
+          <li><a href="../constraints.html" accesskey="U">Referencia de restricciones de validación</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="callback">
+<h1><tt class="docutils literal"><span class="pre">Callback</span></tt><a class="headerlink" href="#callback" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>El propósito de la afirmación <tt class="docutils literal"><span class="pre">Callback</span></tt> es permitirte crear reglas de validación completamente personalizadas y asignar errores de validación a campos específicos de tu objeto. Si estás utilizando la validación con formularios, esto significa que puedes hacer que estos errores personalizados se muestren junto a un campo específico, en lugar de simplemente en la parte superior del formulario.</p>
+<p>Este proceso funciona especificando uno o más métodos <tt class="docutils literal"><span class="pre">Callback</span></tt>, cada uno de los cuales se llama durante el proceso de validación. Cada uno de estos métodos puede hacer cualquier cosa, incluyendo la creación y asignación de errores de validación.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Un método retrollamado en sí no <em>falla</em> o devuelve cualquier valor. En su lugar, como verás en el ejemplo, un método retrollamado tiene la posibilidad de agregar &#8220;violaciones&#8221; de validación directamente.</p>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Aplica a</td>
+<td><a class="reference internal" href="../../book/validation.html#validation-class-target"><em>clase</em></a></td>
+</tr>
+<tr class="row-even"><td>Opciones</td>
+<td><ul class="first last simple">
+<li><a class="reference internal" href="#methods">methods</a></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td>Clase</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Validator\Constraints\Callback</span></tt></td>
+</tr>
+<tr class="row-even"><td>Validador</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Validator\Constraints\CallbackValidator</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="configurando">
+<h2>Configurando<a class="headerlink" href="#configurando" title="Enlazar permanentemente con este título">¶</a></h2>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># src/Acme/BlogBundle/Resources/config/validation.yml</span>
+<span class="l-Scalar-Plain">Acme\BlogBundle\Entity\Author</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">constraints</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Callback</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">methods</span><span class="p-Indicator">:</span>   <span class="p-Indicator">[</span><span class="nv">isAuthorValid</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><em>Annotations</em><div class="highlight-php-annotations"><pre>// src/Acme/BlogBundle/Entity/Author.php
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @Assert\Callback(methods={"isAuthorValid"})
+ */
+class Author
+{
+}</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="el-metodo-callback">
+<h2>El método <tt class="docutils literal"><span class="pre">Callback</span></tt><a class="headerlink" href="#el-metodo-callback" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Al método <tt class="docutils literal"><span class="pre">callback</span></tt> se le pasa un objeto <tt class="docutils literal"><span class="pre">ExecutionContext</span></tt> especial. Puedes establecer <tt class="docutils literal"><span class="pre">&quot;violaciones&quot;</span></tt> directamente en el objeto y determinar a qué campo de deben atribuir estos errores:</p>
+<div class="highlight-python"><pre>// ...
+use Symfony\Component\Validator\ExecutionContext;
+
+class Author
+{
+    // ...
+    private $firstName;
+
+    public function isAuthorValid(ExecutionContext $context)
+    {
+        // de alguna manera hay un arreglo de "nombres ficticios"
+        $fakeNames = array();
+
+        // comprueba si el nombre en realidad es un nombre ficticio
+        if (in_array($this-&gt;getFirstName(), $fakeNames)) {
+            $property_path = $context-&gt;getPropertyPath() . '.firstName';
+            $context-&gt;setPropertyPath($property_path);
+            $context-&gt;addViolation('This name sounds totally fake!', array(), null);
+        }
+    }</pre>
+</div>
+</div>
+<div class="section" id="opciones">
+<h2>Opciones<a class="headerlink" href="#opciones" title="Enlazar permanentemente con este título">¶</a></h2>
+<div class="section" id="methods">
+<h3><tt class="docutils literal"><span class="pre">methods</span></tt><a class="headerlink" href="#methods" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><strong>tipo</strong>: <tt class="docutils literal"><span class="pre">array</span></tt> <strong>predeterminado</strong>: <tt class="docutils literal"><span class="pre">array()</span></tt> [<a class="reference internal" href="../../book/validation.html#validation-default-option"><em>opción predeterminada</em></a>]</p>
+<p>Este es un arreglo de los métodos que se deben ejecutar durante el proceso de validación. Cada método puede tener uno de los siguientes formatos:</p>
+<ol class="arabic">
+<li><p class="first"><strong>Cadena de nombre del método</strong></p>
+<blockquote>
+<div><p>Si el nombre de un método es una cadena simple (por ejemplo, <tt class="docutils literal"><span class="pre">isAuthorValid</span></tt>), ese método será llamado en el mismo objeto que se está validando y <tt class="docutils literal"><span class="pre">ExecutionContext</span></tt> será el único argumento (ve el ejemplo anterior).</p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Arreglo estático de retrollamada</strong></p>
+<blockquote>
+<div><p>También puedes especificar cada método como una matriz de retrollamada estándar:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># src/Acme/BlogBundle/Resources/config/validation.yml</span>
+<span class="l-Scalar-Plain">Acme\BlogBundle\Entity\Author</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">constraints</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Callback</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">methods</span><span class="p-Indicator">:</span>
+                <span class="p-Indicator">-</span>    <span class="p-Indicator">[</span><span class="nv">Acme\BlogBundle\MyStaticValidatorClass</span><span class="p-Indicator">,</span> <span class="nv">isAuthorValid</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><em>Annotations</em><div class="highlight-php-annotations"><pre>// src/Acme/BlogBundle/Entity/Author.php
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @Assert\Callback(methods={
+ *     { "Acme\BlogBundle\MyStaticValidatorClass", "isAuthorValid"}
+ * })
+ */
+class Author
+{
+}</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/BlogBundle/Entity/Author.php</span>
+
+<span class="x">use Symfony\Component\Validator\Mapping\ClassMetadata;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\Callback;</span>
+
+<span class="x">class Author</span>
+<span class="x">{</span>
+<span class="x">    public $name;</span>
+
+<span class="x">    public static function loadValidatorMetadata(ClassMetadata $metadata)</span>
+<span class="x">    {</span>
+<span class="x">        $metadata-&gt;addConstraint(new Callback(array(</span>
+<span class="x">            &#39;methods&#39; =&gt; array(&#39;isAuthorValid&#39;),</span>
+<span class="x">        )));</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>En este caso, el método estático <tt class="docutils literal"><span class="pre">isAuthorValid</span></tt> será llamado en la clase <tt class="docutils literal"><span class="pre">Acme\BlogBundle\MyStaticValidatorClass</span></tt>. Este se pasa tanto al objeto original que se está validando (por ejemplo, <tt class="docutils literal"><span class="pre">Autor</span></tt>), así como a <tt class="docutils literal"><span class="pre">ExecutionContext</span></tt>:</p>
+<div class="highlight-python"><pre>namespace Acme\BlogBundle;
+
+use Symfony\Component\Validator\ExecutionContext;
+use Acme\BlogBundle\Entity\Author;
+
+class MyStaticValidatorClass
+{
+    static public function isAuthorValid(Author $author, ExecutionContext $context)
+    {
+        // ...
+    }
+}</pre>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Si especificas la restricción <tt class="docutils literal"><span class="pre">Retrollamada</span></tt> a través de <em>PHP</em>, entonces también tienes la opción de hacer tu retrollamada o bien un cierre <em>PHP</em> o una retrollamada no estática. Esto <em>no</em> es posible actualmente, sin embargo, para especificar un <a class="reference internal" href="../../glossary.html#term-servicio"><em class="xref std std-term">servicio</em></a> como una restricción. Para validar usando un servicio, debes <a class="reference internal" href="../../cookbook/validation/custom_constraint.html"><em>crear una restricción de validación personalizada</em></a> y añadir la nueva restricción a tu clase.</p>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">Callback</span></tt></a><ul>
+<li><a class="reference internal" href="#configurando">Configurando</a></li>
+<li><a class="reference internal" href="#el-metodo-callback">El método <tt class="docutils literal"><span class="pre">Callback</span></tt></a></li>
+<li><a class="reference internal" href="#opciones">Opciones</a><ul>
+<li><a class="reference internal" href="#methods"><tt class="docutils literal"><span class="pre">methods</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="Image.html"
+                        title="Capítulo anterior"><tt class="docutils literal"><span class="pre">Image</span></tt></a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="All.html"
+                        title="Próximo capítulo"><tt class="docutils literal docutils literal"><span class="pre">All</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="All.html" title="All"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="Image.html" title="Image"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Documentos de referencia</a> &raquo;</li>
+          <li><a href="../constraints.html" >Referencia de restricciones de validación</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

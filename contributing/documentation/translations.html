@@ -1,0 +1,189 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Traduciendo &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Aportando documentación" href="index.html" />
+    <link rel="next" title="Licencia de la documentación Symfony2" href="license.html" />
+    <link rel="prev" title="Formato de documentación" href="format.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="license.html" title="Licencia de la documentación Symfony2"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="format.html" title="Formato de documentación"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Colaborando</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Aportando documentación</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="traduciendo">
+<h1>Traduciendo<a class="headerlink" href="#traduciendo" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>La documentación de <em>Symfony2</em> está escrita en Inglés y hay muchas personas involucradas en el proceso de traducción.</p>
+<div class="section" id="colaborando">
+<h2>Colaborando<a class="headerlink" href="#colaborando" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>En primer lugar, familiarízate con el <a class="reference internal" href="format.html"><em>lenguaje de marcado</em></a> empleado en la documentación.</p>
+<p>A continuación, suscríbete a la <a class="reference external" href="http://groups.google.com/group/symfony-docs">lista de correo de la documentación de Symfony</a>, debido a que la colaboración sucede allí.</p>
+<p>Por último, busca el repositorio <em>maestro</em> del idioma con el que deseas contribuir. Esta es la lista oficial de los repositorios <em>maestros</em>:</p>
+<ul class="simple">
+<li><em>Inglés</em>:  <a class="reference external" href="http://github.com/symfony/symfony-docs">http://github.com/symfony/symfony-docs</a></li>
+<li><em>Francés</em>:   <a class="reference external" href="https://github.com/gscorpio/symfony-docs-fr">https://github.com/gscorpio/symfony-docs-fr</a></li>
+<li><em>Italiano</em>:  <a class="reference external" href="https://github.com/garak/symfony-docs-it">https://github.com/garak/symfony-docs-it</a></li>
+<li><em>Japonés</em>: <a class="reference external" href="https://github.com/symfony-japan/symfony-docs-ja">https://github.com/symfony-japan/symfony-docs-ja</a></li>
+<li><em>Polaco</em>:   <a class="reference external" href="http://github.com/ampluso/symfony-docs-pl">http://github.com/ampluso/symfony-docs-pl</a></li>
+<li><em>Rumano</em>: <a class="reference external" href="http://github.com/sebio/symfony-docs-ro">http://github.com/sebio/symfony-docs-ro</a></li>
+<li><em>Ruso</em>:  <a class="reference external" href="http://github.com/avalanche123/symfony-docs-ru">http://github.com/avalanche123/symfony-docs-ru</a></li>
+<li><em>Español</em>:  <a class="reference external" href="https://github.com/gitnacho/symfony-docs-es">https://github.com/gitnacho/symfony-docs-es</a></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Si quieres contribuir traducciones para un nuevo lenguaje, lee la <a class="reference internal" href="#translations-adding-a-new-language"><em>sección dedicada</em></a>.</p>
+</div>
+</div>
+<div class="section" id="uniendote-al-equipo-de-traduccion">
+<h2>Uniéndote al equipo de traducción<a class="headerlink" href="#uniendote-al-equipo-de-traduccion" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Si quieres ayudar a traducir algunos documentos a tu idioma o corregir algunos errores, considera unirte; es un proceso muy sencillo:</p>
+<ul class="simple">
+<li>Preséntese en la <a class="reference external" href="http://groups.google.com/group/symfony-docs">lista de correo de la documentación de Symfony</a>;</li>
+<li><em>(Opcional)</em> Pregunta en cuales documentos puedes trabajar;</li>
+<li>Bifurca el repositorio <em>master</em> de tu idioma (haciendo clic en el botón “Fork” en la página de <em>GitHub</em>);</li>
+<li>Traduce algún documento;</li>
+<li>Haz una petición de atracción (haciendo clic en <tt class="docutils literal"><span class="pre">Pull</span> <span class="pre">Request</span></tt> de tu página en <em>GitHub</em>);</li>
+<li>El administrador del equipo acepta tus modificaciones y las combina en el repositorio maestro;</li>
+<li>El sitio web de documentación se actualiza todas las noches desde el repositorio maestro.</li>
+</ul>
+</div>
+<div class="section" id="anadiendo-un-nuevo-idioma">
+<span id="translations-adding-a-new-language"></span><h2>Añadiendo un nuevo idioma<a class="headerlink" href="#anadiendo-un-nuevo-idioma" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Esta sección ofrece algunas pautas para comenzar la traducción de la documentación de <em>Symfony2</em> para un nuevo idioma.</p>
+<p>Debido a que iniciar una traducción conlleva mucho trabajo, habla acerca de tu plan en la <a class="reference external" href="http://groups.google.com/group/symfony-docs">lista de correo de la documentación de Symfony</a> y trata de encontrar personas motivadas dispuestas a ayudar.</p>
+<p>Cuando el grupo esté listo, nomina un administrador del equipo; quién será el responsable del repositorio <em>maestro</em>.</p>
+<p>Crea el repositorio y copia los documentos en <em>Inglés</em>.</p>
+<p>El equipo ahora puede iniciar el proceso de traducción.</p>
+<p>Cuando el equipo confíe en que el repositorio está en un estado coherente y estable (se ha traducido todo, o los documentos sin traducir se han retirado de los toctrees &#8211; archivos con el nombre <tt class="docutils literal"><span class="pre">index.rst</span></tt> y <tt class="docutils literal"><span class="pre">map.rst.inc</span></tt>), el administrador del equipo puede pedir que el repositorio se añada a la lista de repositorios <em>maestro</em> oficiales enviando un correo electrónico a Fabien (fabien arroba symfony.com).</p>
+</div>
+<div class="section" id="manteniendo">
+<h2>Manteniendo<a class="headerlink" href="#manteniendo" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>La traducción no termina cuando se ha traducido todo. La documentación es un objeto en movimiento (se agregan nuevos documentos, se corrigen errores, se reorganizan párrafos, ...). El equipo de traducción tiene que seguir de cerca los cambios del repositorio en Inglés y aplicarlos a los documentos traducidos tan pronto como sea posible.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Prudencia</p>
+<p class="last">Los idiomas sin mantenimiento se quitan de la lista oficial de repositorios de documentación puesto que la obsolescencia es peligrosa.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Traduciendo</a><ul>
+<li><a class="reference internal" href="#colaborando">Colaborando</a></li>
+<li><a class="reference internal" href="#uniendote-al-equipo-de-traduccion">Uniéndote al equipo de traducción</a></li>
+<li><a class="reference internal" href="#anadiendo-un-nuevo-idioma">Añadiendo un nuevo idioma</a></li>
+<li><a class="reference internal" href="#manteniendo">Manteniendo</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="format.html"
+                        title="Capítulo anterior">Formato de documentación</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="license.html"
+                        title="Próximo capítulo">Licencia de la documentación <em>Symfony2</em></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="license.html" title="Licencia de la documentación Symfony2"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="format.html" title="Formato de documentación"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Colaborando</a> &raquo;</li>
+          <li><a href="index.html" >Aportando documentación</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

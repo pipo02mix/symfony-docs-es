@@ -1,0 +1,246 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tipo de campo file &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../../index.html" />
+    <link rel="up" title="Referencia de tipos para formulario" href="../types.html" />
+    <link rel="next" title="El tipo abstracto field" href="field.html" />
+    <link rel="prev" title="Tipo de campo entity" href="entity.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="field.html" title="El tipo abstracto field"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="entity.html" title="Tipo de campo entity"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../../index.html" >Documentos de referencia</a> &raquo;</li>
+          <li><a href="../types.html" accesskey="U">Referencia de tipos para formulario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tipo-de-campo-file">
+<span id="index-0"></span><h1>Tipo de campo <tt class="docutils literal"><span class="pre">file</span></tt><a class="headerlink" href="#tipo-de-campo-file" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>El tipo <tt class="docutils literal"><span class="pre">file</span></tt> representa una entrada de archivo en tu formulario.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Reproducido
+como</td>
+<td>campo <tt class="docutils literal"><span class="pre">input</span></tt> <tt class="docutils literal"><span class="pre">file</span></tt></td>
+</tr>
+<tr class="row-even"><td>Opciones
+heredadas</td>
+<td><ul class="first last simple">
+<li><a class="reference internal" href="#required">required</a></li>
+<li><a class="reference internal" href="#label">label</a></li>
+<li><a class="reference internal" href="#read-only">read_only</a></li>
+<li><a class="reference internal" href="#error-bubbling">error_bubbling</a></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td>Tipo del
+padre</td>
+<td><a class="reference internal" href="field.html"><em>form</em></a></td>
+</tr>
+<tr class="row-even"><td>Clase</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Form\Extension\Core\Type\FileType</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="uso-basico">
+<h2>Uso básico<a class="headerlink" href="#uso-basico" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Digamos que tienes esta definición de formulario:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$builder-&gt;add(&#39;attachment&#39;, &#39;file&#39;);</span>
+</pre></div>
+</div>
+<div class="admonition caution">
+<p class="first admonition-title">Prudencia</p>
+<p class="last">No olvides añadir el atributo <tt class="docutils literal"><span class="pre">enctype</span></tt> en la etiqueta del formulario: <tt class="docutils literal"><span class="pre">&lt;form</span>
+<span class="pre">action=&quot;#&quot;</span> <span class="pre">method=&quot;post&quot;</span> <span class="pre">{{</span> <span class="pre">form_enctype(form)</span> <span class="pre">}}&gt;</span></tt>.</p>
+</div>
+<p>Cuando se envía el formulario, el campo de datos adjuntos (<tt class="docutils literal"><span class="pre">attchment</span></tt>) será una instancia de <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\File\UploadedFile</span></tt>. Este lo puedes utilizar para mover el archivo <tt class="docutils literal"><span class="pre">adjunto</span></tt> a una ubicación permanente:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpFoundation\File\UploadedFile;</span>
+
+<span class="x">public function uploadAction()</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    if ($form-&gt;isValid()) {</span>
+<span class="x">        $someNewFilename = ...</span>
+
+<span class="x">        $form[&#39;attachment&#39;]-&gt;getData()-&gt;move($dir, $someNewFilename);</span>
+
+<span class="x">        // ...</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>El método <tt class="docutils literal"><span class="pre">move()</span></tt> toma un directorio y un nombre de archivo como argumentos.
+Puedes calcular el nombre de archivo en una de las siguientes formas:</p>
+<div class="highlight-python"><pre>// usa el nombre de archivo original
+$file-&gt;move($dir, $file-&gt;getClientOriginalName());
+
+// calcula un nombre aleatorio e intenta adivinar la extensión (más seguro)
+$extension = $file-&gt;guessExtension();
+if (!$extension) {
+    // no se puede adivinar la extensión
+    $extension = 'bin';
+}
+$file-&gt;move($dir, rand(1, 99999).'.'.$extension);</pre>
+</div>
+<p>Usar el nombre original a través de <tt class="docutils literal"><span class="pre">getClientOriginalName()</span></tt> no es seguro, ya que el usuario final lo podría haber manipulado. Además, puede contener caracteres que no están permitidos en nombres de archivo. Antes de usar el nombre directamente, lo debes desinfectar.</p>
+<p>Lee en el recetario el <a class="reference internal" href="../../../cookbook/doctrine/file_uploads.html"><em>ejemplo</em></a> de cómo manejar la carga de archivos adjuntos con una entidad <em>Doctrine</em>.</p>
+</div>
+<div class="section" id="opciones-heredadas">
+<h2>Opciones heredadas<a class="headerlink" href="#opciones-heredadas" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Estas opciones las hereda del tipo <a class="reference internal" href="field.html"><em>field</em></a>:</p>
+<div class="section" id="required">
+<h3><tt class="docutils literal"><span class="pre">required</span></tt><a class="headerlink" href="#required" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><strong>tipo</strong>: <tt class="docutils literal"><span class="pre">Boolean</span></tt> <strong>predeterminado</strong>: <tt class="docutils literal"><span class="pre">true</span></tt></p>
+<p>Si es <tt class="docutils literal"><span class="pre">true</span></tt>, reproducirá un <a class="reference external" href="http://diveintohtml5.info/forms.html">atributo required de HTML5</a>. La <tt class="docutils literal"><span class="pre">label</span></tt> correspondiente será reproducida con una clase <tt class="docutils literal"><span class="pre">required</span></tt>.</p>
+<p>Esto es superficial e independiente de la validación. A lo sumo, si dejas que <em>Symfony</em> adivine el tipo de campo, entonces el valor de esta opción, se puede adivinar a partir de tu información de validación.</p>
+</div>
+<div class="section" id="label">
+<h3><tt class="docutils literal"><span class="pre">label</span></tt><a class="headerlink" href="#label" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><strong>tipo</strong>: <tt class="docutils literal"><span class="pre">string</span></tt> <strong>predeterminado</strong>: La etiqueta es &#8220;adivinada&#8221; a partir del nombre del campo</p>
+<p>Establece la etiqueta que se utilizará al reproducir el campo. La etiqueta también se puede fijar directamente dentro de la plantilla:</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="cp">{{</span> <span class="nv">render_label</span><span class="o">(</span><span class="nv">form.name</span><span class="o">,</span> <span class="s1">&#39;Your name&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="x"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="read-only">
+<h3><tt class="docutils literal"><span class="pre">read_only</span></tt><a class="headerlink" href="#read-only" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><strong>tipo</strong>: <tt class="docutils literal"><span class="pre">Boolean</span></tt> <strong>predeterminado</strong>: <tt class="docutils literal"><span class="pre">false</span></tt></p>
+<p>Si esta opción es <tt class="docutils literal"><span class="pre">true</span></tt>, el campo se debe reproducir con el atributo <tt class="docutils literal"><span class="pre">disabled</span></tt> para que el campo no sea editable.</p>
+</div>
+<div class="section" id="error-bubbling">
+<h3><tt class="docutils literal"><span class="pre">error_bubbling</span></tt><a class="headerlink" href="#error-bubbling" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><strong>tipo</strong>: <tt class="docutils literal"><span class="pre">Boolean</span></tt> <strong>predeterminado</strong>: <tt class="docutils literal"><span class="pre">false</span></tt></p>
+<p>Si es <tt class="docutils literal"><span class="pre">true</span></tt>, los errores de este campo serán pasados al campo padre o al formulario. Por ejemplo, si estableces en <tt class="docutils literal"><span class="pre">true</span></tt> un campo normal, cualquier error de ese campo se adjuntará al formulario principal, no al campo específico.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tipo de campo <tt class="docutils literal"><span class="pre">file</span></tt></a><ul>
+<li><a class="reference internal" href="#uso-basico">Uso básico</a></li>
+<li><a class="reference internal" href="#opciones-heredadas">Opciones heredadas</a><ul>
+<li><a class="reference internal" href="#required"><tt class="docutils literal"><span class="pre">required</span></tt></a></li>
+<li><a class="reference internal" href="#label"><tt class="docutils literal"><span class="pre">label</span></tt></a></li>
+<li><a class="reference internal" href="#read-only"><tt class="docutils literal"><span class="pre">read_only</span></tt></a></li>
+<li><a class="reference internal" href="#error-bubbling"><tt class="docutils literal"><span class="pre">error_bubbling</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="entity.html"
+                        title="Capítulo anterior">Tipo de campo <tt class="docutils literal docutils literal docutils literal"><span class="pre">entity</span></tt></a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="field.html"
+                        title="Próximo capítulo">El tipo abstracto <tt class="docutils literal docutils literal"><span class="pre">field</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="field.html" title="El tipo abstracto field"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="entity.html" title="Tipo de campo entity"
+             >anterior</a> |</li>
+        <li><a href="../../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../../index.html" >Documentos de referencia</a> &raquo;</li>
+          <li><a href="../types.html" >Referencia de tipos para formulario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

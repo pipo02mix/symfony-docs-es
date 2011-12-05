@@ -1,0 +1,289 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo probar repositorios Doctrine &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Recetario" href="../index.html" />
+    <link rel="next" title="Cómo agregar la funcionalidad “recuérdame” al inicio de sesión" href="../security/remember_me.html" />
+    <link rel="prev" title="Cómo utilizar el generador de perfiles en una prueba funcional" href="profiling.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../security/remember_me.html" title="Cómo agregar la funcionalidad “recuérdame” al inicio de sesión"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="profiling.html" title="Cómo utilizar el generador de perfiles en una prueba funcional"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-probar-repositorios-doctrine">
+<span id="index-0"></span><h1>Cómo probar repositorios <em>Doctrine</em><a class="headerlink" href="#como-probar-repositorios-doctrine" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Las pruebas unitarias de repositorios <em>Doctrine</em> en un proyecto <em>Symfony</em> no son una tarea sencilla. De hecho, para cargar un repositorio es necesario cargar tus entidades, un gestor de entidades, y algunas otras cosas como una conexión.</p>
+<p>Para probar tu repositorio, tienes dos diferentes opciones:</p>
+<ol class="arabic simple">
+<li><strong>Prueba funcional</strong>: Esta incluye usar una conexión de base de datos real con objetos de la base de datos real. Es fácil instalarla y puedes probar cualquier cosa, pero es de muy lenta ejecución. Consulta <a class="reference internal" href="#cookbook-doctrine-repo-functional-test"><em>Probando la funcionalidad</em></a>.</li>
+<li><strong>Prueba unitaria</strong>: La prueba unitaria se ejecuta más rápido y es más precisa en la forma de probar. Esta requiere una configuración un poco más pequeña, la cual cubre este documento. También puedes probar sólo los métodos que, por ejemplo, crean consultas, no los métodos que se ejecutan realmente.</li>
+</ol>
+<div class="section" id="pruebas-unitarias">
+<h2>Pruebas unitarias<a class="headerlink" href="#pruebas-unitarias" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Puesto que <em>Symfony</em> y <em>Doctrine</em> comparten la misma plataforma de pruebas, es muy fácil implementar las pruebas unitarias en un proyecto <em>Symfony</em>. El <em>ORM</em> viene con su propio conjunto de herramientas para facilitar las pruebas unitarias y simular todo lo que necesites, tal como una conexión, un gestor de entidades, etc. Al usar los componentes de prueba proporcionados por <em>Doctrine</em> &#8212;junto con algunas configuraciones básicas&#8212; puedes aprovechar las herramientas de <em>Doctrine</em> para las pruebas unitarias de tus repositorios.</p>
+<p>Ten en cuenta que si deseas probar la ejecución real de tus consultas, necesitarás una prueba funcional (consulta <a class="reference internal" href="#cookbook-doctrine-repo-functional-test"><em>Probando la funcionalidad</em></a>).
+Las pruebas unitarias sólo son posibles cuando pruebas un método que construye una consulta.</p>
+<div class="section" id="configurando">
+<h3>Configurando<a class="headerlink" href="#configurando" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>En primer lugar, necesitas agregar el espacio de nombres <tt class="docutils literal"><span class="pre">Doctrine\Tests</span></tt> a tu cargador automático:</p>
+<div class="highlight-python"><pre>// app/autoload.php
+$loader-&gt;registerNamespaces(array(
+    //...
+    'Doctrine\\Tests'                =&gt; __DIR__.'/../vendor/doctrine/tests',
+));</pre>
+</div>
+<p>En seguida, tendrás que configurar un gestor de entidades en cada prueba para que <em>Doctrine</em> pueda cargar entidades y repositorios por ti.</p>
+<p>Debido a que <em>Doctrine</em> por omisión no es capaz de cargar los metadatos de anotaciones desde tus entidades, tendrás que configurar el lector de anotaciones para que pueda analizar y cargar las entidades:</p>
+<div class="highlight-python"><pre>// src/Acme/ProductBundle/Tests/Entity/ProductRepositoryTest.php
+namespace Acme\ProductBundle\Tests\Entity;
+
+use Doctrine\Tests\OrmTestCase;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\Mapping\Driver\DriverChain;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+
+class ProductRepositoryTest extends OrmTestCase
+{
+    private $_em;
+
+    protected function setUp()
+    {
+        $reader = new AnnotationReader();
+        $reader-&gt;setIgnoreNotImportedAnnotations(true);
+        $reader-&gt;setEnableParsePhpImports(true);
+
+        $metadataDriver = new AnnotationDriver(
+            $reader,
+            // proporciona el espacio de nombres de las entidades que deseas probar
+            'Acme\\ProductBundle\\Entity'
+        );
+
+        $this-&gt;_em = $this-&gt;_getTestEntityManager();
+
+        $this-&gt;_em-&gt;getConfiguration()
+            -&gt;setMetadataDriverImpl($controladorMetadatos);
+
+        // // te permite utilizar la sintaxis AcmeProductBundle:Product
+        $this-&gt;_em-&gt;getConfiguration()-&gt;setEntityNamespaces(array(
+            'AcmeProductBundle' =&gt; 'Acme\\ProductBundle\\Entity'
+        ));
+    }
+}</pre>
+</div>
+<p>Si te fijas en el código, puedes notar que:</p>
+<ul class="simple">
+<li>Extiendes desde <tt class="docutils literal"><span class="pre">\Doctrine\Tests\OrmTestCase</span></tt>, el cual proporciona útiles métodos para las pruebas unitarias;</li>
+<li>Debes configurar el <tt class="docutils literal"><span class="pre">AnnotationReader</span></tt> para poder analizar y cargar las entidades;</li>
+<li>Creas el gestor de entidades llamando a <tt class="docutils literal"><span class="pre">_getTestEntityManager</span></tt>, el cual devuelve un gestor de entidades simulado con una conexión simulada.</li>
+</ul>
+<p>¡Eso es todo! Ya estás listo para escribir las pruebas unitarias para tus repositorios de <em>Doctrine</em>.</p>
+</div>
+<div class="section" id="escribiendo-tus-pruebas-unitarias">
+<h3>Escribiendo tus pruebas unitarias<a class="headerlink" href="#escribiendo-tus-pruebas-unitarias" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Recuerda que los métodos de repositorio de <em>Doctrine</em> sólo pueden probar si estás construyendo y devolviendo una consulta (pero no ejecutando una consulta realmente). Tomemos el siguiente ejemplo:</p>
+<div class="highlight-python"><pre>// src/Acme/StoreBundle/Entity/ProductRepository
+namespace Acme\StoreBundle\Entity;
+
+use Doctrine\ORM\EntityRepository;
+
+class ProductRepository extends EntityRepository
+{
+    public function createSearchByNameQueryBuilder($name)
+    {
+        return $this-&gt;createQueryBuilder('p')
+            -&gt;where('p.name LIKE :name')
+            -&gt;setParameter('name', $name);
+    }
+}</pre>
+</div>
+<p>En este ejemplo, el método devuelve una instancia de <tt class="docutils literal"><span class="pre">QueryBuilder</span></tt>. Puedes probar el resultado de este método en una variedad de maneras:</p>
+<div class="highlight-python"><pre>class ProductRepositoryTest extends \Doctrine\Tests\OrmTestCase
+{
+    /* ... */
+
+    public function testCreateSearchByNameQueryBuilder()
+    {
+        $queryBuilder = $this-&gt;_em-&gt;getRepository('AcmeProductBundle:Product')
+            -&gt;createSearchByNameQueryBuilder('foo');
+
+        $this-&gt;assertEquals('p.name LIKE :name', (string) $queryBuilder-&gt;getDqlPart('where'));
+        $this-&gt;assertEquals(array('name' =&gt; 'foo'), $queryBuilder-&gt;getParameters());
+    }
+ }</pre>
+</div>
+<p>En esta prueba, diseccionas el objeto <tt class="docutils literal"><span class="pre">QueryBuilder</span></tt>, buscando que cada parte sea como tú esperas. Si estuvieras agregando otras cosas al generador de consultas, podrías verificar las partes <em>DQL</em>: <tt class="docutils literal"><span class="pre">select</span></tt>, <tt class="docutils literal"><span class="pre">from</span></tt>, <tt class="docutils literal"><span class="pre">join</span></tt>, <tt class="docutils literal"><span class="pre">set</span></tt>, <tt class="docutils literal"><span class="pre">groupBy</span></tt>, <tt class="docutils literal"><span class="pre">having</span></tt> u <tt class="docutils literal"><span class="pre">orderBy</span></tt>.</p>
+<p>Si sólo tienes un objeto <tt class="docutils literal"><span class="pre">Query</span></tt> crudo o prefieres probar la consulta real, puedes probar la cadena de consulta <em>DQL</em> directamente:</p>
+<div class="highlight-python"><pre>public function testCreateSearchByNameQueryBuilder()
+{
+    $queryBuilder = $this-&gt;_em-&gt;getRepository('AcmeProductBundle:Product')
+        -&gt;createSearchByNameQueryBuilder('foo');
+
+    $query = $queryBuilder-&gt;getQuery();
+
+    // prueba DQL
+    $this-&gt;assertEquals(
+        'SELECT p FROM Acme\ProductBundle\Entity\Product p WHERE p.name LIKE :name',
+        $query-&gt;getDql()
+    );
+}</pre>
+</div>
+</div>
+</div>
+<div class="section" id="probando-la-funcionalidad">
+<span id="cookbook-doctrine-repo-functional-test"></span><h2>Probando la funcionalidad<a class="headerlink" href="#probando-la-funcionalidad" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Si realmente necesitas ejecutar una consulta, tendrás que arrancar el <tt class="docutils literal"><span class="pre">núcleo</span></tt> para conseguir una conexión válida. En este caso, debes extender a <tt class="docutils literal"><span class="pre">WebTestCase</span></tt>, el cual hace todo esto muy fácil:</p>
+<div class="highlight-python"><pre>// src/Acme/ProductBundle/Tests/Entity/ProductRepositoryFunctionalTest.php
+namespace Acme\ProductBundle\Tests\Entity;
+
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+class ProductRepositoryFunctionalTest extends WebTestCase
+{
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $_em;
+
+    public function setUp()
+    {
+            $kernel = static::createKernel();
+            $kernel-&gt;boot();
+        $this-&gt;_em = $kernel-&gt;getContainer()
+            -&gt;get('doctrine.orm.entity_manager');
+    }
+
+    public function testProductByCategoryName()
+    {
+        $results = $this-&gt;_em-&gt;getRepository('AcmeProductBundle:Product')
+            -&gt;searchProductsByNameQuery('foo')
+            -&gt;getResult();
+
+        $this-&gt;assertEquals(count($results), 1);
+    }
+}</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cómo probar repositorios <em>Doctrine</em></a><ul>
+<li><a class="reference internal" href="#pruebas-unitarias">Pruebas unitarias</a><ul>
+<li><a class="reference internal" href="#configurando">Configurando</a></li>
+<li><a class="reference internal" href="#escribiendo-tus-pruebas-unitarias">Escribiendo tus pruebas unitarias</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#probando-la-funcionalidad">Probando la funcionalidad</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="profiling.html"
+                        title="Capítulo anterior">Cómo utilizar el generador de perfiles en una prueba funcional</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="../security/remember_me.html"
+                        title="Próximo capítulo">Cómo agregar la funcionalidad &#8220;recuérdame&#8221; al inicio de sesión</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../security/remember_me.html" title="Cómo agregar la funcionalidad “recuérdame” al inicio de sesión"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="profiling.html" title="Cómo utilizar el generador de perfiles en una prueba funcional"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

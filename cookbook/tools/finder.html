@@ -1,0 +1,290 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cómo encontrar archivos &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Recetario" href="../index.html" />
+    <link rel="next" title="Cómo crear la consola/línea de ordenes" href="../console.html" />
+    <link rel="prev" title="Cómo cargar clases automáticamente" href="autoloader.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../console.html" title="Cómo crear la consola/línea de ordenes"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="autoloader.html" title="Cómo cargar clases automáticamente"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Recetario</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="como-encontrar-archivos">
+<span id="index-0"></span><h1>Cómo encontrar archivos<a class="headerlink" href="#como-encontrar-archivos" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>El componente <a href="#id1"><span class="problematic" id="id2">:namespace:`Symfony\\Component\\Finder`</span></a> te ayuda a buscar archivos y directorios rápida y fácilmente.</p>
+<div class="section" id="uso">
+<h2>Uso<a class="headerlink" href="#uso" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>La clase <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Finder\Finder</span></tt> busca archivos y/o
+directorios:</p>
+<div class="highlight-python"><pre>use Symfony\Component\Finder\Finder;
+
+$finder = new Finder();
+$finder-&gt;files()-&gt;in(__DIR__);
+
+foreach ($finder as $file) {
+    print $file-&gt;getRealpath()."\n";
+}</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">$file</span></tt> es una instancia de <a href="#id3"><span class="problematic" id="id4">:phpclass:`SplFileInfo`</span></a>.</p>
+<p>El código anterior imprime recursivamente los nombres de todos los archivos en el directorio actual. La clase <tt class="docutils literal"><span class="pre">Finder</span></tt> utiliza una interfaz fluida, por lo que todos los métodos devuelven la instancia del <tt class="docutils literal"><span class="pre">Finder</span></tt>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Una instancia <tt class="docutils literal"><span class="pre">Finder</span></tt> es un <a class="reference external" href="http://www.php.net/manual/es/spl.iterators.php">iterador</a> <em>PHP</em>. Por tanto, en lugar de iterar sobre el <tt class="docutils literal"><span class="pre">Finder</span></tt> con <tt class="docutils literal"><span class="pre">foreach</span></tt>, también lo puedes convertir en una matriz con el método <a href="#id5"><span class="problematic" id="id6">:phpfunction:`iterator_to_array`</span></a> u obtener el número de elementos con <a href="#id7"><span class="problematic" id="id8">:phpfunction:`iterator_count`</span></a>.</p>
+</div>
+</div>
+<div class="section" id="criterios">
+<h2>Criterios<a class="headerlink" href="#criterios" title="Enlazar permanentemente con este título">¶</a></h2>
+<div class="section" id="ubicacion">
+<h3>Ubicación<a class="headerlink" href="#ubicacion" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>La ubicación es el único criterio obligatorio. Este dice al buscador cual directorio utilizar para la búsqueda:</p>
+<div class="highlight-python"><pre>$finder-&gt;in(__DIR__);</pre>
+</div>
+<p>Busca en varios lugares encadenando llamadas al método <a href="#id9"><span class="problematic" id="id10">:method:`Symfony\\Component\\Finder\\Finder::in`</span></a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;in(__DIR__)-&gt;in('/elsewhere');</pre>
+</div>
+<p>Excluye directorios coincidentes con el método <a href="#id11"><span class="problematic" id="id12">:method:`Symfony\\Component\\Finder\\Finder::exclude`</span></a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;in(__DIR__)-&gt;exclude('ruby');</pre>
+</div>
+<p>Debido a que <tt class="docutils literal"><span class="pre">Finder</span></tt> utiliza iteradores <em>PHP</em>, puedes pasar cualquier <em>URL</em> compatible con <a class="reference external" href="http://www.php.net/manual/es/wrappers.php">protocolo</a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;in('ftp://ejemplo.com/pub/');</pre>
+</div>
+<p>Y también trabaja con flujos definidos por el usuario:</p>
+<div class="highlight-python"><pre>use Symfony\Component\Finder\Finder;
+
+$s3 = new \Zend_Service_Amazon_S3($key, $secret);
+$s3-&gt;registerStreamWrapper("s3");
+
+$finder = new Finder();
+$finder-&gt;name('photos*')-&gt;size('&lt; 100K')-&gt;date('since 1 hour ago');
+foreach ($finder-&gt;in('s3://bucket-name') as $file) {
+    // Haz algo
+
+    print $file-&gt;getFilename()."\n";
+}</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Lee la documentación de <a class="reference external" href="http://www.php.net/streams">Flujos</a> para aprender a crear tus propios flujos.</p>
+</div>
+</div>
+<div class="section" id="archivos-o-directorios">
+<h3>Archivos o directorios<a class="headerlink" href="#archivos-o-directorios" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>De manera predeterminada, <tt class="docutils literal"><span class="pre">Finder</span></tt> recorre directorios recurrentemente. Pero los métodos <a href="#id13"><span class="problematic" id="id14">:method:`Symfony\\Component\\Finder\\Finder::files`</span></a> y
+<a href="#id15"><span class="problematic" id="id16">:method:`Symfony\\Component\\Finder\\Finder::directories`</span></a> controlan:</p>
+<div class="highlight-python"><pre>$finder-&gt;files();
+
+$finder-&gt;directories();</pre>
+</div>
+<p>Si quieres seguir los enlaces, utiliza el método <tt class="docutils literal"><span class="pre">followLinks()</span></tt>:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;followLinks();</pre>
+</div>
+<p>De forma predeterminada, el iterador ignora archivos VCS populares. Esto se puede cambiar con el método <tt class="docutils literal"><span class="pre">ignoreVCS()</span></tt>:</p>
+<div class="highlight-python"><pre>$finder-&gt;ignoreVCS(false);</pre>
+</div>
+</div>
+<div class="section" id="ordenacion">
+<h3>Ordenación<a class="headerlink" href="#ordenacion" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Ordena el resultado por nombre o por tipo (primero directorios, luego archivos):</p>
+<div class="highlight-python"><pre>$finder-&gt;sortByName();
+
+$finder-&gt;sortByType();</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Ten en cuenta que los métodos <tt class="docutils literal"><span class="pre">sort*</span></tt> necesitan obtener todos los elementos para hacer su trabajo. Para iteradores grandes, es lento.</p>
+</div>
+<p>También puedes definir tu propio algoritmo de ordenación con el método <tt class="docutils literal"><span class="pre">sort()</span></tt>:</p>
+<div class="highlight-python"><pre>$sort = function (\SplFileInfo $a, \SplFileInfo $b)
+{
+    return strcmp($a-&gt;getRealpath(), $b-&gt;getRealpath());
+};
+
+$finder-&gt;sort($sort);</pre>
+</div>
+</div>
+<div class="section" id="nombre-de-archivo">
+<h3>Nombre de archivo<a class="headerlink" href="#nombre-de-archivo" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Filtra archivos por nombre con el método <a href="#id17"><span class="problematic" id="id18">:method:`Symfony\\Component\\Finder\\Finder::name`</span></a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;name('*.php');</pre>
+</div>
+<p>El método <tt class="docutils literal"><span class="pre">name()</span></tt> acepta globos, cadenas o expresiones regulares:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;name('/\.php$/');</pre>
+</div>
+<p>El método <tt class="docutils literal"><span class="pre">notNames()</span></tt> excluye archivos coincidentes con un patrón:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;notName('*.rb');</pre>
+</div>
+</div>
+<div class="section" id="tamano-de-archivo">
+<h3>Tamaño de archivo<a class="headerlink" href="#tamano-de-archivo" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Filtra archivos por tamaño con el método <a href="#id19"><span class="problematic" id="id20">:method:`Symfony\\Component\\Finder\\Finder::size`</span></a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;size('&lt; 1.5K');</pre>
+</div>
+<p>Filtra por rangos de tamaño encadenando llamadas a:</p>
+<div class="highlight-python"><pre>$finder-&gt;files()-&gt;size('&gt;= 1K')-&gt;size('&lt;= 2K');</pre>
+</div>
+<p>El operador de comparación puede ser cualquiera de los siguientes: <tt class="docutils literal"><span class="pre">&gt;</span></tt>, <tt class="docutils literal"><span class="pre">&gt;=</span></tt>, <tt class="docutils literal"><span class="pre">&lt;</span></tt>, <tt class="docutils literal"><span class="pre">&lt;=</span></tt>,
+<tt class="docutils literal"><span class="pre">==</span></tt>.</p>
+<p>El valor destino puede utilizar magnitudes de kilobytes (<tt class="docutils literal"><span class="pre">k</span></tt>, <tt class="docutils literal"><span class="pre">ki</span></tt>), megabytes (<tt class="docutils literal"><span class="pre">m</span></tt>, <tt class="docutils literal"><span class="pre">mi</span></tt>), o gigabytes (<tt class="docutils literal"><span class="pre">g</span></tt>, <tt class="docutils literal"><span class="pre">gi</span></tt>). Los sufijos con una <tt class="docutils literal"><span class="pre">i</span></tt> usan la versión <tt class="docutils literal"><span class="pre">2**n</span></tt> adecuada de acuerdo al <a class="reference external" href="http://physics.nist.gov/cuu/Units/binary.html">estándar IEC</a>.</p>
+</div>
+<div class="section" id="fecha-de-archivo">
+<h3>Fecha de archivo<a class="headerlink" href="#fecha-de-archivo" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Filtra archivos por fecha de última modificación con el método <a href="#id21"><span class="problematic" id="id22">:method:`Symfony\\Component\\Finder\\Finder::date`</span></a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;date('since yesterday');</pre>
+</div>
+<p>El operador de comparación puede ser cualquiera de los siguientes: <tt class="docutils literal"><span class="pre">&gt;</span></tt>, <tt class="docutils literal"><span class="pre">&gt;=</span></tt>, <tt class="docutils literal"><span class="pre">&lt;</span></tt>, <tt class="docutils literal"><span class="pre">&lt;=</span></tt>,
+<tt class="docutils literal"><span class="pre">==</span></tt>. También puedes utilizar <tt class="docutils literal"><span class="pre">since</span></tt> o <tt class="docutils literal"><span class="pre">after</span></tt> como alias para <tt class="docutils literal"><span class="pre">&gt;</span></tt>, y <tt class="docutils literal"><span class="pre">until</span></tt> o <tt class="docutils literal"><span class="pre">before</span></tt> como alias para <tt class="docutils literal"><span class="pre">&lt;</span></tt>.</p>
+<p>El valor destino puede ser cualquier fecha compatible con la función <a class="reference external" href="http://www.php.net/manual/es/datetime.formats.php">strtotime</a>.</p>
+</div>
+<div class="section" id="profundidad-de-directorio">
+<h3>Profundidad de directorio<a class="headerlink" href="#profundidad-de-directorio" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>De manera predeterminada, <tt class="docutils literal"><span class="pre">Finder</span></tt> recorre directorios recurrentemente. Filtra la profundidad del recorrido con el método <a href="#id23"><span class="problematic" id="id24">:method:`Symfony\\Component\\Finder\\Finder::depth`</span></a>:</p>
+<div class="highlight-python"><pre>$finder-&gt;depth('== 0');
+$finder-&gt;depth('&lt; 3');</pre>
+</div>
+</div>
+<div class="section" id="filtrado-personalizado">
+<h3>Filtrado personalizado<a class="headerlink" href="#filtrado-personalizado" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Para restringir que el archivo coincida con su propia estrategia, utiliza el método <a href="#id25"><span class="problematic" id="id26">:method:`Symfony\\Component\\Finder\\Finder::filter`</span></a>:</p>
+<div class="highlight-python"><pre>$filter = function (\SplFileInfo $file)
+{
+    if (strlen($file) &gt; 10) {
+        return false;
+    }
+};
+
+$finder-&gt;files()-&gt;filter($filtro);</pre>
+</div>
+<p>El método <tt class="docutils literal"><span class="pre">filter()</span></tt> toma un cierre como argumento. Para cada archivo coincidente, este es llamado con el archivo como una instancia de <a href="#id27"><span class="problematic" id="id28">:phpclass:`SplFileInfo`</span></a>. El archivo se excluye desde el conjunto de resultados si el cierre devuelve <tt class="docutils literal"><span class="pre">false</span></tt>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cómo encontrar archivos</a><ul>
+<li><a class="reference internal" href="#uso">Uso</a></li>
+<li><a class="reference internal" href="#criterios">Criterios</a><ul>
+<li><a class="reference internal" href="#ubicacion">Ubicación</a></li>
+<li><a class="reference internal" href="#archivos-o-directorios">Archivos o directorios</a></li>
+<li><a class="reference internal" href="#ordenacion">Ordenación</a></li>
+<li><a class="reference internal" href="#nombre-de-archivo">Nombre de archivo</a></li>
+<li><a class="reference internal" href="#tamano-de-archivo">Tamaño de archivo</a></li>
+<li><a class="reference internal" href="#fecha-de-archivo">Fecha de archivo</a></li>
+<li><a class="reference internal" href="#profundidad-de-directorio">Profundidad de directorio</a></li>
+<li><a class="reference internal" href="#filtrado-personalizado">Filtrado personalizado</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="autoloader.html"
+                        title="Capítulo anterior">Cómo cargar clases automáticamente</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="../console.html"
+                        title="Próximo capítulo">Cómo crear la consola/línea de ordenes</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../console.html" title="Cómo crear la consola/línea de ordenes"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="autoloader.html" title="Cómo cargar clases automáticamente"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Recetario</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

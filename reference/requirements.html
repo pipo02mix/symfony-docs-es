@@ -1,0 +1,184 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Requisitos para que funcione Symfony2 &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../index.html" />
+    <link rel="up" title="Documentos de referencia" href="index.html" />
+    <link rel="next" title="Paquetes de la edición estándar de Symfony2" href="../bundles/index.html" />
+    <link rel="prev" title="YAML" href="YAML.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../bundles/index.html" title="Paquetes de la edición estándar de Symfony2"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="YAML.html" title="YAML"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Documentos de referencia</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="requisitos-para-que-funcione-symfony2">
+<span id="index-0"></span><h1>Requisitos para que funcione <em>Symfony2</em><a class="headerlink" href="#requisitos-para-que-funcione-symfony2" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Para ejecutar <em>Symfony2</em>, el sistema debe cumplir con una lista de requisitos. Fácilmente puedes ver si el sistema pasa todos los requisitos ejecutando <tt class="docutils literal"><span class="pre">web/config.php</span></tt> en tu distribución de <em>Symfony</em>. Debido a que el <em>CLI</em> a menudo utiliza un archivo de configuración <tt class="docutils literal"><span class="pre">php.ini</span></tt> diferente, también es una buena idea revisar tus requisitos desde la línea de ordenes por medio de:</p>
+<div class="highlight-bash"><div class="highlight"><pre>php app/check.php
+</pre></div>
+</div>
+<p>A continuación mostramos la lista de requisitos obligatorios y opcionales.</p>
+<div class="section" id="obligatorio">
+<h2>Obligatorio<a class="headerlink" href="#obligatorio" title="Enlazar permanentemente con este título">¶</a></h2>
+<ul class="simple">
+<li><em>PHP</em> debe ser una versión mínima de <em>PHP 5.3.2</em></li>
+<li>Es necesario activar <em>JSON</em></li>
+<li>es necesario tener habilitado el <tt class="docutils literal"><span class="pre">ctype</span></tt></li>
+<li>Tu <tt class="docutils literal"><span class="pre">PHP.ini</span></tt> debe tener configurado el valor <tt class="docutils literal"><span class="pre">date.timezone</span></tt></li>
+</ul>
+</div>
+<div class="section" id="opcional">
+<h2>Opcional<a class="headerlink" href="#opcional" title="Enlazar permanentemente con este título">¶</a></h2>
+<ul>
+<li><p class="first">Necesitas tener instalado el módulo <tt class="docutils literal"><span class="pre">PHP-XML</span></tt></p>
+</li>
+<li><p class="first">Necesitas tener por lo menos la versión 2.6.21 de <tt class="docutils literal"><span class="pre">libxml</span></tt></p>
+</li>
+<li><p class="first">Necesitas activar el <tt class="docutils literal"><span class="pre">tokenizer</span></tt> de <em>PHP</em></p>
+</li>
+<li><p class="first">tienes que habilitar las funciones <tt class="docutils literal"><span class="pre">mbstring</span></tt></p>
+</li>
+<li><p class="first">tienes que activar <tt class="docutils literal"><span class="pre">iconv</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">POSIX</span></tt> tiene que estar habilitado (únicamente en *nix)</p>
+</li>
+<li><p class="first">Debes tener instalado <em>Intl</em> con <em>ICU 4+</em></p>
+</li>
+<li><p class="first"><em>APC 3.0.17+</em> (u otra caché opcode debe estar instalada)</p>
+</li>
+<li><p class="first">Configuración recomendada en <em>PHP.ini</em></p>
+<blockquote>
+<div><ul class="simple">
+<li>short_open_tags: off</li>
+<li>magic_quotes_gpc: off</li>
+<li>register_globals: off</li>
+<li>session.autostart: off</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="doctrine">
+<h2>Doctrine<a class="headerlink" href="#doctrine" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Si deseas utilizar <em>Doctrine</em>, necesitarás tener instalado <em>PDO</em>. Además, es necesario tener instalado el controlador de <em>PDO</em> para el servidor de base de datos que desees utilizar.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Requisitos para que funcione <em>Symfony2</em></a><ul>
+<li><a class="reference internal" href="#obligatorio">Obligatorio</a></li>
+<li><a class="reference internal" href="#opcional">Opcional</a></li>
+<li><a class="reference internal" href="#doctrine">Doctrine</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="YAML.html"
+                        title="Capítulo anterior"><em>YAML</em></a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="../bundles/index.html"
+                        title="Próximo capítulo">Paquetes de la edición estándar de <em>Symfony2</em></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../bundles/index.html" title="Paquetes de la edición estándar de Symfony2"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="YAML.html" title="YAML"
+             >anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" >Documentos de referencia</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

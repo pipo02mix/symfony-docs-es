@@ -1,0 +1,422 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>YAML &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../index.html" />
+    <link rel="up" title="Documentos de referencia" href="index.html" />
+    <link rel="next" title="Requisitos para que funcione Symfony2" href="requirements.html" />
+    <link rel="prev" title="Etiquetas de inyección de dependencias" href="dic_tags.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="requirements.html" title="Requisitos para que funcione Symfony2"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="dic_tags.html" title="Etiquetas de inyección de dependencias"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Documentos de referencia</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="yaml">
+<span id="index-0"></span><h1><em>YAML</em><a class="headerlink" href="#yaml" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>La página <em>web</em> de <a class="reference external" href="http://yaml.org/">YAML</a> dice que es &#8220;un estándar para la serialización de datos humanamente legibles para todos los lenguajes de programación&#8221;. <em>YAML</em> es un lenguaje simple que describe datos. Como <em>PHP</em>, que tiene una sintaxis para tipos simples, como cadenas, booleanos, reales, o enteros.
+Pero a diferencia de <em>PHP</em>, que distingue entre matrices (secuencias) y <tt class="docutils literal"><span class="pre">hashes</span></tt> (asignaciones).</p>
+<p>El <a href="#id1"><span class="problematic" id="id2">:namespace:`Symfony\\Component\\Yaml`</span></a> Componente <em>Symfony2</em> sabe cómo analizar <em>YAML</em> y volcar una matriz <em>PHP</em> a <em>YAML</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Si bien el formato <em>YAML</em> puede describir complejas estructuras de datos anidadas, este capítulo sólo describe el conjunto mínimo de características necesarias para usar <em>YAML</em> como un formato de archivo de configuración.</p>
+</div>
+<div class="section" id="leyendo-archivos-yaml">
+<h2>Leyendo archivos <em>YAML</em><a class="headerlink" href="#leyendo-archivos-yaml" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El método <a href="#id3"><span class="problematic" id="id4">:method:`Symfony\\Component\\Yaml\\Parser::parse`</span></a> analiza una cadena <em>YAML</em> y la convierte en una matriz de <em>PHP</em>:</p>
+<div class="highlight-python"><pre>use Symfony\Component\Yaml\Parser;
+
+$yaml = new Parser();
+$value = $yaml-&gt;parse(file_get_contents('/ruta/al/archivo.yaml'));</pre>
+</div>
+<p>Si se produce un error durante el análisis, el analizador emite una excepción que indica el tipo de error y la línea en la cadena original <em>YAML</em> donde ocurrió el error:</p>
+<div class="highlight-python"><pre>try {
+    $value = $yaml-&gt;parse(file_get_contents('/ruta/al/archivo.yaml'));
+} catch (\InvalidArgumentException $e) {
+    // ocurrió un error durante el análisis
+    echo "Unable to parse the YAML string: ".$e-&gt;getMessage();
+}</pre>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">Debido a que el analizador es reentrante, puedes utilizar el mismo objeto analizador para cargar diferentes cadenas <em>YAML</em>.</p>
+</div>
+<p>Al cargar un archivo <em>YAML</em>, a veces es mejor usar el contenedor del método <a href="#id5"><span class="problematic" id="id6">:method:`Symfony\\Component\\Yaml\\Yaml::load`</span></a>:</p>
+<div class="highlight-python"><pre>use Symfony\Component\Yaml\Yaml;
+
+$loader = Yaml::parse('/ruta/a/archivo.yml');</pre>
+</div>
+<p>El método estático <tt class="docutils literal"><span class="pre">Yaml::parse()</span></tt> toma una cadena <em>YAML</em> o un archivo que contiene <em>YAML</em>. Internamente, este llama al método <tt class="docutils literal"><span class="pre">Parser::parse()</span></tt>, pero con algunas cosas adicionales como:</p>
+<ul class="simple">
+<li>Ejecuta el archivo <em>YAML</em> como si fuera un archivo <em>PHP</em>, por lo tanto puedes incrustar ordenes <em>PHP</em> en los archivos <em>YAML</em>;</li>
+<li>Cuando un archivo no se puede analizar, este agrega automáticamente el nombre del archivo al mensaje de error, lo cual simplifica la depuración cuando tu aplicación está cargando varios archivos <em>YAML</em>.</li>
+</ul>
+</div>
+<div class="section" id="escribiendo-archivos-yaml">
+<h2>Escribiendo archivos <em>YAML</em><a class="headerlink" href="#escribiendo-archivos-yaml" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>El método <a href="#id7"><span class="problematic" id="id8">:method:`Symfony\\Component\\Yaml\\Dumper::dump`</span></a> vierte cualquier matriz <em>PHP</em> en su representación de <em>YAML</em>:</p>
+<div class="highlight-python"><pre>use Symfony\Component\Yaml\Dumper;
+
+$array = array('foo' =&gt; 'bar', 'bar' =&gt; array('foo' =&gt; 'bar', 'bar' =&gt; 'baz'));
+
+$dumper = new Dumper();
+$yaml = $dumper-&gt;dump($array);
+file_put_contents('/ruta/al/archivo.yaml', $yaml);</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Hay algunas limitaciones: el vertedor no es capaz de volcar los recursos y verter objetos <em>PHP</em> se considera una característica alfa.</p>
+</div>
+<p>Si sólo necesitas volcar una matriz, puedes utilizar el método estático <a href="#id9"><span class="problematic" id="id10">:method:`Symfony\\Component\\Yaml\\Yaml::dump`</span></a>:</p>
+<div class="highlight-python"><pre>$yaml = Yaml::dump($array, $inline);</pre>
+</div>
+<p>El formato <em>YAML</em> apoya las dos representaciones de matriz <em>YAML</em>. De forma predeterminada, el vertedor utiliza la representación en línea:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="p-Indicator">{</span> <span class="nv">foo</span><span class="p-Indicator">:</span> <span class="nv">bar</span><span class="p-Indicator">,</span> <span class="nv">bar</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">foo</span><span class="p-Indicator">:</span> <span class="nv">bar</span><span class="p-Indicator">,</span> <span class="nv">bar</span><span class="p-Indicator">:</span> <span class="nv">baz</span> <span class="p-Indicator">}</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+<p>Pero el segundo argumento del método <tt class="docutils literal"><span class="pre">dump()</span></tt> personaliza el nivel en el cual la salida cambia de la representación expandida a la de en línea:</p>
+<div class="highlight-python"><pre>echo $dumper-&gt;dump($array, 1);</pre>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">bar</span>
+<span class="l-Scalar-Plain">bar</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">foo</span><span class="p-Indicator">:</span> <span class="nv">bar</span><span class="p-Indicator">,</span> <span class="nv">bar</span><span class="p-Indicator">:</span> <span class="nv">baz</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">echo $dumper-&gt;dump($array, 2);</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">bar</span>
+<span class="l-Scalar-Plain">bar</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">bar</span>
+    <span class="l-Scalar-Plain">bar</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">baz</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="la-sintaxis-yaml">
+<h2>La sintaxis <em>YAML</em><a class="headerlink" href="#la-sintaxis-yaml" title="Enlazar permanentemente con este título">¶</a></h2>
+<div class="section" id="cadenas">
+<h3>Cadenas<a class="headerlink" href="#cadenas" title="Enlazar permanentemente con este título">¶</a></h3>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">Una cadena en YAML</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="s">&#39;Una</span><span class="nv"> </span><span class="s">cadena</span><span class="nv"> </span><span class="s">entre</span><span class="nv"> </span><span class="s">comillas</span><span class="nv"> </span><span class="s">simples</span><span class="nv"> </span><span class="s">en</span><span class="nv"> </span><span class="s">YAML&#39;</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p>En una cadena entre comillas simples, una comilla simple <tt class="docutils literal"><span class="pre">'</span></tt> debe ser doble:</p>
+<div class="last highlight-yaml"><div class="highlight"><pre><span class="s">&#39;Una</span><span class="nv"> </span><span class="s">comilla</span><span class="nv"> </span><span class="s">simple</span><span class="nv"> </span><span class="se">&#39;&#39;</span><span class="nv"> </span><span class="s">en</span><span class="nv"> </span><span class="s">una</span><span class="nv"> </span><span class="s">cadena</span><span class="nv"> </span><span class="s">entre</span><span class="nv"> </span><span class="s">comillas</span><span class="nv"> </span><span class="s">simples&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="s">&quot;Una</span><span class="nv"> </span><span class="s">cadena</span><span class="nv"> </span><span class="s">entre</span><span class="nv"> </span><span class="s">comillas</span><span class="nv"> </span><span class="s">dobles</span><span class="nv"> </span><span class="s">en</span><span class="nv"> </span><span class="s">YAML\n&quot;</span>
+</pre></div>
+</div>
+<p>Los estilos de citado son útiles cuando una cadena empieza o termina con uno o más espacios relevantes.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Truco</p>
+<p class="last">El estilo entre comillas dobles proporciona una manera de expresar cadenas arbitrarias, utilizando secuencias de escape <tt class="docutils literal"><span class="pre">\</span></tt>. Es muy útil cuando se necesita incrustar un <tt class="docutils literal"><span class="pre">\n</span></tt> o un carácter Unicode en una cadena.</p>
+</div>
+<p>Cuando una cadena contiene saltos de línea, puedes usar el estilo literal, indicado por la tubería (<tt class="docutils literal"><span class="pre">|</span></tt>), para indicar que la cadena abarcará varias líneas. En literales, se conservan los saltos de línea:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="p-Indicator">|</span>
+  <span class="no">\/ /| |\/| |</span>
+  <span class="no">/ / | |  | |__</span>
+</pre></div>
+</div>
+<p>Alternativamente, puedes escribir cadenas con el estilo de plegado, denotado por <tt class="docutils literal"><span class="pre">&gt;</span></tt>, en el cual cada salto de línea es sustituido por un espacio:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="p-Indicator">&gt;</span>
+  <span class="no">Esta es una oración muy larga</span>
+  <span class="no">que se extiende por varias líneas en el YAML</span>
+  <span class="no">pero que se reproduce como una cadena</span>
+  <span class="no">sin retornos de carro.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Observa los dos espacios antes de cada línea en los ejemplos anteriores. Ellos no aparecen en las cadenas <em>PHP</em> resultantes.</p>
+</div>
+</div>
+<div class="section" id="numeros">
+<h3>Números<a class="headerlink" href="#numeros" title="Enlazar permanentemente con este título">¶</a></h3>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># un entero</span>
+<span class="l-Scalar-Plain">12</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># un octal</span>
+<span class="l-Scalar-Plain">014</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># un hexadecimal</span>
+<span class="l-Scalar-Plain">0xC</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># un float</span>
+<span class="l-Scalar-Plain">13.4</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># un número exponencial</span>
+<span class="l-Scalar-Plain">1.2e+34</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># infinito</span>
+<span class="l-Scalar-Plain">.inf</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nulos">
+<h3>Nulos<a class="headerlink" href="#nulos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Los nulos en <em>YAML</em> se pueden expresar con <tt class="docutils literal"><span class="pre">null</span></tt> o <tt class="docutils literal"><span class="pre">~</span></tt>.</p>
+</div>
+<div class="section" id="booleanos">
+<h3>Booleanos<a class="headerlink" href="#booleanos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Los booleanos en <em>YAML</em> se expresan con <tt class="docutils literal"><span class="pre">true</span></tt> y <tt class="docutils literal"><span class="pre">false</span></tt>.</p>
+</div>
+<div class="section" id="fechas">
+<h3>Fechas<a class="headerlink" href="#fechas" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><em>YAML</em> utiliza la norma ISO-8601 para expresar fechas:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">2001-12-14t21:59:43.10-05:00</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># fecha simple</span>
+<span class="l-Scalar-Plain">2002-12-14</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="colecciones">
+<h3>Colecciones<a class="headerlink" href="#colecciones" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>Rara vez se utiliza un archivo <em>YAML</em> para describir un simple escalar. La mayoría de las veces, describe una colección. Una colección puede ser una secuencia o una asignación de elementos. Ambas, secuencias y asignaciones se convierten en matrices <em>PHP</em>.</p>
+<p>Las secuencias usan un guión seguido de un espacio (<tt class="docutils literal"><span class="pre">-</span></tt>):</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">PHP</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Perl</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Python</span>
+</pre></div>
+</div>
+<p>El archivo <em>YAML</em> anterior es equivalente al siguiente código <em>PHP</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">array</span><span class="p">(</span><span class="s">&#39;PHP&#39;</span><span class="p">,</span> <span class="s">&#39;Perl&#39;</span><span class="p">,</span> <span class="s">&#39;Python&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Las asignaciones usan dos puntos (<tt class="docutils literal"><span class="pre">:</span></tt>) seguidos de un espacio para marcar cada par clave/valor:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">PHP</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">5.2</span>
+<span class="l-Scalar-Plain">MySQL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">5.1</span>
+<span class="l-Scalar-Plain">Apache</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2.2.20</span>
+</pre></div>
+</div>
+<p>el cual es equivalente a este código <em>PHP</em>:</p>
+<div class="highlight-python"><pre>array('PHP' =&gt; 5.2, 'MySQL' =&gt; 5.1, 'Apache' =&gt; '2.2.20');</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">En una asignación, una clave puede ser cualquier escalar válido.</p>
+</div>
+<p>El número de espacios entre los dos puntos y el valor no importa:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">PHP</span><span class="p-Indicator">:</span>    <span class="l-Scalar-Plain">5.2</span>
+<span class="l-Scalar-Plain">MySQL</span><span class="p-Indicator">:</span>  <span class="l-Scalar-Plain">5.1</span>
+<span class="l-Scalar-Plain">Apache</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2.2.20</span>
+</pre></div>
+</div>
+<p><em>YAML</em> utiliza sangría con uno o más espacios para describir colecciones anidadas:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="s">&quot;symfony</span><span class="nv"> </span><span class="s">1.4&quot;</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">PHP</span><span class="p-Indicator">:</span>      <span class="l-Scalar-Plain">5.2</span>
+    <span class="l-Scalar-Plain">Doctrine</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1.2</span>
+<span class="s">&quot;Symfony2&quot;</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">PHP</span><span class="p-Indicator">:</span>      <span class="l-Scalar-Plain">5.3</span>
+    <span class="l-Scalar-Plain">Doctrine</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2.0</span>
+</pre></div>
+</div>
+<p>El <em>YAML</em> anterior es equivalente al siguiente código <em>PHP</em>:</p>
+<div class="highlight-python"><pre>array(
+    'symfony 1.4' =&gt; array(
+        'PHP'      =&gt; 5.2,
+        'Doctrine' =&gt; 1.2,
+    ),
+    'Symfony2' =&gt; array(
+        'PHP'      =&gt; 5.3,
+        'Doctrine' =&gt; 2.0,
+    ),
+);</pre>
+</div>
+<p>Hay una cosa importante que tienes que recordar cuando utilices sangría en un archivo <em>YAML</em>: <em>La sangría se debe hacer con uno o más espacios, pero nunca con tabulaciones</em>.</p>
+<p>Puedes anidar secuencias y asignaciones a tu gusto:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="s">&#39;Chapter</span><span class="nv"> </span><span class="s">1&#39;</span><span class="p-Indicator">:</span>
+    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Introduction</span>
+    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Event Types</span>
+<span class="s">&#39;Chapter</span><span class="nv"> </span><span class="s">2&#39;</span><span class="p-Indicator">:</span>
+    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Introduction</span>
+    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Helpers</span>
+</pre></div>
+</div>
+<p><em>YAML</em> también puede utilizar estilos de flujo para colecciones, utilizando indicadores explícitos en lugar de sangría para denotar el alcance.</p>
+<p>Puedes escribir una secuencia como una lista separada por comas entre corchetes (<tt class="docutils literal"><span class="pre">[]</span></tt>):</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="p-Indicator">[</span><span class="nv">PHP</span><span class="p-Indicator">,</span> <span class="nv">Perl</span><span class="p-Indicator">,</span> <span class="nv">Python</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+<p>Puedes escribir una asignación como una lista separada por comas de clave/valor dentro de llaves (<tt class="docutils literal"><span class="pre">{}</span></tt>):</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="p-Indicator">{</span> <span class="nv">PHP</span><span class="p-Indicator">:</span> <span class="nv">5.2</span><span class="p-Indicator">,</span> <span class="nv">MySQL</span><span class="p-Indicator">:</span> <span class="nv">5.1</span><span class="p-Indicator">,</span> <span class="nv">Apache</span><span class="p-Indicator">:</span> <span class="nv">2.2.20</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+<p>Puedes mezclar y combinar estilos para conseguir mayor legibilidad:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="s">&#39;Chapter</span><span class="nv"> </span><span class="s">1&#39;</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">Introduction</span><span class="p-Indicator">,</span> <span class="nv">Event Types</span><span class="p-Indicator">]</span>
+<span class="s">&#39;Chapter</span><span class="nv"> </span><span class="s">2&#39;</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">Introduction</span><span class="p-Indicator">,</span> <span class="nv">Helpers</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="s">&quot;symfony</span><span class="nv"> </span><span class="s">1.4&quot;</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">PHP</span><span class="p-Indicator">:</span> <span class="nv">5.2</span><span class="p-Indicator">,</span> <span class="nv">Doctrine</span><span class="p-Indicator">:</span> <span class="nv">1.2</span> <span class="p-Indicator">}</span>
+<span class="s">&quot;Symfony2&quot;</span><span class="p-Indicator">:</span>    <span class="p-Indicator">{</span> <span class="nv">PHP</span><span class="p-Indicator">:</span> <span class="nv">5.3</span><span class="p-Indicator">,</span> <span class="nv">Doctrine</span><span class="p-Indicator">:</span> <span class="nv">2.0</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="comentarios">
+<h3>Comentarios<a class="headerlink" href="#comentarios" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>En <em>YAML</em> puedes añadir comentarios prefijando con una almohadilla (<tt class="docutils literal"><span class="pre">#</span></tt>):</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># Comentario en una línea</span>
+<span class="s">&quot;Symfony2&quot;</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">PHP</span><span class="p-Indicator">:</span> <span class="nv">5.3</span><span class="p-Indicator">,</span> <span class="nv">Doctrine</span><span class="p-Indicator">:</span> <span class="nv">2.0</span> <span class="p-Indicator">}</span> <span class="c1"># Comentario al final de una línea</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Nota</p>
+<p class="last">Los comentarios simplemente son ignorados por el analizador de <em>YAML</em> y no necesitan sangría de acuerdo al nivel de anidamiento actual de una colección.</p>
+</div>
+</div>
+<div class="section" id="archivos-yaml-dinamicos">
+<h3>Archivos <em>YAML</em> dinámicos<a class="headerlink" href="#archivos-yaml-dinamicos" title="Enlazar permanentemente con este título">¶</a></h3>
+<p>En <em>Symfony2</em>, un archivo <em>YAML</em> puede contener código <em>PHP</em> que se evalúa justo antes de que ocurra el análisis:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">1.0</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;?php echo file_get_contents(&#39;1.0/VERSION&#39;).&quot;\n&quot; ?&gt;</span>
+<span class="l-Scalar-Plain">1.1</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">version</span><span class="p-Indicator">:</span> <span class="s">&quot;&lt;?php</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">file_get_contents(&#39;1.1/VERSION&#39;)</span><span class="nv"> </span><span class="s">?&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Ten cuidado de no estropearlo con la sangría. Ten en cuenta los siguientes consejos sencillos al añadir código <em>PHP</em> en un archivo <em>YAML</em>:</p>
+<ul class="simple">
+<li>La declaración <tt class="docutils literal"><span class="pre">&lt;?php</span> <span class="pre">?&gt;</span></tt> siempre debe comenzar la línea o estar integrada en un valor.</li>
+<li>Si una declaración <tt class="docutils literal"><span class="pre">&lt;?php</span> <span class="pre">?&gt;</span></tt> termina una línea, necesitas producir una nueva línea (&#8220;n&#8221;) de manera explícita.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><em>YAML</em></a><ul>
+<li><a class="reference internal" href="#leyendo-archivos-yaml">Leyendo archivos <em>YAML</em></a></li>
+<li><a class="reference internal" href="#escribiendo-archivos-yaml">Escribiendo archivos <em>YAML</em></a></li>
+<li><a class="reference internal" href="#la-sintaxis-yaml">La sintaxis <em>YAML</em></a><ul>
+<li><a class="reference internal" href="#cadenas">Cadenas</a></li>
+<li><a class="reference internal" href="#numeros">Números</a></li>
+<li><a class="reference internal" href="#nulos">Nulos</a></li>
+<li><a class="reference internal" href="#booleanos">Booleanos</a></li>
+<li><a class="reference internal" href="#fechas">Fechas</a></li>
+<li><a class="reference internal" href="#colecciones">Colecciones</a></li>
+<li><a class="reference internal" href="#comentarios">Comentarios</a></li>
+<li><a class="reference internal" href="#archivos-yaml-dinamicos">Archivos <em>YAML</em> dinámicos</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="dic_tags.html"
+                        title="Capítulo anterior">Etiquetas de inyección de dependencias</a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="requirements.html"
+                        title="Próximo capítulo">Requisitos para que funcione <em>Symfony2</em></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="requirements.html" title="Requisitos para que funcione Symfony2"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="dic_tags.html" title="Etiquetas de inyección de dependencias"
+             >anterior</a> |</li>
+        <li><a href="../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="index.html" >Documentos de referencia</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>

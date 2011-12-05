@@ -1,0 +1,262 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>True &mdash; Manual de Symfony2 en Español</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/translations.js"></script>
+    <link rel="top" title="Manual de Symfony2 en Español" href="../../index.html" />
+    <link rel="up" title="Referencia de restricciones de validación" href="../constraints.html" />
+    <link rel="next" title="False" href="False.html" />
+    <link rel="prev" title="Null" href="Null.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="False.html" title="False"
+             accesskey="N">siguiente</a> |</li>
+        <li class="right" >
+          <a href="Null.html" title="Null"
+             accesskey="P">anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Documentos de referencia</a> &raquo;</li>
+          <li><a href="../constraints.html" accesskey="U">Referencia de restricciones de validación</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="true">
+<h1><tt class="docutils literal"><span class="pre">True</span></tt><a class="headerlink" href="#true" title="Enlazar permanentemente con este título">¶</a></h1>
+<p>Valida que un valor es <tt class="docutils literal"><span class="pre">true</span></tt>. En concreto, este comprueba si el valor es exactamente <tt class="docutils literal"><span class="pre">true</span></tt>, exactamente el número entero <tt class="docutils literal"><span class="pre">1</span></tt>, o exactamente la cadena &#8220;<tt class="docutils literal"><span class="pre">1</span></tt>&#8221;.</p>
+<p>Además consulta <a class="reference internal" href="False.html"><em>False</em></a>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Aplica a</td>
+<td><a class="reference internal" href="../../book/validation.html#validation-property-target"><em>propiedad o método</em></a></td>
+</tr>
+<tr class="row-even"><td>Opciones</td>
+<td><ul class="first last simple">
+<li><a class="reference internal" href="#message">message</a></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td>Clase</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Validator\Constraints\True</span></tt></td>
+</tr>
+<tr class="row-even"><td>Validador</td>
+<td><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Validator\Constraints\TrueValidator</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="uso-basico">
+<h2>Uso básico<a class="headerlink" href="#uso-basico" title="Enlazar permanentemente con este título">¶</a></h2>
+<p>Puedes aplicar esta restricción a propiedades (por ejemplo, una propiedad <tt class="docutils literal"><span class="pre">termsAccepted</span></tt> en un modelo de registro) o a un método <tt class="docutils literal"><span class="pre">captador</span></tt>. Esta es más potente en este último caso, donde puedes afirmar que un método devuelve un valor <tt class="docutils literal"><span class="pre">true</span></tt>. Por ejemplo, supongamos que tienes el siguiente método:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/BlogBundle/Entity/Author.php</span>
+<span class="x">namespace Acme\BlogBundle\Entity;</span>
+
+<span class="x">class Author</span>
+<span class="x">{</span>
+<span class="x">    protected $token;</span>
+
+<span class="x">    public function isTokenValid()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;token == $this-&gt;generateToken();</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>A continuación, puedes limitar este método con <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># src/Acme/BlogBundle/Resources/config/validation.yml</span>
+<span class="l-Scalar-Plain">Acme\BlogBundle\Entity\Author</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">getters</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">tokenValid</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="s">&quot;True&quot;</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">message</span><span class="p-Indicator">:</span> <span class="s">&quot;The</span><span class="nv"> </span><span class="s">token</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">invalid&quot;</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>Annotations</em><div class="highlight-php-annotations"><pre>// src/Acme/BlogBundle/Entity/Author.php
+use Symfony\Component\Validator\Constraints as Assert;
+
+class Autor
+{
+    protected $token;
+
+    /**
+     * @Assert\True(message = "The token is invalid")
+     */
+    public function isTokenValid()
+    {
+        return $this-&gt;token == $this-&gt;generateToken();
+    }
+}</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span>
+<span class="c">&lt;!-- src/Acme/Blogbundle/Resources/config/validation.xml --&gt;</span>
+
+<span class="nt">&lt;constraint-mapping</span> <span class="na">xmlns=</span><span class="s">&quot;http://symfony.com/schema/dic/constraint-mapping&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://symfony.com/schema/dic/constraint-mapping http://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">&quot;Acme\BlogBundle\Entity\Author&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;getter</span> <span class="na">property=</span><span class="s">&quot;tokenValid&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;constraint</span> <span class="na">name=</span><span class="s">&quot;True&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;option</span> <span class="na">name=</span><span class="s">&quot;message&quot;</span><span class="nt">&gt;</span>The token is invalid...<span class="nt">&lt;/option&gt;</span>
+            <span class="nt">&lt;/constraint&gt;</span>
+        <span class="nt">&lt;/getter&gt;</span>
+    <span class="nt">&lt;/class&gt;</span>
+<span class="nt">&lt;/constraint-mapping&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/BlogBundle/Entity/Author.php</span>
+<span class="x">use Symfony\Component\Validator\Mapping\ClassMetadata;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\True;</span>
+
+<span class="x">class Autor</span>
+<span class="x">{</span>
+<span class="x">    protected $token;</span>
+
+<span class="x">    public static function loadValidatorMetadata(ClassMetadata $metadata)</span>
+<span class="x">    {</span>
+<span class="x">        $metadata-&gt;addGetterConstraint(&#39;tokenValid&#39;, new True(array(</span>
+<span class="x">            &#39;message&#39; =&gt; &#39;The token is invalid&#39;,</span>
+<span class="x">        )));</span>
+<span class="x">    }</span>
+
+<span class="x">    public function isTokenValid()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;token == $this-&gt;generateToken();</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Si <tt class="docutils literal"><span class="pre">isTokenValid()</span></tt> devuelve <tt class="docutils literal"><span class="pre">false</span></tt>, la validación fallará.</p>
+</div>
+<div class="section" id="opciones">
+<h2>Opciones<a class="headerlink" href="#opciones" title="Enlazar permanentemente con este título">¶</a></h2>
+<div class="section" id="message">
+<h3><tt class="docutils literal"><span class="pre">message</span></tt><a class="headerlink" href="#message" title="Enlazar permanentemente con este título">¶</a></h3>
+<p><strong>tipo</strong>: <tt class="docutils literal"><span class="pre">string</span></tt> <strong>predeterminado</strong>: <tt class="docutils literal"><span class="pre">This</span> <span class="pre">value</span> <span class="pre">should</span> <span class="pre">be</span> <span class="pre">true</span></tt> (<tt class="docutils literal"><span class="pre">Este</span> <span class="pre">valor</span> <span class="pre">no</span> <span class="pre">debe</span> <span class="pre">ser</span> <span class="pre">'true'</span></tt>)</p>
+<p>Este mensaje se muestra si el dato subyacente no es <tt class="docutils literal"><span class="pre">true</span></tt>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Contenidos</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">True</span></tt></a><ul>
+<li><a class="reference internal" href="#uso-basico">Uso básico</a></li>
+<li><a class="reference internal" href="#opciones">Opciones</a><ul>
+<li><a class="reference internal" href="#message"><tt class="docutils literal"><span class="pre">message</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Tema anterior</h4>
+  <p class="topless"><a href="Null.html"
+                        title="Capítulo anterior"><tt class="docutils literal docutils literal docutils literal"><span class="pre">Null</span></tt></a></p>
+  <h4>Próximo tema</h4>
+  <p class="topless"><a href="False.html"
+                        title="Próximo capítulo"><tt class="docutils literal docutils literal"><span class="pre">False</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Búsqueda rápida</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="False.html" title="False"
+             >siguiente</a> |</li>
+        <li class="right" >
+          <a href="Null.html" title="Null"
+             >anterior</a> |</li>
+        <li><a href="../../index.html">Symfony2</a> &raquo;</li>
+          <li><a href="../index.html" >Documentos de referencia</a> &raquo;</li>
+          <li><a href="../constraints.html" >Referencia de restricciones de validación</a> &raquo;</li> 
+      </ul>
+    </div>
+   <div id="disqus_thread"></div>
+   
+    <div class="footer">
+        &copy; Copyright 2011, Traducido por Nacho Pacheco.
+      Actualizado por última vez en Dec 05, 2011.
+      Creado con <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+   <script type="text/javascript"> 
+    var disqus_shortname = 'documentos-mx';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+   </script> 
+   <noscript>
+     Por favor activa JavaScript para ver los <a href="http://disqus.com/?ref_noscript">comentarios accionados por Disqus.</a>
+   </noscript>
+
+  </body>
+</html>
