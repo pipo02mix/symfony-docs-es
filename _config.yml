@@ -1,1 +1,2 @@
-baseurl:    /
+auto:    true
+server:  true
